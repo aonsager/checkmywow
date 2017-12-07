@@ -1,0 +1,15 @@
+<%= render 'fight_parses/shared/new_header', {active_tab: @tab} %>
+<div class="container">
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Time not Runic Power-Capped',
+      desc: 'The percent of the fight that you had less than max Runic Power. Aim for 100%.',
+      white_bar: true,
+      main_bar_width: bar_width(@fp.fight_time - @fp.resources_hash[:capped_time].to_i, @fp.fight_time),
+      main_bar_text: "#{@fp.fight_time - @fp.resources_hash[:capped_time].to_i}s",
+      main_text: "#{@fp.fight_time - @fp.resources_hash[:capped_time].to_i}s / #{@fp.fight_time}s",
+    } 
+  %>
+  
+</div>
+<%= render 'fight_parses/shared/js', {tab: 'resources'} %> 

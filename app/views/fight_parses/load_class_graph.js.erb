@@ -1,0 +1,50 @@
+<% if @graphs == {} || @graphs.nil? %>
+  $('#graph-<%= @graph_type %> .msg').html('<p>Graph data not found. Please leave feedback in the forums if you think this is in error.</p>')
+<% else %>
+  chart = new Highcharts.Chart({
+    chart: {
+      renderTo: 'graph-<%= @graph_type %>',
+      zoomType: 'x',
+    },
+    plotOptions: {
+      areaspline: {
+        fillOpacity: 1,
+        stacking: 'normal'
+      }
+    },
+    navigator: {
+      enabled: true,
+    },
+    series: [
+    <% @fp.graph_series[@graph_type][:series].each do |hash| %>
+      {
+        name: '<%= hash[:name] %>',
+        color: '<%= hash[:color] %>',
+        data: <%=raw @graphs[hash[:key]] %>,
+        stack: <%= hash[:stack] %>,
+        type: '<%= hash[:type] %>',
+        connectNulls: true,
+      },
+    <% end %>
+    ],
+    title: {
+      text: '<%= @fp.graph_series[@graph_type][:name] %>'
+    },
+    tooltip: {
+      xDateFormat: '%M:%S',
+    },
+    xAxis: {
+      type: 'datetime',
+      dateTimeLabelFormats: {
+        second: '%M:%S',
+      },
+    },
+    yAxis: {
+      floor: 0,
+      title: {
+        text: '<%= @fp.graph_series[@graph_type][:yaxis] %>',
+      }
+    },
+  });
+  chart.xAxis[0].setExtremes(100, 60000);
+<% end %>

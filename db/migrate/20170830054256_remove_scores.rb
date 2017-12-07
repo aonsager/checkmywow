@@ -1,0 +1,65 @@
+class RemoveScores < ActiveRecord::Migration
+  def change
+    drop_table :scores
+    add_column :fp_dh_havoc, :casts_score, :integer
+    add_column :fp_dh_havoc, :cooldowns_score, :integer
+    add_column :fp_dh_veng, :casts_score, :integer
+    add_column :fp_dk_blood, :casts_score, :integer
+    add_column :fp_dk_frost, :casts_score, :integer
+    add_column :fp_dk_frost, :cooldowns_score, :integer
+    add_column :fp_dk_unholy, :casts_score, :integer
+    add_column :fp_dk_unholy, :cooldowns_score, :integer
+    add_column :fp_druid_balance, :casts_score, :integer
+    add_column :fp_druid_balance, :cooldowns_score, :integer
+    add_column :fp_druid_feral, :casts_score, :integer
+    add_column :fp_druid_feral, :cooldowns_score, :integer
+    add_column :fp_druid_guardian, :casts_score, :integer
+    add_column :fp_druid_resto, :casts_score, :integer
+    add_column :fp_hunter_beast, :casts_score, :integer
+    add_column :fp_hunter_beast, :cooldowns_score, :integer
+    add_column :fp_hunter_marks, :casts_score, :integer
+    add_column :fp_hunter_marks, :cooldowns_score, :integer
+    add_column :fp_hunter_survival, :casts_score, :integer
+    add_column :fp_hunter_survival, :cooldowns_score, :integer
+    add_column :fp_mage_arcane, :casts_score, :integer
+    add_column :fp_mage_arcane, :cooldowns_score, :integer
+    add_column :fp_mage_fire, :casts_score, :integer
+    add_column :fp_mage_fire, :cooldowns_score, :integer
+    add_column :fp_mage_frost, :casts_score, :integer
+    add_column :fp_mage_frost, :cooldowns_score, :integer
+    add_column :fp_monk_brew, :casts_score, :integer
+    add_column :fp_monk_mist, :casts_score, :integer
+    add_column :fp_monk_wind, :casts_score, :integer
+    add_column :fp_monk_wind, :cooldowns_score, :integer
+    add_column :fp_paladin_holy, :casts_score, :integer
+    add_column :fp_paladin_prot, :casts_score, :integer
+    add_column :fp_paladin_ret, :casts_score, :integer
+    add_column :fp_paladin_ret, :cooldowns_score, :integer
+    add_column :fp_priest_disc, :casts_score, :integer
+    add_column :fp_priest_holy, :casts_score, :integer
+    add_column :fp_priest_shadow, :casts_score, :integer
+    add_column :fp_priest_shadow, :cooldowns_score, :integer
+    add_column :fp_rogue_sin, :casts_score, :integer
+    add_column :fp_rogue_sin, :cooldowns_score, :integer
+    add_column :fp_rogue_outlaw, :casts_score, :integer
+    add_column :fp_rogue_outlaw, :cooldowns_score, :integer
+    add_column :fp_rogue_sub, :casts_score, :integer
+    add_column :fp_rogue_sub, :cooldowns_score, :integer
+    add_column :fp_shaman_ele, :casts_score, :integer
+    add_column :fp_shaman_ele, :cooldowns_score, :integer
+    add_column :fp_shaman_enh, :casts_score, :integer
+    add_column :fp_shaman_enh, :cooldowns_score, :integer
+    add_column :fp_shaman_resto, :casts_score, :integer
+    add_column :fp_warlock_aff, :casts_score, :integer
+    add_column :fp_warlock_aff, :cooldowns_score, :integer
+    add_column :fp_warlock_demon, :casts_score, :integer
+    add_column :fp_warlock_demon, :cooldowns_score, :integer
+    add_column :fp_warlock_destr, :casts_score, :integer
+    add_column :fp_warlock_destr, :cooldowns_score, :integer
+    add_column :fp_warrior_arms, :casts_score, :integer
+    add_column :fp_warrior_arms, :cooldowns_score, :integer
+    add_column :fp_warrior_fury, :casts_score, :integer
+    add_column :fp_warrior_fury, :cooldowns_score, :integer
+    add_column :fp_warrior_prot, :casts_score, :integer
+  end
+end

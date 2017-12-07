@@ -1,0 +1,39 @@
+<section>
+  <h4><%= title %></h4>
+  <div class="row">
+    <div class="col-md-9">
+      <div class="section-desc"><%= desc %></div>
+    </div>
+  </div>
+  <% if !local_assigns[:sub_bars].nil? %>
+    <table class="table border">
+      <tr>
+        <th class="col-md-1">Report date</th>
+        <th class="col-md-2">Attempt</th>
+        <th class="col-md-5">Performance</th>
+        <th class="col-md-2">Details</th>
+      </tr>
+      <% sub_bars.each do |bar| %>
+        <tr>
+          <td><%= link_to bar[:fp].report_started_at.strftime("%-m/%-d"), report_path(bar[:fp].report_id, player_id: @player_id, boss_id: @boss_id) %></td>
+          <td class="<%= bar[:fp].kill? ? 'green' : 'red' %>"><%= link_to bar[:fp].kill_label, report_fight_parse_path(bar[:fp].report_id, @player_id, bar[:fp].fight_id, tab: @tab) %></td>
+          <% if bar[:fp].done? %>
+            <td class="<%= bar[:bar_key] %>" val="<%= bar[:val] %>">
+              <% if bar.key? :white_bar %><div class="bar white" style="width: <%= bar[:white_bar_width] || 100 %>%"><% end %>
+              <% if bar.key? :light_bar_width %><div class="bar light <%= @player.class_type %>" style="width: <%= bar[:light_bar_width] %>%"><% end %>
+              <div class="bar <%= @player.class_type %> dark" style="width: <%= bar[:main_bar_width] || 10 %>%">
+                <%= bar[:main_bar_text] %>
+              </div>
+              <% if bar.key? :light_bar_width %></div><% end %>
+              <% if bar.key? :white_bar %></div><% end %>
+            </td>
+            <td ><%= bar[:main_text] %></td>
+          <% else %>
+            <td><%= bar[:fp].status.capitalize %></td>
+            <td></td>
+          <% end %>
+        </tr>
+      <% end %>
+    </table>
+  <% end %>
+</section>

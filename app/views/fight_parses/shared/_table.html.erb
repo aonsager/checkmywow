@@ -1,0 +1,48 @@
+<section>
+  <h4><%= title %>&nbsp;&nbsp;<%= raw(success_label(local_assigns[:label])) if local_assigns.has_key?(:label) %></h4>
+  <div class="row">
+    <div class="col-md-9">
+      <div class="section-desc"><%= desc %></div>
+    </div>
+  </div>
+  <% if local_assigns.has_key?(:main_bar_width) %>
+    <% if local_assigns.key? :dropdown %>
+    <div class="row" onclick="$('#<%= dropdown[:id] %>').slideToggle();">
+    <% else %>
+    <div class="row">
+    <% end %>
+      <div class="col-md-7">
+        <div class="bar white" style="width: 100%">
+          <div class="bar dark <%= @fp.class_type %>" style="width: <%= local_assigns[:main_bar_width] || 10 %>%">
+            <%= local_assigns[:main_bar_text] %>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-5"><%= local_assigns[:main_text] %> <%= image_tag('down.png', size: '15z15') if local_assigns.key? :dropdown %></div>
+    </div>
+  <% end %>
+  <% if local_assigns.key? :dropdown %>
+  <div id="<%= dropdown[:id] %>" class="row slideout">
+  <% else %>
+  <div class="row">
+  <% end %>
+    <div class="col-md-7">
+      <% unless rows.blank? %>
+        <table class="table <%= "table-striped" if rows.size > 3 %>">
+          <tr>
+            <% labels.each do |label| %>
+              <th><%= label %></th>
+            <% end %>
+          </tr>
+          <% rows.each do |row| %>
+            <tr>
+              <% row.each do |hash| %>
+                <td class="<%= hash[:class] %>"><%= hash[:value] %></td>
+              <% end %>
+            </tr>
+          <% end %>
+        </table>
+      <% end %>
+    </div>
+  </div>
+</section>

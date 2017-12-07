@@ -1,0 +1,85 @@
+<%= render 'fight_parses/shared/new_header', {active_tab: @tab} %>
+<div class="container">
+  <% max_dps = @kpi_parses['dps'].details_hash.values.map{|item| item[:damage]}.max.to_i rescue 0 %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Damage per Second',
+      desc: 'Total damage / Fight time.',
+      main_bar_width: 100,
+      main_bar_text: "#{@fp.dps}/s",
+      main_text: "#{@fp.kpi_hash[:player_damage_done].to_i / 1000}k total damage",
+      dropdown: {id: 'dps'},
+      sub_bars: @kpi_parses['dps'].nil? ? nil : @kpi_parses['dps'].details_hash.values.sort{|a, b| b[:damage].to_i <=> a[:damage].to_i}.map{|item| 
+        {
+          label: item[:name],
+          width: bar_width(item[:damage].to_i, max_dps),
+          text: "#{item[:damage].to_i / 1000}k",
+          sub_text: "#{item[:damage].to_i / 1000}k damage",
+        }
+      },
+    } 
+  %>
+  <%= render 'fight_parses/shared/stacks_graph', 
+    {
+      title: 'Enrage Uptime',
+      desc: "The percentage of time you were Enraged. Make use of Bloodthirst and Rampage to keep Enrage active as often as possible. Aim for around 70%",
+      white_bar: true,
+      main_bar_width: bar_width(@fp.resources_hash[:enrage_uptime].to_i, @fp.ended_at - @fp.started_at),
+      main_bar_text: "#{@fp.resources_hash[:enrage_uptime].to_i / (10 * @fp.fight_time)}%",
+      main_text: "#{@fp.resources_hash[:enrage_uptime].to_i / 1000}s / #{@fp.fight_time}s",
+      buff: (@buffs['Enrage'].first rescue nil),
+      stacks: 1
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Raging Blow Damage',
+      desc: 'Cast Raging Blow as often as possible.',
+      bar_key: 'dmg-w',
+      val: @fp.kpi_hash[:ragingblow_damage].to_i,
+      main_bar_text: "#{@fp.kpi_hash[:ragingblow_damage].to_i / 1000}k",
+      main_text: "#{@fp.kpi_hash[:ragingblow_damage].to_i / 1000}k damage",
+      sub_bars: @cooldowns['cd']['Raging Blow'].nil? ? nil : @cooldowns['cd']['Raging Blow'].first.details_hash.values.sort{|a, b| b[:damage].to_i <=> a[:damage].to_i}.map{|item| 
+        {
+          label: item[:name],
+          bar_key: 'ragingblow-w',
+          val: item[:damage].to_i,
+          text: "#{item[:damage].to_i / 1000}k",
+          sub_text: "#{item[:hits].to_i} casts",
+        }
+      },
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Execute Damage',
+      desc: 'When your target is below 20% health, prioritize Execute while still maintaining Enrage uptime.',
+      bar_key: 'dmg-w',
+      val: @fp.kpi_hash[:execute_damage].to_i,
+      main_bar_text: "#{@fp.kpi_hash[:execute_damage].to_i / 1000}k",
+      main_text: "#{@fp.kpi_hash[:execute_damage].to_i / 1000}k damage",
+      sub_bars: @cooldowns['cd']['Execute'].nil? ? nil : @cooldowns['cd']['Execute'].first.details_hash.values.sort{|a, b| b[:damage].to_i <=> a[:damage].to_i}.map{|item| 
+        {
+          label: item[:name],
+          bar_key: 'execute-w',
+          val: item[:damage].to_i,
+          text: "#{item[:damage].to_i / 1000}k",
+          sub_text: "#{item[:hits].to_i} casts",
+        }
+      },
+    } 
+  %>
+  <% if @kpi_parses.has_key?('death') && @kpi_parses['death'].kpi_hash[:death_count].to_i > 0 %>
+    <%= render 'fight_parses/shared/deaths', 
+      {
+        deaths: @kpi_parses['death'].details_hash[:deaths],
+      } 
+    %>
+  <% end %>
+</div>
+<%= render 'fight_parses/shared/js', {tab: 'basic'} %> 
+<script>
+    $(['dmg-w', 'ragingblow-w', 'execute-w']).each(function(index, key){
+    resizeBars(key)
+  });
+</script>

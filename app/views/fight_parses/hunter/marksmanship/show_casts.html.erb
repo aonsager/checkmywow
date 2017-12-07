@@ -1,0 +1,21 @@
+<%= render 'fight_parses/shared/new_header', {active_tab: @tab} %>
+<div class="container">
+  <%= render 'fight_parses/shared/casts_table', 
+    {
+      title: 'Cast Efficiency',
+      desc: "These are your key spells that should be cast as often as possible. Make sure you are casting them on cooldown. Your cast score is determined by a weighted average, with more emphasis placed on abilities with longer cooldown times. Note that missing Marked Shot casts and Windburst casts is sometimes unavoidable. The total number of Aimed Casts possible is calculated by looking at the total Focus left over from what you spent on your other key abilities.",
+      label: (@fp.kpi_hash[:casts_score].to_i >= 95 ? 'good' : @fp.kpi_hash[:casts_score].to_i >= 80 ? 'ok' : 'bad'),
+      casts_score: @fp.kpi_hash[:casts_score],
+      spells: @fp.track_casts.each.map{|key, hash| 
+        {
+          label: key,
+          casts: (@fp.casts_hash[key] || []),
+          max_casts: @fp.casts_possible(hash),
+          cd: hash[:cd],
+          optional: hash[:optional]
+        }
+      }
+    } 
+  %>
+</div>
+<%= render 'fight_parses/shared/js', {tab: 'casts'} %> 

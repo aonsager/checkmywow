@@ -1,0 +1,9 @@
+<div class="container" style="margin-top: 50px">
+  <h2><%= @spec %> Changelog</h2>
+  <% @changelogs.each do |c| %>
+    <div class="row">
+      <h3><%= c.fp_type %> v<%= c.version %> <small><%= c.created_at.strftime("%D") %></small></h3>
+      <div class="col-md-8"><%= raw c.content %></div>
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,33 @@
+<% provide(:title, @guild.name) %>
+<div class="container">
+  <div class="row">
+    <div class="col-md-10">
+      <h3>Logs for <%= @guild.name %> (<%= @guild.server %> <%= @guild.region %>)</h3>
+    </div>
+    <% if !@guild.queued? && !@guild.processing? %>
+      <div class="col-md-2">
+        <%= link_to('Reload from WCL', guild_reload_path(@guild.id), class: 'btn btn-info') %>
+      </div>
+    <% end %>
+  </div>
+  <% if @guild.queued? %>
+    <p>Currently in the queue to import latest reports. Please try refreshing the page in a few minutes.</p>
+  <% elsif @guild.processing? %>
+    <p>Currently importing latest reports. Please try refreshing the page in a few seconds.</p>
+  <% end %>
+  <table class="table">
+    <tr>
+      <th>Date</th>
+      <th>Title</th>
+      <th></th>
+    </tr>
+    <% @reports.each do |report| %>
+      <tr>
+        <td><%= report.started_at.strftime("%d %b %Y") rescue '--' %></td>
+        <td><%= report.title rescue '--' %></td>
+        <td><%= render 'reports/button', locals: {report: report} %></td>
+      </tr>
+    <% end %>
+  </table>
+  <%= paginate @reports %>
+</div>

@@ -1,0 +1,50 @@
+<div class="container">
+  <%= render 'bosses/shared/header', tab: 'basic' %>
+  <% max_dps = @fps.map{|fp| fp.dps || 0 }.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Damage per Second',
+      desc: 'Total damage / Fight time. Pet damage is shown with a separate color',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          light_bar_width: bar_width(fp.dps, max_dps),
+          main_bar_width: bar_width(fp.kpi_hash[:player_damage_done].to_i, fp.kpi_hash[:player_damage_done].to_i + fp.kpi_hash[:pet_damage_done].to_i),
+          main_bar_text: "#{fp.dps}/s",
+          main_text: "#{(fp.kpi_hash[:player_damage_done].to_i + fp.kpi_hash[:pet_damage_done].to_i) / 1000}k total damage (#{fp.kpi_hash[:pet_damage_done].to_i / 1000}k pet)"
+        }
+      }
+    } 
+  %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Cast Efficiency',
+      desc: 'Make sure you are casting your key spells on cooldown. Your cast score is determined by a weighted average, with more emphasis placed on abilities with longer cooldown times.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: fp.kpi_hash[:casts_score].to_i,
+          main_bar_text: "#{fp.kpi_hash[:casts_score].to_i}%",
+          main_text: "#{fp.kpi_hash[:casts_score].to_i}\% cast efficiency",
+        }
+      }
+    } 
+  %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Heating Up Conversions',
+      desc: 'The number of Heating Up procs you were able to convert to Hot Streak!. As much as possible, try to chain a critical hit whenever Heating Up procs',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: bar_width(fp.kpi_hash[:hot_streak].to_i, fp.kpi_hash[:heating_up].to_i),
+          main_bar_text: "#{100 * fp.kpi_hash[:hot_streak].to_i / fp.kpi_hash[:heating_up].to_i rescue 0}%",
+          main_text: "#{fp.kpi_hash[:hot_streak].to_i}/#{fp.kpi_hash[:heating_up].to_i} procs",
+        }
+      }
+    } 
+  %>
+</div>
+<%= render 'bosses/shared/footer', tab: 'basic' %>

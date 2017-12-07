@@ -1,0 +1,34 @@
+<div class="container">
+  <%= render 'bosses/shared/header', tab: 'resources' %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Time not Focus-Capped',
+      desc: 'The percent of the fight that you had less than max Focus. Aim for 100%.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: bar_width(fp.fight_time - fp.resources_hash[:capped_time].to_i, fp.fight_time),
+          main_bar_text: "#{fp.fight_time - fp.resources_hash[:capped_time].to_i}s",
+          main_text: "#{fp.fight_time - fp.resources_hash[:capped_time].to_i}s / #{fp.fight_time}s",
+        }
+      }
+    } 
+  %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Focus Gained',
+      desc: 'Avoid overcapping Focus by not using Focus-generating abilities that would put you over the maximum amount.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: bar_width(fp.resources_hash[:focus_gain].to_i, fp.resources_hash[:focus_gain].to_i + fp.resources_hash[:focus_waste].to_i),
+          main_bar_text: "#{fp.resources_hash[:focus_gain].to_i}/#{fp.resources_hash[:focus_gain].to_i + fp.resources_hash[:focus_waste].to_i}",
+          main_text: "#{fp.resources_hash[:focus_waste].to_i} wasted",
+        }
+      }
+    } 
+  %>
+</div>
+<%= render 'bosses/shared/footer', tab: 'basic' %>

@@ -1,0 +1,219 @@
+<%= render 'fight_parses/shared/new_header', {active_tab: @tab} %>
+<div class="container">
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Cooldown Timings',
+      desc: 'Do your best to line up cooldowns to maximize DPS.',
+      sub_bar_type: 'cooldown',
+      sub_bars: @fp.cooldown_timeline_bars,
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Sheilun\'s Gift Effectiveness',
+      desc: 'The total amount of healing provided by Sheilun\'s Gift. Try to avoid overhealing.',
+      bar_key: 'heal-w',
+      val: @fp.cooldowns_hash[:sheilun_healing].to_i + @fp.cooldowns_hash[:sheilun_overhealing].to_i,
+      white_bar: true,
+      main_bar_width: bar_width(@fp.cooldowns_hash[:sheilun_healing].to_i, @fp.cooldowns_hash[:sheilun_healing].to_i + @fp.cooldowns_hash[:sheilun_overhealing].to_i),
+      main_bar_text: "#{@fp.cooldowns_hash[:sheilun_healing].to_i / 1000}k",
+      main_text: "#{@fp.cooldowns_hash[:sheilun_healing].to_i / 1000}k healing, #{@fp.cooldowns_hash[:sheilun_overhealing].to_i / 1000}k overhealing",
+      sub_bars: @cooldowns['heal']['Sheilun\'s Gift'].nil? ? nil : @cooldowns['heal']['Sheilun\'s Gift'].map{|item| 
+        {
+          label: item.time_s, 
+          bar_key: 'sheilun-w',
+          val: item.kpi_hash[:healing_done].to_i + item.kpi_hash[:overhealing_done].to_i,
+          white_bar: true,
+          width: bar_width(item.kpi_hash[:healing_done].to_i, item.kpi_hash[:healing_done].to_i + item.kpi_hash[:overhealing_done].to_i),
+          text: "#{item.kpi_hash[:healing_done].to_i / 1000}k",
+          sub_text: "#{item.kpi_hash[:healing_done].to_i / 1000}k healing, #{item.kpi_hash[:overhealing_done].to_i / 1000}k overhealing",
+          dropdown: {
+            id: "arch-#{item.id}",
+            headers: ['Player', 'Healing Done', 'Overhealing Done', 'Hits'],
+            content: item.details_hash.values.sort{|a, b| b[:healing].to_i <=> a[:healing].to_i}.map{|hash| [hash[:name], hash[:healing], hash[:overhealing], hash[:hits]]}
+          }
+        }
+      },
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Life Cocoon Effectiveness',
+      desc: 'The total amount of healing and absorption provided by Enveloping Mist. This shows the absorb shield from Life Cocoon, as well as the 50% healing increase while it is active. Increased healing is shown on bars as a lighter color.',
+      white_bar: true,
+      bar_key: 'heal-w',
+      val: @fp.cooldowns_hash[:cocoon_absorb].to_i + @fp.cooldowns_hash[:cocoon_healing].to_i + @fp.cooldowns_hash[:cocoon_overhealing].to_i,
+      light_bar_width: bar_width(@fp.cooldowns_hash[:cocoon_absorb].to_i + @fp.cooldowns_hash[:cocoon_healing].to_i, @fp.cooldowns_hash[:cocoon_absorb].to_i + @fp.cooldowns_hash[:cocoon_healing].to_i + @fp.cooldowns_hash[:cocoon_overhealing].to_i), 
+      main_bar_width: bar_width(@fp.cooldowns_hash[:cocoon_absorb].to_i, @fp.cooldowns_hash[:cocoon_absorb].to_i + @fp.cooldowns_hash[:cocoon_healing].to_i),
+      main_bar_text: "#{(@fp.cooldowns_hash[:cocoon_absorb].to_i + @fp.cooldowns_hash[:cocoon_healing].to_i) / 1000}k",
+      main_text: "#{(@fp.cooldowns_hash[:cocoon_absorb].to_i + @fp.cooldowns_hash[:cocoon_healing].to_i) / 1000}k healing, #{@fp.cooldowns_hash[:cocoon_overhealing].to_i / 1000}k overhealing",
+      sub_bars: @external_cooldowns['absorb']['Life Cocoon'].nil? ? nil : @external_cooldowns['absorb']['Life Cocoon'].map{|item| 
+        {
+          label: item.time_s, 
+          bar_key: 'cocoon-w',
+          val: item.kpi_hash[:absorbing_done].to_i + item.kpi_hash[:healing_increased].to_i + item.kpi_hash[:leftover_absorb].to_i + item.kpi_hash[:overhealing_increased].to_i,
+          white_bar: true,
+          light_bar_width: bar_width(item.kpi_hash[:absorbing_done].to_i + item.kpi_hash[:healing_increased].to_i, item.kpi_hash[:absorbing_done].to_i + item.kpi_hash[:healing_increased].to_i + item.kpi_hash[:leftover_absorb].to_i + item.kpi_hash[:overhealing_increased].to_i),
+          width: bar_width(item.kpi_hash[:absorbing_done].to_i, item.kpi_hash[:absorbing_done].to_i + item.kpi_hash[:healing_increased].to_i),
+          text: "#{(item.kpi_hash[:absorbing_done].to_i + item.kpi_hash[:healing_increased].to_i) / 1000}k",
+          sub_text: "#{(item.kpi_hash[:absorbing_done].to_i + item.kpi_hash[:healing_increased].to_i) / 1000}k healing, #{(item.kpi_hash[:overhealing_increased].to_i + item.kpi_hash[:overhealing_increased].to_i) / 1000}k overhealing",
+          dropdown: {
+            id: "cocoon-#{item.id}",
+            headers: ['Spell', 'Damage Absorbed', 'Healing Increased', 'Hits'],
+            content: item.details_hash.values.sort{|a, b| b[:amount].to_i + b[:healing_increased].to_i <=> a[:amount].to_i + a[:healing_increased].to_i}.map{|hash| [hash[:name], hash[:amount], hash[:healing_increased], hash[:hits]]}
+          }
+        }
+      },
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Revival Effectiveness',
+      desc: 'The total amount of healing provided by Revival. Try to reduce overhealing.',
+      bar_key: 'heal-w',
+      val: @fp.cooldowns_hash[:revival_healing].to_i + @fp.cooldowns_hash[:revival_overhealing].to_i,
+      white_bar: true,
+      main_bar_width: bar_width(@fp.cooldowns_hash[:revival_healing].to_i, @fp.cooldowns_hash[:revival_healing].to_i + @fp.cooldowns_hash[:revival_overhealing].to_i),
+      main_bar_text: "#{@fp.cooldowns_hash[:revival_healing].to_i / 1000}k",
+      main_text: "#{@fp.cooldowns_hash[:revival_healing].to_i / 1000}k healing, #{@fp.cooldowns_hash[:revival_overhealing].to_i / 1000}k overhealing",
+      sub_bars: @cooldowns['heal']['Revival'].nil? ? nil : @cooldowns['heal']['Revival'].map{|item| 
+        {
+          label: item.time_s, 
+          bar_key: 'revival-w',
+          val: item.kpi_hash[:healing_done].to_i + item.kpi_hash[:overhealing_done].to_i,
+          white_bar: true,
+          width: bar_width(item.kpi_hash[:healing_done].to_i, item.kpi_hash[:healing_done].to_i + item.kpi_hash[:overhealing_done].to_i),
+          text: "#{item.kpi_hash[:healing_done].to_i / 1000}k",
+          sub_text: "#{item.kpi_hash[:healing_done].to_i / 1000}k healing, #{item.kpi_hash[:overhealing_done].to_i / 1000}k overhealing",
+          dropdown: {
+            id: "arch-#{item.id}",
+            headers: ['Player', 'Healing Done', 'Overhealing Done', 'Hits'],
+            content: item.details_hash.values.sort{|a, b| b[:healing].to_i <=> a[:healing].to_i}.map{|hash| [hash[:name], hash[:healing], hash[:overhealing], hash[:hits]]}
+          }
+        }
+      },
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Essence Font Effectiveness',
+      desc: 'The total amount of healing provided by Essence Font. Try to reduce overhealing',
+      bar_key: 'heal-w',
+      val: @fp.cooldowns_hash[:essence_healing].to_i + @fp.cooldowns_hash[:essence_overhealing].to_i,
+      white_bar: true,
+      main_bar_width: bar_width(@fp.cooldowns_hash[:essence_healing].to_i, @fp.cooldowns_hash[:essence_healing].to_i + @fp.cooldowns_hash[:essence_overhealing].to_i),
+      main_bar_text: "#{@fp.cooldowns_hash[:essence_healing].to_i / 1000}k",
+      main_text: "#{@fp.cooldowns_hash[:essence_healing].to_i / 1000}k healing, #{@fp.cooldowns_hash[:essence_overhealing].to_i / 1000}k overhealing",
+      sub_bars: @cooldowns['heal']['Essence Font'].nil? ? nil : @cooldowns['heal']['Essence Font'].map{|item| 
+        {
+          label: item.time_s, 
+          bar_key: 'essence-w',
+          val: item.kpi_hash[:healing_done].to_i + item.kpi_hash[:overhealing_done].to_i,
+          white_bar: true,
+          width: bar_width(item.kpi_hash[:healing_done].to_i, item.kpi_hash[:healing_done].to_i + item.kpi_hash[:overhealing_done].to_i),
+          text: "#{item.kpi_hash[:healing_done].to_i / 1000}k",
+          sub_text: "#{item.kpi_hash[:healing_done].to_i / 1000}k healing, #{item.kpi_hash[:overhealing_done].to_i / 1000}k overhealing",
+          dropdown: {
+            id: "essence-#{item.id}",
+            headers: ['Player', 'Healing Done', 'Overhealing Done', 'Hits'],
+            content: item.details_hash.values.reject{|a| a[:healing].to_i + a[:overhealing].to_i == 0}.sort{|a, b| b[:healing].to_i <=> a[:healing].to_i}.map{|hash| [hash[:name], hash[:healing], hash[:overhealing], hash[:hits]]}
+          }
+        }
+      },
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Essence Font: Mastery',
+      desc: 'Targets affected by Essence Font will be healed by your Mastery twice. This shows the effectiveness of the increased Mastery on affected targets.',
+      bar_key: 'heal-w',
+      val: @fp.cooldowns_hash[:essence_mastery_healing].to_i + @fp.cooldowns_hash[:essence_mastery_overhealing].to_i,
+      white_bar: true,
+      main_bar_width: bar_width(@fp.cooldowns_hash[:essence_mastery_healing].to_i, @fp.cooldowns_hash[:essence_mastery_healing].to_i + @fp.cooldowns_hash[:essence_mastery_overhealing].to_i),
+      main_bar_text: "#{@fp.cooldowns_hash[:essence_mastery_healing].to_i / 1000}k",
+      main_text: "#{@fp.cooldowns_hash[:essence_mastery_healing].to_i / 1000}k healing, #{@fp.cooldowns_hash[:essence_mastery_overhealing].to_i / 1000}k overhealing",
+      sub_bars: @cooldowns['heal']['Essence Font'].nil? ? nil : @cooldowns['heal']['Essence Font'].map{|item| 
+        {
+          label: item.time_s, 
+          bar_key: 'essencemastery-w',
+          val: item.kpi_hash[:mastery_healing].to_i + item.kpi_hash[:mastery_overhealing].to_i,
+          white_bar: true,
+          width: bar_width(item.kpi_hash[:mastery_healing].to_i, item.kpi_hash[:mastery_healing].to_i + item.kpi_hash[:mastery_overhealing].to_i),
+          text: "#{item.kpi_hash[:mastery_healing].to_i / 1000}k",
+          sub_text: "#{item.kpi_hash[:mastery_healing].to_i / 1000}k healing, #{item.kpi_hash[:mastery_overhealing].to_i / 1000}k overhealing",
+          dropdown: {
+            id: "essencemastery-#{item.id}",
+            headers: ['Base Spell', 'Mastery Healing', 'Mastery Overhealing', 'Hits'],
+            content: item.details_hash.values.reject{|a| a[:mastery_healing].to_i + a[:mastery_overhealing].to_i == 0}.sort{|a, b| b[:mastery_healing].to_i <=> a[:mastery_healing].to_i}.map{|hash| [hash[:name], hash[:mastery_healing], hash[:mastery_overhealing], hash[:hits]]}
+          }
+        }
+      },
+    } 
+  %>
+  <% if @fp.talent(5) == 'Refreshing Jade Wind' %>
+    <%= render 'fight_parses/shared/section', 
+      {
+        title: 'Refreshing Jade Wind Effectiveness',
+        desc: 'The total amount of healing provided by Refreshing Jade Wind.',
+        bar_key: 'heal-w',
+        val: @fp.cooldowns_hash[:rjw_healing].to_i + @fp.cooldowns_hash[:rjw_overhealing].to_i,
+        white_bar: true,
+        main_bar_width: bar_width(@fp.cooldowns_hash[:rjw_healing].to_i, @fp.cooldowns_hash[:rjw_healing].to_i + @fp.cooldowns_hash[:rjw_overhealing].to_i),
+        main_bar_text: "#{@fp.cooldowns_hash[:rjw_healing].to_i / 1000}k",
+        main_text: "#{@fp.cooldowns_hash[:rjw_healing].to_i / 1000}k healing, #{@fp.cooldowns_hash[:rjw_overhealing].to_i / 1000}k overhealing",
+        sub_bars: @cooldowns['heal']['Refreshing Jade Wind'].nil? ? nil : @cooldowns['heal']['Refreshing Jade Wind'].map{|item| 
+          {
+            label: item.time_s, 
+            bar_key: 'rjw-w',
+            val: item.kpi_hash[:healing_done].to_i + item.kpi_hash[:overhealing_done].to_i,
+            white_bar: true,
+            width: bar_width(item.kpi_hash[:healing_done].to_i, item.kpi_hash[:healing_done].to_i + item.kpi_hash[:overhealing_done].to_i),
+            text: "#{item.kpi_hash[:healing_done].to_i / 1000}k",
+            sub_text: "#{item.kpi_hash[:healing_done].to_i / 1000}k healing, #{item.kpi_hash[:overhealing_done].to_i / 1000}k overhealing",
+            dropdown: {
+              id: "arch-#{item.id}",
+              headers: ['Player', 'Healing Done', 'Overhealing Done', 'Hits'],
+              content: item.details_hash.values.sort{|a, b| b[:healing] <=> a[:healing]}.map{|hash| [hash[:name], hash[:healing], hash[:overhealing], hash[:hits]]}
+            }
+          }
+        },
+      } 
+    %>
+  <% elsif @fp.talent(5) == 'Invoke Chi-Ji, the Red Crane' %>
+    <%= render 'fight_parses/shared/section', 
+      {
+        title: 'Chi-Ji Effectiveness',
+        desc: 'The total amount of healing provided by Chi-Ji.',
+        bar_key: 'heal-w',
+        val: @fp.cooldowns_hash[:chiji_healing].to_i + @fp.cooldowns_hash[:chiji_overhealing].to_i,
+        white_bar: true,
+        main_bar_width: bar_width(@fp.cooldowns_hash[:chiji_healing].to_i, @fp.cooldowns_hash[:chiji_healing].to_i + @fp.cooldowns_hash[:chiji_overhealing].to_i),
+        main_bar_text: "#{@fp.cooldowns_hash[:chiji_healing].to_i / 1000}k",
+        main_text: "#{@fp.cooldowns_hash[:chiji_healing].to_i / 1000}k healing, #{@fp.cooldowns_hash[:chiji_overhealing].to_i / 1000}k overhealing",
+        sub_bars: @cooldowns['pet']['Chi-Ji'].nil? ? nil : @cooldowns['pet']['Chi-Ji'].map{|item| 
+          {
+            label: item.time_s, 
+            bar_key: 'chiji-w',
+            val: item.kpi_hash[:healing_done].to_i + item.kpi_hash[:overhealing_done].to_i,
+            white_bar: true,
+            width: bar_width(item.kpi_hash[:healing_done].to_i, item.kpi_hash[:healing_done].to_i + item.kpi_hash[:overhealing_done].to_i),
+            text: "#{item.kpi_hash[:healing_done].to_i / 1000}k",
+            sub_text: "#{item.kpi_hash[:healing_done].to_i / 1000}k healing, #{item.kpi_hash[:overhealing_done].to_i / 1000}k overhealing",
+            dropdown: {
+              id: "arch-#{item.id}",
+              headers: ['Player', 'Healing Done', 'Overhealing Done', 'Hits'],
+              content: item.details_hash.values.sort{|a, b| b[:healing].to_i <=> a[:healing].to_i}.map{|hash| [hash[:name], hash[:healing], hash[:overhealing], hash[:hits]]}
+            }
+          }
+        },
+      } 
+    %>
+  <% end %>
+</div>
+<%= render 'fight_parses/shared/js', {tab: 'cooldowns'} %> 
+<script>
+  $(['heal-w', 'cocoon-w', 'sheilun-w', 'revival-w', 'essence-w', 'essencemastery-w', 'rjw-w']).each(function(index, key){
+    resizeBars(key)
+  });
+</script>
+

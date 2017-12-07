@@ -1,0 +1,82 @@
+<div class="container">
+  <%= render 'bosses/shared/header', tab: 'basic' %>
+  <% max_dps = @fps.map{|fp| fp.dps || 0 }.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Damage per Second',
+      desc: 'Total damage / Fight time. Pet damage is shown with a separate color',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          light_bar_width: bar_width(fp.dps, max_dps),
+          main_bar_width: bar_width(fp.kpi_hash[:player_damage_done].to_i, fp.kpi_hash[:player_damage_done].to_i + fp.kpi_hash[:pet_damage_done].to_i),
+          main_bar_text: "#{fp.dps}/s",
+          main_text: "#{(fp.kpi_hash[:player_damage_done].to_i + fp.kpi_hash[:pet_damage_done].to_i) / 1000}k total damage (#{fp.kpi_hash[:pet_damage_done].to_i / 1000}k pet)"
+        }
+      }
+    } 
+  %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Cast Efficiency',
+      desc: 'Make sure you are casting your key spells on cooldown. Your cast score is determined by a weighted average, with more emphasis placed on abilities with longer cooldown times.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: fp.kpi_hash[:casts_score].to_i,
+          main_bar_text: "#{fp.kpi_hash[:casts_score].to_i}%",
+          main_text: "#{fp.kpi_hash[:casts_score].to_i}\% cast efficiency",
+        }
+      }
+    } 
+  %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Eradication Uptime',
+      desc: 'The duration that you had Eradication active. Try to maintain this buff as much as possible by casting Chaos Bolt. A red area means Eradication was not active.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: bar_width(fp.resources_hash[:eradication_uptime].to_i, fp.ended_at - fp.started_at),
+          main_bar_text: "#{fp.resources_hash[:eradication_uptime].to_i / (10 * fp.fight_time) rescue 0}%",
+          main_text: "#{fp.resources_hash[:eradication_uptime].to_i / 1000}s / #{fp.fight_time}s",
+        }
+      }
+    } 
+  %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Immolate Uptime',
+      desc: "The percentage of time Immolate was active on targets you were attacking. 100% isn't realistic, but try to maximize uptime.",
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: fp.debuff_upratio(:immolate),
+          main_bar_text: fp.debuff_upratio_s(:immolate),
+          main_text: fp.debuff_upratio_s(:immolate),
+        }
+      }
+    } 
+  %>
+  <% if @fps.reject{|fp| fp.resources_hash[:havoc_uptime].to_i == 0}.count > 0 %>
+    <%= render 'bosses/shared/section', 
+      {
+        title: 'Havoc Uptime',
+        desc: "The percentage of time Havoc was active on enemies while multiple enemies were present. A red area means that Havoc wasn't active. This assumes that while Havoc is active you are attacking a different target. 100% isn't realistic, but try to maximize uptime.",
+        sub_bars: @fps.reject{|fp| fp.resources_hash[:havoc_uptime].to_i == 0}.map{|fp| 
+          {
+            fp: fp,
+            white_bar: true,
+            main_bar_width: fp.debuff_upratio(:havoc),
+            main_bar_text: fp.debuff_upratio_s(:havoc),
+            main_text: fp.debuff_upratio_s(:havoc),
+          }
+        }
+      } 
+    %>
+  <% end %>
+</div>
+<%= render 'bosses/shared/footer', tab: 'basic' %>

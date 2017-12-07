@@ -1,0 +1,122 @@
+<div class="container">
+  <%= render 'fight_parses/shared/header', {active_tab: @tab, show_hp: true} %>
+  <br /><br />
+  <% max_dps = @kpi_parses['dps'].details_hash.values.map{|item| item[:damage]}.max.to_i rescue 0 %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Damage per Second',
+      desc: 'Total damage / Fight time.',
+      main_bar_width: bar_width(@fp.dps, @fp.max_basic_bar),
+      main_bar_text: "#{@fp.dps}/s",
+      main_text: "#{@fp.kpi_hash[:player_damage_done].to_i / 1000}k total damage",
+      dropdown: {id: 'dps'},
+      sub_bars: @kpi_parses['dps'].nil? ? nil : @kpi_parses['dps'].details_hash.values.sort{|a, b| b[:damage].to_i <=> a[:damage].to_i}.map{|item| 
+        {
+          label: item[:name],
+          width: bar_width(item[:damage].to_i, max_dps),
+          text: "#{item[:damage].to_i / 1000}k",
+          sub_text: "#{item[:damage].to_i / 1000}k damage",
+        }
+      },
+    } 
+  %>
+  <% max_dmg_taken = @kpi_parses['damage_taken'].details_hash.values.map{|item| item[:amount]}.max.to_i rescue 0 %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Damage Taken per Second',
+      desc: 'This is the total damage (divided by fight time) that actually reduced your HP. Absorbs are not included.',
+      main_bar_width: bar_width(@fp.dtps, @fp.max_basic_bar),
+      main_bar_text: "#{@fp.dtps}/s",
+      main_text: "#{@fp.kpi_hash[:damage_taken].to_i / 1000}k total damage taken",
+      dropdown: {id: 'dmg_taken'},
+      sub_bars: @kpi_parses['damage_taken'].nil? ? nil : @kpi_parses['damage_taken'].details_hash.to_a.sort{|a, b| b[1][:amount].to_i <=> a[1][:amount].to_i}.map{|name, item| 
+        {
+          label: name,
+          width: bar_width(item[:amount].to_i, max_dmg_taken),
+          text: "#{item[:amount].to_i / 1000}k",
+          sub_text: "#{item[:amount].to_i / 1000}k damage",
+        }
+      },
+    } 
+  %>
+  <% max_self_healing = @kpi_parses['self_healing'].details_hash.values.map{|item| item[:absorb] + item[:heal]}.max.to_i rescue 0 %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Self Healing per Second',
+      desc: 'The total amount (divided by fight time) that you healed yourself. Absorbs are shown with a separate color.',
+      light_bar_width: bar_width(@fp.shps, @fp.max_basic_bar),
+      main_bar_width: bar_width(@fp.kpi_hash[:self_heal].to_i, @fp.kpi_hash[:self_heal].to_i + @fp.kpi_hash[:self_absorb].to_i),
+      main_bar_text: "#{@fp.shps}/s",
+      main_text: "#{@fp.kpi_hash[:self_heal].to_i / 1000}k healed, #{@fp.kpi_hash[:self_absorb].to_i / 1000}k absorbed",
+      dropdown: {id: 'self_healing'},
+      sub_bars: @kpi_parses['self_healing'].nil? ? nil : @kpi_parses['self_healing'].details_hash.to_a.sort{|a, b| b[1][:absorb].to_i + b[1][:heal].to_i <=> a[1][:absorb].to_i + a[1][:heal].to_i}.map{|name, item| 
+        {
+          label: name,
+          light_bar_width: bar_width(item[:absorb].to_i + item[:heal].to_i, max_self_healing),
+          width: bar_width(item[:heal].to_i, item[:absorb].to_i + item[:heal].to_i),
+          text: "#{(item[:absorb].to_i + item[:heal].to_i) / 1000}k",
+          sub_text: "#{item[:absorb].to_i / 1000}k absorb, #{item[:heal].to_i / 1000}k heal",
+        }
+      },
+    } 
+  %>
+  <% max_external_healing = @kpi_parses['external_healing'].details_hash.values.map{|item| item[:absorb] + item[:heal]}.max.to_i rescue 0 %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'External Healing per Second',
+      desc: 'The total amount (divided by fight time) that other sources healed you. Absorbs are shown with a separate color.',
+      light_bar_width: bar_width(@fp.ehps, @fp.max_basic_bar),
+      main_bar_width: bar_width(@fp.kpi_hash[:external_heal].to_i, @fp.kpi_hash[:external_heal].to_i + @fp.kpi_hash[:external_absorb].to_i),
+      main_bar_text: "#{@fp.ehps}/s",
+      main_text: "#{@fp.kpi_hash[:external_heal].to_i / 1000}k healed, #{@fp.kpi_hash[:external_absorb].to_i / 1000}k absorbed",
+      dropdown: {id: 'external_healing'},
+      sub_bars: @kpi_parses['external_healing'].nil? ? nil : @kpi_parses['external_healing'].details_hash.to_a.sort{|a, b| b[1][:absorb].to_i + b[1][:heal].to_i <=> a[1][:absorb].to_i + a[1][:heal].to_i}.map{|name, item| 
+        {
+          label: name,
+          light_bar_width: bar_width(item[:absorb].to_i + item[:heal].to_i, max_external_healing),
+          width: bar_width(item[:heal].to_i, item[:absorb].to_i + item[:heal].to_i),
+          text: "#{(item[:absorb].to_i + item[:heal].to_i) / 1000}k",
+          sub_text: "#{item[:absorb].to_i / 1000}k absorb, #{item[:heal].to_i / 1000}k heal",
+        }
+      },
+    } 
+  %>
+  <% max_soulcleave = @cooldowns['cd']['Soul Cleave'].map{|item| item.kpi_hash[:healed_amount].to_i + item.kpi_hash[:overhealed_amount].to_i}.max.to_i rescue 0 %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Soul Cleave Efficiency',
+      desc: 'Your total healing from Soul Cleaves, taking overhealing into account. Overhealing is often unavoidable, but you should do your best to cast Soul Cleave when you have low health.',
+      bar_key: 'soulcleave-w',
+      val: @fp.kpi_hash[:soulcleave_healing].to_i + @fp.kpi_hash[:soulcleave_overhealing].to_i,
+      white_bar: true,
+      main_bar_width: bar_width(@fp.kpi_hash[:soulcleave_healing].to_i, @fp.kpi_hash[:soulcleave_healing].to_i + @fp.kpi_hash[:soulcleave_overhealing].to_i),
+      main_bar_text: "#{@fp.kpi_hash[:soulcleave_healing].to_i / 1000}k",
+      main_text: "#{100 * @fp.kpi_hash[:soulcleave_overhealing].to_i / (@fp.kpi_hash[:soulcleave_healing].to_i + @fp.kpi_hash[:soulcleave_overhealing].to_i) rescue 0}% overheal",
+      dropdown: {id: 'soulcleave'},
+      sub_bars: @cooldowns['cd']['Soul Cleave'].nil? ? nil : @cooldowns['cd']['Soul Cleave'].map{|item| 
+        {
+          label: item.time_s,
+          white_bar: true,
+          white_bar_width: bar_width(item.kpi_hash[:healed_amount].to_i + item.kpi_hash[:overhealed_amount].to_i, max_soulcleave),
+          width: bar_width(item.kpi_hash[:healed_amount].to_i, item.kpi_hash[:healed_amount].to_i + item.kpi_hash[:overhealed_amount].to_i),
+          text: "#{item.kpi_hash[:healed_amount].to_i / 1000}k",
+          sub_text: "#{100 * item.kpi_hash[:overhealed_amount].to_i / (item.kpi_hash[:healed_amount].to_i + item.kpi_hash[:overhealed_amount].to_i) rescue 0}% overheal",
+        }
+      },
+    } 
+  %>
+  <% if @kpi_parses.has_key?('death') && @kpi_parses['death'].kpi_hash[:death_count].to_i > 0 %>
+    <%= render 'fight_parses/shared/deaths', 
+      {
+        deaths: @kpi_parses['death'].details_hash[:deaths],
+      } 
+    %>
+  <% end %>
+</div>
+
+<%= render 'fight_parses/shared/js', {tab: 'basic'} %> 
+<script>
+    $(['soulcleave-w']).each(function(index, key){
+    resizeBars(key)
+  });
+</script>

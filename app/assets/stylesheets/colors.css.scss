@@ -1,0 +1,476 @@
+.notif {
+  width: 100%;
+  height: 50px;
+  text-align: center;
+  color: white;
+  font-size: 16px;
+  line-height: 50px;
+  background-color: #FE4C4F;
+  margin-bottom: 20px;
+  margin-top: -20px;
+}
+
+.notif a {
+  color: black;
+}
+
+a:hover {
+  color: auto;
+}
+
+.link {
+  cursor: pointer;
+}
+
+select {
+  color: black;
+}
+
+.btn a {
+  color: black;
+}
+
+.breadcrumb {
+  background-color: transparent;
+  color: white;
+}
+
+.breadcrumb li {
+  /*color: rgb(157, 157, 157);*/
+  border-right: 1px solid #555555;
+}
+
+.breadcrumb li:hover {
+  color: white;
+}
+
+.custom-dropdown .header.pressed {
+  background-color: white;
+}
+
+.custom-dropdown .list {
+  background-color: #222;
+}
+
+.custom-dropdown .list .item {
+  border-bottom: 1px solid #555555;
+}
+
+.custom-dropdown .list .item.disabled {
+  background-color: #aaaaaa;
+}
+
+#header {
+  background-color: #333333;
+  color: #ffffff;
+}
+
+#header a {
+  color: white;
+  text-decoration: underline;
+}
+
+.navbar {
+  background-image: none;
+  background-color: #222;
+}
+
+.navbar li, .navbar li a {
+  color: #bbb !important;
+}
+
+.navbar .navbar-right li:hover, .navbar a .item:hover {
+  background-color: #333;
+  /*border-color: white;*/
+}
+
+.navbar li a:hover {
+  color: white !important;
+  text-decoration: none;
+}
+
+.titlebar a {
+  color: inherit;
+}
+
+.titlebar a:hover, .titlebar .nav>li>a:hover {
+  color: inherit;
+}
+
+.fight-tabs {
+  background-color: #eeeeee;
+  border-bottom: 1px solid #cccccc;
+}
+
+.fight-tabs .link.active {
+  background-color: #dddddd;
+}
+
+.fight-tabs a {
+  color: black;
+}
+
+.fight-tabs a:hover {
+  color: black;
+  text-decoration: underline;
+}
+
+#footer, #push{
+  border-top: 1px solid #cccccc;
+}
+
+#report-progress {
+  border: 1px solid #cccccc;
+}
+
+#report-progress #progress-popover {
+  background-color: white;
+  border: 1px solid #cccccc;
+}
+
+p.caption {
+  color: #666666;
+}
+
+.row-block {
+  color: black;
+  border-bottom: 1px solid #eeeeee;
+  border-right: 1px solid #eeeeee;
+}
+
+a.row-block:hover, a.row-block:focus {
+  text-decoration: none;
+  color: auto;
+}
+
+.player-tag {
+  background-color: rgb(30, 180, 123);
+}
+
+.bar {
+  background: rgb(30, 180, 123);
+ /* background: -moz-linear-gradient(270deg, rgb(41, 206, 57) 22%, rgb(39, 192, 55) 80%);
+  background: -webkit-linear-gradient(270deg, rgb(41, 206, 57) 22%, rgb(39, 192, 55) 80%);
+  background: -o-linear-gradient(270deg, rgb(41, 206, 57) 22%, rgb(39, 192, 55) 80%);
+  background: -ms-linear-gradient(270deg, rgb(41, 206, 57) 22%, rgb(39, 192, 55) 80%);
+  background: linear-gradient(0deg, rgb(41, 206, 57) 22%, rgb(39, 192, 55) 80%);*/
+  color: white;
+}
+
+.bar.white {
+  background: rgb(255,255,255);
+  border: 1px solid rgb(120,120,120);
+}
+
+.graph-container {
+  border: 1px solid rgb(150,150,150);
+}
+
+.timeline.up {
+  background: #0080FF;
+}
+
+.timeline.halfup {
+  background: #94DCFF;
+}
+
+.timeline.yellow {
+  background: #FFFF66;
+}
+
+.timeline.down {
+  background: rgb(255, 81, 70);
+}
+
+.timeline.orange {
+  background: #FF8000;
+}
+
+.timeline.blue {
+  background: #0080FF;
+}
+
+.timeline.green {
+  background: #00C532;
+}
+
+.grey {
+  color: #888888;
+}
+
+.green, .green a {
+  color: #00C532 !important;
+}
+
+.red, .red a {
+  color: rgb(255, 81, 70) !important;
+}
+
+.lgreen, .lgreen a {
+  color: #53BC68 !important;
+}
+
+.lred, .lred a {
+  color: #FC706C !important;
+}
+
+.yellow, .yellow a {
+  color: #E0B300 !important;
+}
+
+.row-block.spacer {
+  border-bottom: 1px solid #df3753;
+}
+
+.highlight {
+  background-color: #444444 !important;
+  color: white !important;
+}
+
+table.casts-table tbody tr.indent-green {
+  border-left: 3px solid #00C532;
+}
+
+table.casts-table tbody tr.indent-red {
+  border-left: 3px solid rgb(255, 81, 70);
+}
+
+table.casts-table tbody tr.indent-yellow {
+  border-left: 3px solid #E0B300;
+  color: auto;
+}
+
+.Deathknight.dark {
+  background-color: #df3753;
+  color: white !important;
+}
+
+.Deathknight.light {
+  background-color: #ed8f9f;
+}
+
+.Deathknight.text {
+  color: #C41F3B !important;
+}
+
+.Demonhunter.dark {
+  background-color: #A330C9;
+  color: white !important;
+}
+
+.Demonhunter.light {
+  background-color: #c87fe0;
+}
+
+.Demonhunter.text {
+  color: #A330C9 !important;
+}
+
+.Druid.dark{
+  background-color: #ff8f2c;
+  color: white !important;
+}
+
+.Druid.light {
+  background-color: #ffbc81;
+}
+
+.Druid.text {
+  color: #FF7D0A !important;
+}
+
+.Hunter.dark {
+  background-color: #abd473;
+  color: white !important;
+}
+
+.Hunter.light {
+  background-color: #d2e8b4;
+}
+
+.Hunter.text {
+  color: #8cc43f !important;
+}
+
+.Mage.dark {
+  background-color: #69ccf0;
+  color: white !important;
+}
+
+.Mage.light {
+  background-color: #b6e6f8;
+}
+
+.Mage.text {
+  color: #1cb2e8 !important;
+}
+
+.Monk.dark {
+  background-color: rgb(0, 186, 133);
+  color: white !important;
+}
+
+.Monk.light {
+  background-color: rgb(115, 209, 174);
+}
+
+.Monk.text {
+  color: #00b376 !important;
+}
+
+.Paladin.dark {
+  background-color: rgb(255, 159, 201);
+  color: white !important;
+}
+
+.Paladin.light {
+  background-color: rgb(254, 204, 227);
+}
+
+.Paladin.text {
+  color: #ff398f !important;
+}
+
+.Priest.dark {
+  background-color: #dddddd;
+  color: #333 !important;
+}
+
+.Priest.dark a {
+  color: #333 !important;
+}
+
+.Priest.dark.bar {
+  border: 1px solid #cccccc;
+  margin: -1px !important;
+}
+
+.Priest.light {
+  background-color: #eeeeee;
+}
+
+.Priest.light.bar {
+  border: 1px solid #cccccc;
+  margin: -1px !important;
+}
+
+.Priest.text {
+  color: #808080 !important;
+}
+
+.Rogue.dark {
+  background-color: #FFF569;
+  color: #333 !important;
+}
+
+.Rogue.dark a {
+  color: #333 !important;
+}
+
+.Rogue.dark.bar {
+  border: 1px solid #e0d100;
+  margin: -1px !important;
+}
+
+.Rogue.light {
+  background-color: #fcf8c3;
+}
+
+.Rogue.light.bar {
+  border: 1px solid #e0d100;
+  margin: -1px !important;
+}
+
+.Rogue.text {
+  color: #c5bb0c !important;
+}
+
+.Shaman.dark {
+  background-color: #0070DE;
+  color: white !important;
+}
+
+.Shaman.light {
+  background-color: #abd5ff;
+}
+
+.Shaman.text {
+  color: #0070DE !important;
+}
+
+.Warlock.dark {
+  background-color: #9482C9;
+  color: white !important;
+}
+
+.Warlock.light {
+  background-color: #d1c9e8;
+}
+
+.Warlock.text {
+  color: #6b53b5 !important;
+}
+
+.Warrior.dark {
+  background-color: rgb(199, 156, 110);
+  color: white !important;
+}
+
+.Warrior.light {
+  background-color: rgb(236, 201, 162);
+}
+
+.Warrior.text {
+  color: #b28758 !important;
+}
+
+.nav>li {
+  a.Deathknight:hover {
+    background-color: #ed8f9f;
+  }
+
+  a.Demonhunter:hover {
+    background-color: #c87fe0;
+  }
+
+  a.Druid:hover{
+    background-color: #ffbc81;
+  }
+  
+  a.Hunter:hover {
+    background-color: #d2e8b4;
+  }
+  
+  a.Mage:hover {
+    background-color: #b6e6f8;
+  }
+  
+  a.Monk:hover {
+    background-color: rgb(115, 209, 174);
+  }
+  
+  a.Paladin:hover {
+    background-color: rgb(254, 204, 227);
+  }
+  
+  a.Priest:hover {
+    background-color: #eeeeee;
+  }
+
+  a.Rogue:hover {
+    background-color: #fcf8c3;
+  }
+  
+  a.Shaman:hover {
+    background-color: #abd5ff;
+  }
+  
+  a.Warlock:hover {
+    background-color: #d1c9e8;
+  }
+  
+  a.Warrior:hover {
+    background-color: rgb(236, 201, 162);
+  }
+
+}

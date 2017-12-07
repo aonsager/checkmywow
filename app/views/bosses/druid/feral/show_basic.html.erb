@@ -1,0 +1,65 @@
+<div class="container">
+  <%= render 'bosses/shared/header', tab: 'basic' %>
+  <% max_dps = @fps.map{|fp| fp.dps || 0 }.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Damage per Second',
+      desc: 'Total damage / Fight time.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          light_bar_width: bar_width(fp.dps, max_dps),
+          main_bar_width: bar_width(fp.kpi_hash[:player_damage_done].to_i, fp.kpi_hash[:player_damage_done].to_i + fp.kpi_hash[:pet_damage_done].to_i),
+          main_bar_text: "#{fp.dps}/s",
+          main_text: "#{(fp.kpi_hash[:player_damage_done].to_i + fp.kpi_hash[:pet_damage_done].to_i) / 1000}k total damage"
+        }
+      }
+    } 
+  %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Cast Efficiency',
+      desc: 'Make sure you are casting your key spells on cooldown. Your cast score is determined by a weighted average, with more emphasis placed on abilities with longer cooldown times.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: fp.kpi_hash[:casts_score].to_i,
+          main_bar_text: "#{fp.kpi_hash[:casts_score].to_i}%",
+          main_text: "#{fp.kpi_hash[:casts_score].to_i}\% cast efficiency",
+        }
+      }
+    } 
+  %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Rake Uptime',
+      desc: "The percentage of time Rake was active on targets you were attacking. A red area means that you were attacking an enemy with no Rake. Aim for 100% uptime on all targets.",
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: fp.debuff_upratio(:rake),
+          main_bar_text: "#{fp.debuff_upratio(:rake).to_i}%",
+          main_text: fp.debuff_upratio_s(:rake),
+        }
+      }
+    } 
+  %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Rip Uptime',
+      desc: 'The percentage of time Rip was active on your target. A red area means that you were attacking an enemy with no Rip debuff. Aim for 100% uptime on your primary target.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: bar_width(fp.resources_hash[:rip_uptime].to_i / 1000, fp.fight_time),
+          main_bar_text: "#{(fp.resources_hash[:rip_uptime].to_i / (10 * fp.fight_time)).to_i}%",
+          main_text: "#{fp.resources_hash[:rip_uptime].to_i / 1000}s / #{fp.fight_time}s",
+        }
+      }
+    } 
+  %>
+</div>
+<%= render 'bosses/shared/footer', tab: 'basic' %>

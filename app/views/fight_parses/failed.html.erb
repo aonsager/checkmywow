@@ -1,0 +1,22 @@
+<% breadcrumb :fight_parse, @report, @fight, @fpr.player_id, @fpr.player_name, @fpr.class_type, @fpr.spec, nil %>
+
+<div class="container">
+  <% if @fpr.failed? %>
+    <p>Sorry, something went wrong while processing this fight.</p>
+    <p>The site dev has been informed, and will try to fix this as soon as possible.</p>
+  <% elsif @fpr.blank? %>
+    <p>Fight information could not be found. Please check to see if there is anything wrong with the uploaded log.</p>
+    <br />
+    <h4>Can you view you report on Warcraft Logs?</h4>
+    <p>Sometimes a combat log file can become corrupted, and have missing or incorrect data.</p>
+    <br />
+    <h4>Is your log on Warcraft Logs set to private?</h4>
+    <p>Check My Wow uses public APIs to access your data, so it cannot collect information from private logs.</p>
+    <br />
+    <h4>Do you have advanced combat logging enabled?</h4>
+    <p>Without advanced combat logging, certain key information like player specs and talents are not recorded.<p>
+    <p>You can enabled this setting within World of Warcraft, in the Network pane under System preferences.</p>
+  <% end %>
+</div>
+
+<%= render 'fight_parses/shared/js', {tab: nil} %> 

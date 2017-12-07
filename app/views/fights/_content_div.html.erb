@@ -1,0 +1,20 @@
+<div id="queue-info"><%= render 'fights/queue_info' %></div>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Spec</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+  <% @fps.each do |fp| %>
+  <tr>
+  <td><%= Player.player_tag(fp.player_name, fp.class_type, fp.spec) %></td>
+  <td><%= "#{fp.spec} #{fp.class_type}" %></td>
+  <td id="fp-<%=fp.id%>"><%= render 'fight_parses/shared/button', locals: {fp: fp} %></td>
+  </tr>
+  <% end %>
+  </tbody>
+</table>
+</div>

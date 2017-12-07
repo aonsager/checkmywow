@@ -1,0 +1,89 @@
+<div class="container">
+  <%= render 'bosses/shared/header', tab: 'resources' %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Time not Energy-Capped',
+      desc: 'The percent of the fight that you had less than max Energy. Aim for 100%.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: bar_width(fp.fight_time - fp.resources_hash[:capped_time].to_i, fp.fight_time),
+          main_bar_text: "#{fp.fight_time - fp.resources_hash[:capped_time].to_i}s",
+          main_text: "#{fp.fight_time - fp.resources_hash[:capped_time].to_i}s / #{fp.fight_time}s",
+        }
+      }
+    } 
+  %>
+  <% max_combo = @fps.map{|fp| (1.0 * fp.resources_hash[:combo_gain].to_i / fp.fight_time).round(2)}.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Combo Points Gained',
+      desc: 'Avoid overcapping Combo Points by not using Combo Point-generating abilities that would put you over the maximum amount.',
+      white_bar: true,
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          white_bar_width: bar_width((1.0 * fp.resources_hash[:combo_gain].to_i / fp.fight_time).round(2), max_combo),
+          main_bar_width: bar_width(fp.resources_hash[:combo_gain].to_i, fp.resources_hash[:combo_gain].to_i + fp.resources_hash[:combo_waste].to_i),
+          main_bar_text: "#{fp.resources_hash[:combo_gain].to_i}/#{fp.resources_hash[:combo_gain].to_i + fp.resources_hash[:combo_waste].to_i}",
+          main_text: "#{(1.0 * fp.resources_hash[:combo_gain].to_i / fp.fight_time).round(2)} per second",
+        }
+      }
+    } 
+  %>
+  <% if @fps.map{|fp| fp.resources_hash[:slice_uptime].to_i}.max.to_i > 0 %>
+    <%= render 'bosses/shared/section', 
+      {
+        title: 'Combo Points Usage - Slice and Dice',
+        desc: "The amount of Combo Points spent on each cast of Slice and Dice. Try to cast with max Combo Points as often as possible.",
+        white_bar: true,
+        sub_bars: @fps.reject{|fp| (fp.resources_hash[:combo_spend]['Slice and Dice'][:combo].map{|k,v| v }.sum rescue 0) == 0}.map{|fp| 
+          {
+            fp: fp,
+            white_bar: true,
+            main_bar_width: bar_width(fp.resources_hash[:combo_spend]['Slice and Dice'][:combo][fp.max_combo].to_i, fp.resources_hash[:combo_spend]['Slice and Dice'][:combo].map{|k,v| v }.sum),
+            main_bar_text: "#{fp.resources_hash[:combo_spend]['Slice and Dice'][:combo][fp.max_combo].to_i}/#{fp.resources_hash[:combo_spend]['Slice and Dice'][:combo].map{|k,v| v }.sum}",
+            main_text: "#{fp.resources_hash[:combo_spend]['Slice and Dice'][:combo][fp.max_combo].to_i}/#{fp.resources_hash[:combo_spend]['Slice and Dice'][:combo].map{|k,v| v }.sum} casts with #{fp.max_combo} Combo Points",
+          }
+        }
+      } 
+    %>
+  <% end %>
+  <% if @fps.map{|fp| fp.resources_hash[:rollthebones_uptime].to_i}.max.to_i > 0 %>
+    <%= render 'bosses/shared/section', 
+      {
+        title: 'Combo Points Usage - Roll the Bones',
+        desc: "The amount of Combo Points spent on each cast of Roll the Bones. Try to cast with max Combo Points as often as possible.",
+        white_bar: true,
+        sub_bars: @fps.reject{|fp| (fp.resources_hash[:combo_spend]['Roll the Bones'][:combo].map{|k,v| v }.sum rescue 0) == 0}.map{|fp| 
+          {
+            fp: fp,
+            white_bar: true,
+            main_bar_width: bar_width(fp.resources_hash[:combo_spend]['Roll the Bones'][:combo][fp.max_combo].to_i, fp.resources_hash[:combo_spend]['Roll the Bones'][:combo].map{|k,v| v }.sum),
+            main_bar_text: "#{fp.resources_hash[:combo_spend]['Roll the Bones'][:combo][fp.max_combo].to_i}/#{fp.resources_hash[:combo_spend]['Roll the Bones'][:combo].map{|k,v| v }.sum}",
+            main_text: "#{fp.resources_hash[:combo_spend]['Roll the Bones'][:combo][fp.max_combo].to_i}/#{fp.resources_hash[:combo_spend]['Roll the Bones'][:combo].map{|k,v| v }.sum} casts with #{fp.max_combo} Combo Points",
+          }
+        }
+      } 
+    %>
+  <% end %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Combo Points Usage - Run Through',
+      desc: "The amount of Combo Points spent on each cast of Run Through. Try to cast with max Combo Points as often as possible.",
+      white_bar: true,
+      sub_bars: @fps.reject{|fp| (fp.resources_hash[:combo_spend]['Run Through'][:combo].map{|k,v| v }.sum rescue 0) == 0}.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: bar_width(fp.resources_hash[:combo_spend]['Run Through'][:combo][fp.max_combo].to_i, fp.resources_hash[:combo_spend]['Run Through'][:combo].map{|k,v| v }.sum),
+            main_bar_text: "#{fp.resources_hash[:combo_spend]['Run Through'][:combo][fp.max_combo].to_i}/#{fp.resources_hash[:combo_spend]['Run Through'][:combo].map{|k,v| v }.sum}",
+            main_text: "#{fp.resources_hash[:combo_spend]['Run Through'][:combo][fp.max_combo].to_i}/#{fp.resources_hash[:combo_spend]['Run Through'][:combo].map{|k,v| v }.sum} casts with #{fp.max_combo} Combo Points",
+        }
+      }
+    } 
+  %>
+</div>
+<%= render 'bosses/shared/footer', tab: 'basic' %>

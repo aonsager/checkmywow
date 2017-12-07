@@ -1,0 +1,17 @@
+<%= render 'fight_parses/shared/new_header', {active_tab: nil, back_link: true} %>
+<div class="container">
+  <h2>Changelog</h2>
+  <% @changelogs.each do |patch, changelogs| %>
+      <div class="row">
+        <h3><%= patch %></h3>
+        <hr />
+      </div>
+    <% changelogs.each do |c| %>
+      <div class="row">
+        <h4><%= c.fp_type %> v<%= c.version %> <small><%= c.created_at.strftime("%D") %></small></h4>
+        <div class="col-md-8"><%= raw c.content %></div>
+      </div>
+    <% end %>
+  <% end %>
+</div>
+<%= render 'fight_parses/shared/js', {tab: nil} %> 

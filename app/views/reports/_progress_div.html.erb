@@ -1,0 +1,23 @@
+<%= pluralize(@queued, 'fight') %> queued, <%= pluralize(@processing, 'fight') %> processing
+&nbsp;<small><small>(Last updated <%= local_time(Time.now, "%l:%M:%S") %>)</small></small>
+&nbsp;&nbsp;&nbsp;<small><a onclick="$('#progress-popover').toggle();">See details</a></small>
+<script>
+  function checkStatus(fp_id = null) {
+    if (fp_id == null) {
+      $.ajax({
+        url: '<%= report_fight_status_path(@report_id, fp_ids: @fp_ids.keys.join(".")) %>',
+        cache: false
+      });
+    } else {
+      $.ajax({
+        url: '<%= report_fight_status_path(@report_id, fp_ids: @fp_ids.keys.join('.')) %>'+'.'+fp_id,
+        cache: false
+      });
+    }
+  }
+  var checkTimeout;
+  if (checkTimeout != null) clearTimeout(checkTimeout);
+  <% if @processing + @queued > 0 %>
+    checkTimeout = setTimeout(checkStatus, 3000);
+  <% end %>
+</script>

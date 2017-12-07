@@ -1,0 +1,56 @@
+<%= render 'fight_parses/shared/new_header', {active_tab: @tab} %>
+<div class="container">
+  <h3>Compare to your other pulls</h3>
+  <div class="section">
+    <div class="row">
+      <p><%= link_to('Click here', player_boss_show_path(@fpr.player_id, @fpr.boss_id, @fpr.difficulty))%> to see all of your <%= @fp.boss_name %> (<%= DifficultyType.label(@fp.difficulty) %>) pulls. (<%= @my_fprs.count %> total reports, <%= @my_fprs.count{ |x| x != FightParseRecord.statuses['done']} %> unprocessed)
+    </div>
+  </div>
+  <br />
+  <h3>Compare to other players</h3>
+  <div class="section">
+    <% if @filterrific.nil? %>
+      <p>Unable to detect spec. Please check if advanced combat logging is enabled within World of Warcraft, in the Network pane under System preferences.</p>
+    <% else %>
+      <div class="row">
+        <p>Search for other players that performed well, to see how you can improve your own output. 
+        Only successful kills will be shown here.</p>
+      </div>
+      <div class="row">
+        <%= form_for_filterrific @filterrific, :html => {:class => 'form-inline'} do |f| %>
+          <%= f.select(
+            :difficulty,
+            @filterrific.select_options[:difficulty],
+            { include_blank: 'All Difficulties' },
+            class: 'form-control', 
+          ) %>
+          <%= f.select(
+            :talents,
+            @filterrific.select_options[:talents],
+            { include_blank: 'Any Talents' },
+            class: 'form-control',
+          ) %>
+            Fight length within
+            <%= f.fields_for :fight_length, OpenStruct.new(@filterrific.fight_length) do |fight_length_fields| %>
+              <%= fight_length_fields.text_field(:range, :size=>"3", class: 'form-control filterrific-periodically-observed') %>
+              <%= fight_length_fields.hidden_field(:length, :value=>@fp.fight_time) %>
+            <% end %>
+            seconds.
+            &nbsp;&nbsp;&nbsp;
+            <%= f.hidden_field(:kill, :value=>true) %>
+            <%= f.hidden_field(:boss, :value=>@fp.boss_id) %>
+            <%= f.hidden_field(:sorted_by, :value=>@filterrific.sorted_by) %>
+            <%= link_to(
+              'Reset filters',
+              reset_filterrific_url,
+            ) %>
+          <%# add an automated spinner to your form when the list is refreshed %>
+          <%= render_filterrific_spinner %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+  <div class="section">
+    <%= render(partial: 'fight_parses/list', locals: { other_fps: @other_fps }) unless @filterrific.nil? %>
+  </div>
+</div>

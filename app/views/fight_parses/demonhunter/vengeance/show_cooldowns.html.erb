@@ -1,0 +1,120 @@
+<div class="container">
+  <%= render 'fight_parses/shared/header', {active_tab: @tab, show_hp: true} %>
+  <br /><br />
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Cooldown Timings',
+      desc: 'Be sure you\'re timing your cooldowns correctly, and not missing uses.',
+      sub_bar_type: 'cooldown',
+      sub_bars: @fp.cooldown_timeline_bars,
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Demon Spikes Effectiveness',
+      desc: 'The total amount of damage mitigated through Demon Spikes. The effectiveness of each invididual Demon Spikes cast is calculated by recording the damage reduction of each incoming attack, and by recording 20% of the damage that was parried, based on average damage taken from those abilities over the course of the fight.',
+      bar_key: 'cd-w',
+      val: @fp.cooldowns_hash[:demonspikes_reduced].to_i + @fp.cooldowns_hash[:demonspikes_avoided].to_i,
+      light_bar_width: 10,
+      main_bar_width: bar_width(@fp.cooldowns_hash[:demonspikes_reduced].to_i, @fp.cooldowns_hash[:demonspikes_reduced].to_i + @fp.cooldowns_hash[:demonspikes_avoided].to_i),
+      main_bar_text: "#{(@fp.cooldowns_hash[:demonspikes_reduced].to_i + @fp.cooldowns_hash[:demonspikes_avoided].to_i) / 1000}k",
+      main_text: "#{@fp.cooldowns_hash[:demonspikes_reduced].to_i / 1000}k reduced, #{@fp.cooldowns_hash[:demonspikes_avoided].to_i / 1000}k parried",
+      sub_bars: @cooldowns['cd']['Demon Spikes'].nil? ? nil : @cooldowns['cd']['Demon Spikes'].map{|item| 
+        {
+          label: item.time_s, 
+          bar_key: 'demonspikes-d',
+          val: item.kpi_hash[:avoided_amount].to_i + item.kpi_hash[:reduced_amount].to_i,
+          light_bar_width: 10,
+          width: bar_width(item.kpi_hash[:reduced_amount].to_i, item.kpi_hash[:avoided_amount].to_i + item.kpi_hash[:reduced_amount].to_i),
+          text: "#{(item.kpi_hash[:avoided_amount].to_i + item.kpi_hash[:reduced_amount].to_i)/ 1000}k",
+          sub_text: "#{item.kpi_hash[:reduced_amount].to_i / 1000}k reduced, #{item.kpi_hash[:avoided_amount].to_i / 1000}k parried",
+          dropdown: {
+            id: "sd-#{item.id}",
+            headers: ['Enemy', 'Ability', 'Parried Count', 'Avg. dmg'],
+            content: item.details_hash.map{|id, hash| [hash[:source], hash[:name], hash[:avoided], hash[:avg]]}
+          }
+        }
+      },
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Empower Wards Effectiveness',
+      desc: 'The total amount of damage mitigated through Empower Wards / fight time. Each cast of Empower Wards records all damage taken while it is up, and calculates the total mitigation (10%).',
+      bar_key: 'cd-w',
+      val: @fp.cooldowns_hash[:wards_reduced].to_i,
+      main_bar_text: "#{@fp.cooldowns_hash[:wards_reduced].to_i / 1000}k",
+      main_text: "#{@fp.cooldowns_hash[:wards_reduced].to_i / 1000}k reduced",
+      sub_bars: @cooldowns['cd']['Empower Wards'].nil? ? nil : @cooldowns['cd']['Empower Wards'].map{|item| 
+        {
+          label: item.time_s, 
+          bar_key: 'wards-d',
+          val: item.kpi_hash[:reduced_amount].to_i,
+          text: "#{item.kpi_hash[:reduced_amount].to_i / 1000}k",
+          sub_text: "#{item.kpi_hash[:reduced_amount].to_i}k dmg / #{item.time} sec",
+          dropdown: {
+            id: "dm-#{item.id}",
+            headers: ['Enemy', 'Ability', 'Casts', 'Reduced damage'],
+            content: item.details_hash.map{|id, hash| [hash[:source], hash[:name], hash[:casts], hash[:amount]]}
+          }
+        }
+      },
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Fiery Brand Effectiveness',
+      desc: 'The total amount of damage mitigated through Fiery Brand. Each cast of Fiery Brand records all damage reduced per enemy while it is active (40%).',
+      bar_key: 'cd-w',
+      val: @fp.cooldowns_hash[:brand_reduced].to_i,
+      main_bar_text: "#{@fp.cooldowns_hash[:brand_reduced].to_i / 1000}k",
+      main_text: "#{@fp.cooldowns_hash[:brand_reduced].to_i / 1000}k reduced",
+      sub_bars: @cooldowns['cd']['Fiery Brand'].nil? ? nil : @cooldowns['cd']['Fiery Brand'].map{|item| 
+        {
+          label: item.time_s, 
+          bar_key: 'brand-d',
+          val: item.kpi_hash[:reduced_amount].to_i,
+          text: "#{item.kpi_hash[:reduced_amount].to_i / 1000}k",
+          sub_text: item.time_s,
+          dropdown: {
+            id: "demo-#{item.id}",
+            headers: ['Enemy', 'Ability', 'Casts', 'Reduced damage'],
+            content: item.details_hash.map{|id, hash| [hash[:source], hash[:name], hash[:casts], hash[:amount]]}
+          }
+        }
+      },
+    } 
+  %>
+  <% if @fp.talent(5) == 'Fel Devastation' %>
+    <%= render 'fight_parses/shared/section', 
+      {
+        title: 'Fel Devastation Damage',
+        desc: 'The total amount of damage you dealt with Fel Devastation.',
+        bar_key: 'cd-w',
+        val: @fp.cooldowns_hash[:devastation_damage].to_i,
+        main_bar_text: "#{@fp.cooldowns_hash[:devastation_damage].to_i / 1000}k",
+        main_text: "#{@fp.cooldowns_hash[:devastation_damage].to_i / 1000}k damage",
+        sub_bars: @cooldowns['cd']['Fel Devastation'].nil? ? nil : @cooldowns['cd']['Fel Devastation'].map{|item| 
+          {
+            label: item.time_s, 
+            bar_key: 'devastation-w',
+            val: item.kpi_hash[:damage_done].to_i,
+            text: "#{item.kpi_hash[:damage_done].to_i / 1000}k",
+            sub_text: "#{item.kpi_hash[:damage_done].to_i} dmg",
+            dropdown: {
+              id: "devastation-#{item.id}",
+              headers: ['Enemy', 'Damage Done'],
+              content: item.details_hash.map{|id, hash| [hash[:name], hash[:damage]]}
+            }
+          }
+        },
+      } 
+    %>
+  <% end %>
+</div>
+<%= render 'fight_parses/shared/js', {tab: 'cooldowns'} %> 
+<script>
+    $(['cd-w', 'demonspikes-d', 'wards-d', 'brand-d', 'devastation-w']).each(function(index, key){
+    resizeBars(key)
+  });
+</script>

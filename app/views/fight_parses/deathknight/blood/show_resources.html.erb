@@ -1,0 +1,117 @@
+<%= render 'fight_parses/shared/new_header', {active_tab: @tab} %>
+<div class="container">
+  <% percent = 100 - @fp.resources_hash[:runes_capped_time].to_i / @fp.fight_time rescue 0 %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Time not Rune-Capped',
+      desc: 'The percent of the fight that you had less than max Runes. Aim for 100%.',
+      label: (@fp.resources_hash[:runes_capped_time].to_i == 0 ? 'good' : percent >= 95 ? 'ok' : 'bad'),
+      white_bar: true,
+      main_bar_width: bar_width(@fp.fight_time - @fp.resources_hash[:runes_capped_time].to_i, @fp.fight_time),
+      main_bar_text: "#{@fp.fight_time - @fp.resources_hash[:runes_capped_time].to_i}s",
+      main_text: "#{@fp.fight_time - @fp.resources_hash[:runes_capped_time].to_i}s / #{@fp.fight_time}s",
+    } 
+  %>
+  <% percent = 100 - @fp.resources_hash[:rp_capped_time].to_i / @fp.fight_time rescue 0 %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Time not Runic Power-Capped',
+      desc: 'The percent of the fight that you had less than max Runic Power. Aim for 100%.',
+      label: (@fp.resources_hash[:rp_capped_time].to_i == 0 ? 'good' : percent >= 95 ? 'ok' : 'bad'),
+      white_bar: true,
+      main_bar_width: bar_width(@fp.fight_time - @fp.resources_hash[:rp_capped_time].to_i, @fp.fight_time),
+      main_bar_text: "#{@fp.fight_time - @fp.resources_hash[:rp_capped_time].to_i}s",
+      main_text: "#{@fp.fight_time - @fp.resources_hash[:rp_capped_time].to_i}s / #{@fp.fight_time}s",
+    } 
+  %>
+  <% percent = 100 - @fp.resources_hash[:rp_waste].to_i / (@fp.resources_hash[:rp_gain].to_i + @fp.resources_hash[:rp_waste].to_i) rescue 0 %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Runic Power Gained',
+      desc: 'Avoid overcapping Runic Power by not using Runic Power-generating abilities that would put you over the maximum amount.',
+      label: (@fp.resources_hash[:rp_waste].to_i == 0 ? 'good' : percent >= 95 ? 'ok' : 'bad'),
+      white_bar: true,
+      main_bar_width: bar_width(@fp.resources_hash[:rp_gain].to_i, @fp.resources_hash[:rp_gain].to_i + @fp.resources_hash[:rp_waste].to_i),
+      main_bar_text: "#{@fp.resources_hash[:rp_gain].to_i}/#{@fp.resources_hash[:rp_gain].to_i + @fp.resources_hash[:rp_waste].to_i}",
+      main_text: "#{@fp.resources_hash[:rp_waste].to_i} wasted",
+      sub_bars: @fp.resources_hash[:rp_abilities].nil? ? nil : @fp.resources_hash[:rp_abilities].values.sort{|a, b| (b[:gain].to_i + b[:waste].to_i) <=> (a[:gain].to_i + a[:waste].to_i)}.map{|item| 
+        {
+          label: item[:name],
+          white_bar: true,
+          bar_key: 'rp-w',
+          val: item[:gain].to_i + item[:waste].to_i,
+          width: bar_width(item[:gain].to_i, item[:gain].to_i + item[:waste].to_i),
+          text: "#{item[:gain].to_i}/#{item[:gain].to_i + item[:waste].to_i}",
+          sub_text: "#{item[:waste].to_i} wasted",
+        }
+      },
+    } 
+  %>
+  <% percent = 100 - @fp.resources_hash[:bs_waste].to_i / (@fp.resources_hash[:bs_gain].to_i + @fp.resources_hash[:bs_waste].to_i) rescue 0 %>
+  <%= render 'fight_parses/shared/table', 
+    {
+      title: 'Blood Shield Gained',
+      desc: "Avoid overcapping Blood Shield charges by not using Marrowrend when you have more than #{@fp.artifact('Rattling Bones') ? 6 : 7} stacks. #{"At the same time, you should avoid going below 5 stacks when taking Ossuary." if @fp.talent(2) == 'Ossuary'}",
+      label: (@fp.resources_hash[:bs_waste].to_i == 0 ? 'good' : percent >= 95 ? 'ok' : 'bad'),
+      white_bar: true,
+      main_bar_width: bar_width(@fp.resources_hash[:bs_gain].to_i, @fp.resources_hash[:bs_gain].to_i + @fp.resources_hash[:bs_waste].to_i),
+      main_bar_text: "#{@fp.resources_hash[:bs_gain].to_i}/#{@fp.resources_hash[:bs_gain].to_i + @fp.resources_hash[:bs_waste].to_i}",
+      main_text: "#{@fp.resources_hash[:bs_waste].to_i} wasted",
+      dropdown: {id: 'bs-waste'},
+        labels: ['Time', 'Details'],
+        rows: @fp.resources_hash[:bs_waste_details].nil? ? nil : @fp.resources_hash[:bs_waste_details].map{|row| [{value: @fp.event_time(row[:timestamp], true)}, {value: row[:msg]}]},
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Death and Decay Casts with Crimson Scourge Procced',
+      desc: 'Every time Crimson Scourge procs, you should cast Death and Decay.',
+      label: (@fp.resources_hash[:dd_with_cs].to_i == @fp.resources_hash[:cs_procs].to_i ? 'good' : @fp.resources_hash[:cs_procs].to_i - @fp.resources_hash[:dd_with_cs].to_i <= 2 ? 'ok' : 'bad'),
+      white_bar: true,
+      main_bar_width: bar_width(@fp.resources_hash[:dd_with_cs].to_i, @fp.resources_hash[:cs_procs].to_i),
+      main_bar_text: "#{100 * @fp.resources_hash[:dd_with_cs].to_i / @fp.resources_hash[:cs_procs].to_i rescue 0}%",
+      main_text: "#{@fp.resources_hash[:dd_with_cs].to_i} casts / #{@fp.resources_hash[:cs_procs].to_i rescue 0} procs",
+    } 
+  %>
+  <% score = @fp.resources_hash[:dd_uptime].to_i / (10 * @fp.fight_time) rescue 0 %>
+  <%= render 'fight_parses/shared/stacks_graph', 
+    {
+      title: 'Death and Decay Uptime',
+      desc: "The duration that you were standing inside a Death and Decay pool. Try to maintain this buff as much as possible.",
+      label: (score >= 60 ? 'good' : score >= 50 ? 'ok' : 'bad'), 
+      white_bar: true,
+      main_bar_width: bar_width(@fp.resources_hash[:dd_uptime].to_i, @fp.ended_at - @fp.started_at),
+      main_bar_text: "#{score}%",
+      main_text: "#{@fp.resources_hash[:dd_uptime].to_i / 1000}s / #{@fp.fight_time}s",
+      buff: (@buffs['Death and Decay (buff)'].first rescue nil),
+    } 
+  %>
+  <% percent = @fp.resources_hash[:bp_uptime].to_i / (10 * @fp.fight_time) rescue 0 %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Blood Plague Uptime',
+      desc: 'The percentage of time the Blood Plague debuff was active on targets you were attacking. A red area means that you were attacking an enemy with no Blood Plague debuff. Aim for 100% uptime.',
+      label: (percent >= 98 ? 'good' : percent >= 95 ? 'ok' : 'bad'),
+      white_bar: true,
+      main_bar_width: bar_width(@fp.resources_hash[:bp_uptime].to_i / 1000, @fp.fight_time),
+      main_bar_text: "#{@fp.resources_hash[:bp_uptime].to_i / 1000}/#{@fp.fight_time}",
+      main_text: "#{@fp.resources_hash[:bp_uptime].to_i / 1000}/#{@fp.fight_time}",
+      dropdown: {id: 'bp'},
+      sub_bar_type: 'debuff',
+      sub_bars: @debuffs['Blood Plague'].nil? ? nil : @debuffs['Blood Plague'].map{|item| 
+        {
+          debuff: item,
+          label: item.target_name,
+          id: "#{item.name.gsub(/\s+/, "")}-#{item.target_id}",
+          sub_text: item.upratio_s
+        }
+      }
+    } 
+  %>
+</div>
+<%= render 'fight_parses/shared/js', {tab: 'resources'} %> 
+<script>
+    $(['rp-w']).each(function(index, key){
+    resizeBars(key)
+  });
+</script>

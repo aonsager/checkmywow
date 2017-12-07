@@ -1,0 +1,57 @@
+<%= render 'fight_parses/shared/new_header', {active_tab: @tab} %>
+<div class="container">
+  <% percent = 100 - @fp.resources_hash[:runes_capped_time].to_i / @fp.fight_time rescue 0 %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Time not Rune-Capped',
+      desc: 'The percent of the fight that you had less than max Runes. Aim for 100%.',
+      label: (@fp.resources_hash[:runes_capped_time].to_i == 0 ? 'good' : percent >= 95 ? 'ok' : 'bad'),
+      white_bar: true,
+      main_bar_width: bar_width(@fp.fight_time - @fp.resources_hash[:runes_capped_time].to_i, @fp.fight_time),
+      main_bar_text: "#{@fp.fight_time - @fp.resources_hash[:runes_capped_time].to_i}s",
+      main_text: "#{@fp.fight_time - @fp.resources_hash[:runes_capped_time].to_i}s / #{@fp.fight_time}s",
+    } 
+  %>
+  <% percent = 100 - @fp.resources_hash[:rp_capped_time].to_i / @fp.fight_time rescue 0 %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Time not Runic Power-Capped',
+      desc: 'The percent of the fight that you had less than max Runic Power. Aim for 100%.',
+      label: (@fp.resources_hash[:rp_capped_time].to_i == 0 ? 'good' : percent >= 95 ? 'ok' : 'bad'),
+      white_bar: true,
+      main_bar_width: bar_width(@fp.fight_time - @fp.resources_hash[:rp_capped_time].to_i, @fp.fight_time),
+      main_bar_text: "#{@fp.fight_time - @fp.resources_hash[:rp_capped_time].to_i}s",
+      main_text: "#{@fp.fight_time - @fp.resources_hash[:rp_capped_time].to_i}s / #{@fp.fight_time}s",
+    } 
+  %>
+  <% percent = 100 - @fp.resources_hash[:rp_waste].to_i / (@fp.resources_hash[:rp_gain].to_i + @fp.resources_hash[:rp_waste].to_i) rescue 0 %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Runic Power Gained',
+      desc: 'Avoid overcapping Runic Power by not using Runic Power-generating abilities that would put you over the maximum amount.',
+      label: (@fp.resources_hash[:rp_waste].to_i == 0 ? 'good' : percent >= 95 ? 'ok' : 'bad'),
+      white_bar: true,
+      main_bar_width: bar_width(@fp.resources_hash[:rp_gain].to_i, @fp.resources_hash[:rp_gain].to_i + @fp.resources_hash[:rp_waste].to_i),
+      main_bar_text: "#{@fp.resources_hash[:rp_gain].to_i}/#{@fp.resources_hash[:rp_gain].to_i + @fp.resources_hash[:rp_waste].to_i}",
+      main_text: "#{@fp.resources_hash[:rp_waste].to_i} wasted",
+      sub_bars: @fp.resources_hash[:rp_abilities].nil? ? nil : @fp.resources_hash[:rp_abilities].values.sort{|a, b| (b[:gain].to_i + b[:waste].to_i) <=> (a[:gain].to_i + a[:waste].to_i)}.map{|item| 
+        {
+          label: item[:name],
+          white_bar: true,
+          bar_key: 'rp-w',
+          val: item[:gain].to_i + item[:waste].to_i,
+          width: bar_width(item[:gain].to_i, item[:gain].to_i + item[:waste].to_i),
+          text: "#{item[:gain].to_i}/#{item[:gain].to_i + item[:waste].to_i}",
+          sub_text: "#{item[:waste].to_i} wasted",
+        }
+      },
+    } 
+  %>
+  
+</div>
+<%= render 'fight_parses/shared/js', {tab: 'resources'} %> 
+<script>
+    $(['rp-w']).each(function(index, key){
+    resizeBars(key)
+  });
+</script>

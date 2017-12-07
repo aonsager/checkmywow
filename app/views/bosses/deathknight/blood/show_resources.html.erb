@@ -1,0 +1,109 @@
+<div class="container">
+  <%= render 'bosses/shared/header', tab: 'resources' %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Time not Rune-Capped',
+      desc: 'The percent of the fight that you had less than max Runes. Aim for 100%.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: bar_width(fp.fight_time - fp.resources_hash[:runes_capped_time].to_i, fp.fight_time),
+          main_bar_text: "#{fp.fight_time - fp.resources_hash[:runes_capped_time].to_i}s",
+          main_text: "#{fp.fight_time - fp.resources_hash[:runes_capped_time].to_i}s / #{fp.fight_time}s",
+        }
+      }
+    } 
+  %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Time not Runic Power-Capped',
+      desc: 'The percent of the fight that you had less than max Runic Power. Aim for 100%.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: bar_width(fp.fight_time - fp.resources_hash[:rp_capped_time].to_i, fp.fight_time),
+          main_bar_text: "#{fp.fight_time - fp.resources_hash[:rp_capped_time].to_i}s",
+          main_text: "#{fp.fight_time - fp.resources_hash[:rp_capped_time].to_i}s / #{fp.fight_time}s",
+        }
+      }
+    } 
+  %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Runic Power Gained',
+      desc: 'Avoid overcapping Runic Power by not using Runic Power-generating abilities that would put you over the maximum amount.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: bar_width(fp.resources_hash[:rp_gain].to_i, fp.resources_hash[:rp_gain].to_i + fp.resources_hash[:rp_waste].to_i),
+          main_bar_text: "#{fp.resources_hash[:rp_gain].to_i}/#{fp.resources_hash[:rp_gain].to_i + fp.resources_hash[:rp_waste].to_i}",
+          main_text: "#{fp.resources_hash[:rp_waste].to_i} wasted",
+        }
+      }
+    } 
+  %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Blood Shield Gained',
+      desc: "Avoid overcapping Blood Shield charges by not using Marrowrend when you might overcap stacks. At the same time, you should avoid going below 5 stacks when taking Ossuary.",
+      sub_bars: @fps.map{|fp|
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: bar_width(fp.resources_hash[:bs_gain].to_i, fp.resources_hash[:bs_gain].to_i + fp.resources_hash[:bs_waste].to_i),
+          main_bar_text: "#{fp.resources_hash[:bs_gain].to_i}/#{fp.resources_hash[:bs_gain].to_i + fp.resources_hash[:bs_waste].to_i}",
+          main_text: "#{fp.resources_hash[:bs_waste].to_i} wasted",
+        }
+      }
+    }
+  %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Death and Decay Casts with Crimson Scourge Procced',
+      desc: 'Every time Crimson Scourge procs, you should cast Death and Decay.',
+      sub_bars: @fps.map{|fp|
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: bar_width(fp.resources_hash[:dd_with_cs].to_i, fp.resources_hash[:cs_procs].to_i),
+          main_bar_text: "#{100 * fp.resources_hash[:dd_with_cs].to_i / fp.resources_hash[:cs_procs].to_i rescue 0}%",
+          main_text: "#{fp.resources_hash[:dd_with_cs].to_i} casts / #{fp.resources_hash[:cs_procs].to_i rescue 0} procs",
+        }
+      }
+    }
+  %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Death and Decay Uptime',
+      desc: "The duration that you were standing inside a Death and Decay pool. Try to maintain this buff as much as possible.",
+      sub_bars: @fps.map{|fp|
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: bar_width(fp.resources_hash[:dd_uptime].to_i, fp.ended_at - fp.started_at),
+          main_bar_text: "#{fp.resources_hash[:dd_uptime].to_i / (10 * fp.fight_time) rescue 0}%",
+          main_text: "#{fp.resources_hash[:dd_uptime].to_i / 1000}s / #{fp.fight_time}s",
+        }
+      }
+    }
+  %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Blood Plague Uptime',
+      desc: 'The percentage of time the Blood Plague debuff was active on targets you were attacking. A red area means that you were attacking an enemy with no Blood Plague debuff. Aim for 100% uptime.',
+      sub_bars: @fps.map{|fp|
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: bar_width(fp.resources_hash[:bp_uptime].to_i / 1000, fp.fight_time),
+          main_bar_text: "#{fp.resources_hash[:bp_uptime].to_i / 1000}/#{fp.fight_time}",
+          main_text: "#{fp.resources_hash[:bp_uptime].to_i / 1000}/#{fp.fight_time}",
+        }
+      }
+    }
+  %>
+</div>
+<%= render 'bosses/shared/footer', tab: 'basic' %>

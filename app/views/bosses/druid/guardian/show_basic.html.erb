@@ -1,0 +1,179 @@
+<div class="container">
+  <%= render 'bosses/shared/header', tab: 'basic' %>
+  <% max_dps = @fps.map{|fp| fp.dps || 0 }.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Damage per Second',
+      desc: 'Total damage / Fight time. Pet damage is shown with a separate color.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          light_bar_width: bar_width(fp.dps, max_dps),
+          main_bar_width: bar_width(fp[:kpi_hash][:player_damage_done].to_i, fp[:kpi_hash][:player_damage_done].to_i + fp[:kpi_hash][:pet_damage_done].to_i), 
+          main_bar_text: "#{fp.dps}/s",
+          main_text: "#{(fp[:kpi_hash][:player_damage_done].to_i + fp[:kpi_hash][:pet_damage_done].to_i) / 1000}k total damage (#{fp[:kpi_hash][:pet_damage_done].to_i / 1000}k pet)"
+        }
+      }
+    } 
+  %>
+  <% max_dtps = @fps.map{|fp| fp.dtps || 0 }.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Damage Taken per Second',
+      desc: 'This is the total damage (divided by fight time) that actually reduced your HP. Absorbed damage is not included. Try to keep this low.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          main_bar_width: bar_width(fp.dtps, max_dtps), 
+          main_bar_text: "#{fp.dtps}/s",
+          main_text: "#{fp[:kpi_hash][:damage_taken].to_i / 1000}k total damage taken"
+        }
+      }
+    } 
+  %>
+  <% max_shps = @fps.map{|fp| fp.shps || 0 }.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Self Healing per Second',
+      desc: 'The total amount (divided by fight time) that you healed yourself. Absorbs are shown with a separate color.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          light_bar_width: bar_width(fp.shps, max_shps), 
+          main_bar_width: bar_width(fp[:kpi_hash][:self_heal].to_i, (fp[:kpi_hash][:self_heal].to_i + fp[:kpi_hash][:self_absorb].to_i)), 
+          main_bar_text: "#{fp.shps}/s",
+          main_text: "#{fp[:kpi_hash][:self_heal].to_i / 1000}k healed, #{fp[:kpi_hash][:self_absorb].to_i / 1000}k absorbed"
+        }
+      }
+    } 
+  %>
+  <% max_ehps = @fps.map{|fp| fp.ehps || 0 }.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'External Healing per Second',
+      desc: 'The total amount (divided by fight time) that other sources healed you. Absorbs are shown with a separate color. Avoid damage to keep this low.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          light_bar_width: bar_width(fp.ehps, max_ehps), 
+          main_bar_width: bar_width(fp[:kpi_hash][:external_heal].to_i, fp[:kpi_hash][:external_heal].to_i + fp[:kpi_hash][:external_absorb].to_i), 
+          main_bar_text: "#{fp.ehps}/s",
+          main_text: "#{fp[:kpi_hash][:external_heal].to_i / 1000}k healed, #{fp[:kpi_hash][:external_absorb].to_i / 1000}k absorbed"
+        }
+      }
+    } 
+  %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Cast Efficiency',
+      desc: 'Make sure you are casting your key spells on cooldown. Your cast score is determined by a weighted average, with more emphasis placed on abilities with longer cooldown times.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: fp.kpi_hash[:casts_score].to_i,
+          main_bar_text: "#{fp.kpi_hash[:casts_score].to_i}%",
+          main_text: "#{fp.kpi_hash[:casts_score].to_i}\% cast efficiency",
+        }
+      }
+    } 
+  %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Ironfur Uptime',
+      desc: "The duration that you had Ironfur active. Try to maintain this buff as much as possible while tanking. A red area means Ironfur was not active.",
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: bar_width(fp.resources_hash[:ironfur_uptime].to_i, 1000 * fp.fight_time),
+          main_bar_text: "#{fp.resources_hash[:ironfur_uptime].to_i / (10 * fp.fight_time) rescue 0}%",
+          main_text: "#{fp.resources_hash[:ironfur_uptime].to_i / 1000}s / #{fp.fight_time}s",
+        }
+      }
+    } 
+  %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Thrash Uptime',
+      desc: "The duration that you had Thrash at 3 stacks on your target (enemies who were alive for less than 20 seconds are ignored). Try to maintain this debuff as much as possible while tanking. A red area means Thrash was not active, and a yellow area means it wasn't at 3 stacks.",
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          dropdown: {id: 'thrash'},
+          main_bar_width: fp.debuff_upratio(:thrash),
+          main_bar_text: fp.debuff_upratio_s(:thrash),
+          main_text: fp.debuff_upratio_s(:thrash),
+        }
+      }
+    } 
+  %>
+  <% if @fps.reject{|fp| fp.talent(5) != 'Guardian of Elune'}.count > 0 %>
+    <%= render 'bosses/shared/section', 
+      {
+        title: 'Guardian of Elune Usage',
+        desc: 'Take advantage of your Guardian of Elune procs, by paying attention to what spell you cast after using Mangle. You can also see what percentage of your total casts were buffed by Guardian of Elune, but usually there is no need to aim for 100%',
+        sub_bars: @fps.reject{|fp| fp.talent(5) != 'Guardian of Elune'}.map{|fp| 
+          {
+            fp: fp,
+            white_bar: true,
+            main_bar_width: bar_width(fp.resources_hash[:elune_procs].to_i - fp.resources_hash[:elune_wasted].to_i, fp.resources_hash[:elune_procs].to_i),
+            main_bar_text: "#{fp.resources_hash[:elune_procs].to_i - fp.resources_hash[:elune_wasted].to_i}/#{fp.resources_hash[:elune_procs].to_i}",
+            main_text: "#{fp.resources_hash[:elune_wasted].to_i} wasted",
+          }
+        }
+      } 
+    %>
+  <% end %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Mangle! Proc Usage',
+      desc: 'You should take advantage of every free Mangle proc. This section shows how many procs were consumed before being refreshed',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: bar_width(fp.resources_hash[:mangle_procs].to_i - fp.resources_hash[:mangle_wasted].to_i, fp.resources_hash[:mangle_procs].to_i),
+          main_bar_text: "#{fp.resources_hash[:mangle_procs].to_i - fp.resources_hash[:mangle_wasted].to_i}/#{fp.resources_hash[:mangle_procs].to_i}",
+          main_text: "#{fp.resources_hash[:mangle_wasted].to_i} procs wasted",
+        }
+      }
+    } 
+  %>
+  <% if @fps.reject{|fp| fp.talent(4) != 'Galactic Guardian'}.count > 0 %>
+    <%= render 'bosses/shared/section', 
+      {
+        title: 'Galactic Guardian Proc Usage',
+        desc: 'If you took Galactic Guardian, you should take advantage of every free Moonfire proc. You also should not cast Moonfire without this proc. This section shows how many free Moonfires were missed.',
+        sub_bars: @fps.reject{|fp| fp.talent(4) != 'Galactic Guardian'}.map{|fp| 
+          {
+            fp: fp,
+            white_bar: true,
+            main_bar_width: bar_width(fp.resources_hash[:galactic_procs].to_i - fp.resources_hash[:galactic_wasted].to_i - fp.resources_hash[:galactic_notready].to_i, fp.resources_hash[:galactic_procs].to_i),
+            main_bar_text: "#{fp.resources_hash[:galactic_procs].to_i - fp.resources_hash[:galactic_wasted].to_i - fp.resources_hash[:galactic_notready].to_i}/#{fp.resources_hash[:galactic_procs].to_i}",
+            main_text: "#{fp.resources_hash[:galactic_wasted].to_i} procs wasted, #{fp.resources_hash[:galactic_notready].to_i} cast without proc",
+          }
+        }
+      } 
+    %>
+  <% end %>
+  <% if @fps.reject{|fp| fp.talent(4) == 'Galactic Guardian'}.count > 0 %>
+    <%= render 'bosses/shared/section', 
+      {
+        title: 'Moonfire Uptime',
+        desc: "The percentage of time Moonfire was active on targets you were attacking (enemies who were alive for less than 10 seconds are ignored). A red area means that you were attacking an enemy with no Moonfire.",
+        sub_bars: @fps.reject{|fp| fp.talent(4) == 'Galactic Guardian'}.map{|fp| 
+          {
+            fp: fp,
+            white_bar: true,
+            main_bar_width: fp.debuff_upratio(:moonfire),
+            main_bar_text: fp.debuff_upratio_s(:moonfire),
+            main_text: fp.debuff_upratio_s(:moonfire),
+          }
+        }
+      } 
+    %>
+  <% end %>
+</div>
+<%= render 'bosses/shared/footer', tab: 'basic' %>

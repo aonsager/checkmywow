@@ -1,0 +1,7 @@
+<% if @queued + @processing > 0 %>
+  <p>Please be patient after queuing your fights to be processed. It will usually take about a minute to parse a single fight.</p>
+  <% if @queued > 0 %>
+    <p>Current queue size: <%= pluralize Resque.size(:parse) + Resque.size(:single_parse) + Resque.working.size, 'report' %></p>
+  <% end %>
+  <p><small>Last updated: <%= local_time(Time.now, "%l:%M:%S") %></small></p>
+<% end %>

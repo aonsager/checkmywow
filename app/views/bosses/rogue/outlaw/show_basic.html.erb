@@ -1,0 +1,101 @@
+<div class="container">
+  <%= render 'bosses/shared/header', tab: 'basic' %>
+  <% max_dps = @fps.map{|fp| fp.dps || 0 }.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Damage per Second',
+      desc: 'Total damage / Fight time.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          light_bar_width: bar_width(fp.dps, max_dps),
+          main_bar_width: bar_width(fp.kpi_hash[:player_damage_done].to_i, fp.kpi_hash[:player_damage_done].to_i + fp.kpi_hash[:pet_damage_done].to_i),
+          main_bar_text: "#{fp.dps}/s",
+          main_text: "#{(fp.kpi_hash[:player_damage_done].to_i + fp.kpi_hash[:pet_damage_done].to_i) / 1000}k total damage"
+        }
+      }
+    } 
+  %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Cast Efficiency',
+      desc: 'Make sure you are casting your key spells on cooldown. Your cast score is determined by a weighted average, with more emphasis placed on abilities with longer cooldown times.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: fp.kpi_hash[:casts_score].to_i,
+          main_bar_text: "#{fp.kpi_hash[:casts_score].to_i}%",
+          main_text: "#{fp.kpi_hash[:casts_score].to_i}\% cast efficiency",
+        }
+      }
+    } 
+  %>
+  <% if @fps.map{|fp| fp.resources_hash[:slice_uptime].to_i}.max.to_i > 0 %>
+    <%= render 'bosses/shared/section', 
+      {
+        title: 'Slice and Dice Uptime',
+        desc: 'The percentage of time Slice and Dice was active. Aim for 100% uptime.',
+        sub_bars: @fps.reject{|fp| fp.talent(6) != 'Slice and Dice' }.map{|fp| 
+          {
+            fp: fp,
+            white_bar: true,
+            main_bar_width: bar_width(fp.resources_hash[:slice_uptime].to_i / 1000, fp.fight_time),
+            main_bar_text: "#{fp.resources_hash[:slice_uptime].to_i / (10 * fp.fight_time) rescue 0}%",
+            main_text: "#{fp.resources_hash[:slice_uptime].to_i / 1000}s / #{fp.fight_time}s",
+          }
+        }
+      } 
+    %>
+  <% end %>
+  <% if @fps.map{|fp| fp.resources_hash[:rollthebones_uptime].to_i}.max.to_i > 0 %>
+    <%= render 'bosses/shared/section', 
+      {
+        title: 'Roll the Bones Uptime',
+        desc: 'The percentage of time Roll the Bones was active. Aim for 100% uptime.',
+        sub_bars: @fps.reject{|fp| fp.talent(6) == 'Slice and Dice' }.map{|fp| 
+          {
+            fp: fp,
+            white_bar: true,
+            main_bar_width: bar_width(fp.resources_hash[:rollthebones_uptime].to_i / 1000, fp.fight_time),
+            main_bar_text: "#{fp.resources_hash[:rollthebones_uptime].to_i / (10 * fp.fight_time) rescue 0}%",
+            main_text: "#{fp.resources_hash[:rollthebones_uptime].to_i / 1000}s / #{fp.fight_time}s",
+          }
+        }
+      } 
+    %>
+  <% end %>
+  <% if @fps.map{|fp| fp.resources_hash[:ghostly_uptime].to_i}.max.to_i > 0 %>
+    <%= render 'bosses/shared/section', 
+      {
+        title: 'Ghostly Strike Uptime',
+          desc: 'The percentage of time Ghostly Strike was active on your target. A red area means that you were attacking an enemy with no Ghostly Strike debuff. Aim for 100% uptime on your primary target.',
+        sub_bars: @fps.reject{|fp| fp.talent(0) != 'Ghostly Strike'}.map{|fp| 
+          {
+            fp: fp,
+            white_bar: true,
+            main_bar_width: bar_width(fp.resources_hash[:ghostly_uptime].to_i / 1000, fp.fight_time),
+            main_bar_text: "#{(fp.resources_hash[:ghostly_uptime].to_i / (10 * fp.fight_time)).to_i}%",
+            main_text: "#{fp.resources_hash[:ghostly_uptime].to_i / 1000}s / #{fp.fight_time}s",
+          }
+        }
+      } 
+    %>
+  <% end %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Opportunity Proc Usage',
+      desc: 'You should take advantage of every Opportunity proc by casting a free Pistol Shot or Blunderbuss. This section shows how many procs were consumed before being refreshed',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: bar_width(fp.kpi_hash[:opportunity_used].to_i, fp.kpi_hash[:opportunity_procs].to_i),
+          main_bar_text: "#{fp.kpi_hash[:opportunity_used].to_i}/#{fp.kpi_hash[:opportunity_procs].to_i}",
+          main_text: "#{fp.kpi_hash[:opportunity_procs].to_i - fp.kpi_hash[:opportunity_used].to_i} procs wasted",
+        }
+      }
+    } 
+  %>
+</div>
+<%= render 'bosses/shared/footer', tab: 'basic' %>

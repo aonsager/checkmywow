@@ -1,0 +1,37 @@
+<section>
+  <h4><%= title %>&nbsp;&nbsp;<%= raw(success_label(local_assigns[:label])) if local_assigns.has_key?(:label) %></h4>
+  <div class="row">
+    <div class="col-md-9">
+      <div class="section-desc"><%= desc %></div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <% sub_bars.each do |type, cd_hashes| %>
+        <% cd_hashes.each do |name, cd_hash| %>
+          <% if !cooldowns_map.dig(type, name).nil? || !cd_hash[:optional] %>
+            <div class="row">
+              <div class="col-md-2"><%= name %></div>
+              <div class="graph-container col-md-6">
+              <% if !cooldowns_map.dig(type, name).nil? %>
+                <% cooldowns_map[type][name].each do |buff| %>
+                  <% buff.ended_at ||= buff.started_at %>
+                  <div class="timeline up <%= cd_hash[:color] %>" style="left: <%= 100.0 * (buff.started_at - @fp.started_at) / (@fp.ended_at - @fp.started_at) %>%; width: <%= [100.0 * (buff.ended_at - buff.started_at) / (@fp.ended_at - @fp.started_at), 1].max.to_i %>%;">&nbsp;</div>
+                <% end %>
+              <% end %>
+              </div>
+              <% if !cd_hash[:cd].nil? && (!cd_hash[:optional] || !cooldowns_map[type][name].nil?) %>
+                <% count = cooldowns_map[type][name].size rescue 0 %>
+                <% max = [@fp.casts_possible(cd_hash), count].max.to_i %>
+                <div class="col-md-2"><%= "#{count} / #{max} (#{100 * count / max rescue 0}%)" %></div>
+              <% elsif !cd_hash[:max].nil? && (!cd_hash[:optional] || !cooldowns_map[type][name].nil?) %>
+                <% count = cooldowns_map[type][name].size rescue 0 %>
+                <div class="col-md-2"><%= "#{count} / #{cd_hash[:max]} (#{100 * count / cd_hash[:max] rescue 0}%)" %></div>
+              <% end %>
+            </div>
+          <% end %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</section>

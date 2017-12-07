@@ -1,0 +1,69 @@
+<div class="container">
+  <%= render 'bosses/shared/header', tab: 'basic' %>
+  <% max_hps = @fps.map{|fp| (fp.kpi_hash[:healing_done].to_i + fp.kpi_hash[:overhealing_done].to_i) / fp.fight_time }.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Healing Done',
+      desc: 'Total healing done. Overhealing is shown as the white part of the bar.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar_width: bar_width((fp.kpi_hash[:healing_done].to_i + fp.kpi_hash[:overhealing_done].to_i) / fp.fight_time, max_hps),
+          white_bar: true,
+          main_bar_width: bar_width(fp.kpi_hash[:healing_done].to_i, fp.kpi_hash[:healing_done].to_i + fp.kpi_hash[:overhealing_done].to_i),
+          main_bar_text: "#{fp.kpi_hash[:healing_done].to_i / fp.fight_time}/s",
+          main_text: "#{fp.kpi_hash[:healing_done].to_i / fp.fight_time} healing/sec (#{fp.kpi_hash[:overhealing_done].to_i / fp.fight_time} overhealing/sec)",
+        }
+      }
+    } 
+  %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Cast Efficiency',
+      desc: 'Make sure you are casting your key spells on cooldown. Your cast score is determined by a weighted average, with more emphasis placed on abilities with longer cooldown times.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: fp.kpi_hash[:casts_score].to_i,
+          main_bar_text: "#{fp.kpi_hash[:casts_score].to_i}%",
+          main_text: "#{fp.kpi_hash[:casts_score].to_i}\% cast efficiency",
+        }
+      }
+    } 
+  %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Renewing Mist Uptime',
+      desc: "The percentage of time Renewing Mist was active on friendly targets. Cast this on cooldown to maximize uptime.",
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: fp.buff_upratio(:renewingmist),
+          main_bar_text: fp.buff_upratio_s(:renewingmist),
+          main_text: fp.buff_upratio_s(:renewingmist),
+        }
+      }
+    } 
+  %>
+  <% max_enveloping = @fps.map{|fp| (fp.cooldowns_hash[:enveloping_healing].to_i + fp.cooldowns_hash[:enveloping_healing_increased].to_i + fp.cooldowns_hash[:enveloping_overhealing].to_i) / fp.fight_time}.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Enveloping Mist Effectiveness',
+      desc: 'The total amount of healing provided by Enveloping Mist. This shows direct healing from Enveloping Mist, as well as the 30% healing increase while it is active. Increased healing is shown on bars as a lighter color.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          white_bar_width: bar_width((fp.cooldowns_hash[:enveloping_healing].to_i + fp.cooldowns_hash[:enveloping_healing_increased].to_i + fp.cooldowns_hash[:enveloping_overhealing].to_i) / fp.fight_time, max_enveloping),
+          light_bar_width: bar_width(fp.cooldowns_hash[:enveloping_healing].to_i + fp.cooldowns_hash[:enveloping_healing_increased].to_i, fp.cooldowns_hash[:enveloping_healing].to_i + fp.cooldowns_hash[:enveloping_healing_increased].to_i + fp.cooldowns_hash[:enveloping_overhealing].to_i), 
+          main_bar_width: bar_width(fp.cooldowns_hash[:enveloping_healing].to_i, fp.cooldowns_hash[:enveloping_healing].to_i + fp.cooldowns_hash[:enveloping_healing_increased].to_i),
+          main_bar_text: "#{(fp.cooldowns_hash[:enveloping_healing].to_i + fp.cooldowns_hash[:enveloping_healing_increased].to_i) / fp.fight_time}/sec",
+          main_text: "#{(fp.cooldowns_hash[:enveloping_healing].to_i + fp.cooldowns_hash[:enveloping_healing_increased].to_i) / fp.fight_time}k healing, #{fp.cooldowns_hash[:enveloping_overhealing].to_i / fp.fight_time}k overhealing per second",
+        }
+      }
+    } 
+  %>
+</div>
+<%= render 'bosses/shared/footer', tab: 'basic' %>

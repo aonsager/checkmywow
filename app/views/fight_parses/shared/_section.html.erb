@@ -1,0 +1,123 @@
+<section>
+  <h4><%= title %>&nbsp;&nbsp;<%= raw(success_label(local_assigns[:label])) if local_assigns.has_key?(:label) %></h4>
+  <div class="row">
+    <div class="col-md-9">
+      <div class="section-desc"><%= desc %></div>
+    </div>
+  </div>
+  <% if local_assigns.key? :dropdown %>
+  <div class="row" onclick="$('#<%= dropdown[:id] %>').slideToggle();">
+  <% else %>
+  <div class="row">
+  <% end %>
+    <% if local_assigns.key?(:main_bar_width) || (local_assigns.key?(:bar_key) && local_assigns.key?(:val)) %>
+      <div class="col-md-7 <%= local_assigns[:bar_key] %>" val="<%= local_assigns[:val] %>">
+        <% if local_assigns.key? :white_bar %><div class="bar white" style="width: <%= local_assigns[:white_bar_width] || 100 %>%"><% end %>
+        <% if local_assigns.key? :light_bar_width %><div class="bar light <%= @fp.class_type %>" style="width: <%= light_bar_width %>%"><% end %>
+        <div class="bar dark <%= @fp.class_type %>" style="width: <%= local_assigns[:main_bar_width] || 10 %>%">
+          <%= main_bar_text %>
+        </div>
+        <% if local_assigns.key? :light_bar_width %></div><% end %>
+        <% if local_assigns.key? :white_bar %></div><% end %>
+      </div>
+      <div class="col-md-5"><%= main_text %> <%= image_tag('down.png', size: '15z15') if local_assigns.key? :dropdown %></div>
+    <% end %>
+  </div>
+  <% if local_assigns.key? :dropdown %>
+  <div id="<%= dropdown[:id] %>" class="row slideout">
+  <% else %>
+  <div>
+  <% end %>
+  <% if !local_assigns[:sub_bars].nil? %>
+    <% if local_assigns[:sub_bar_type] == 'debuff' %>
+      <% sub_bars.each do |bar| %>
+        <% if bar.key? :dropdown %>
+          <div class="row <%= 'col-md-12' if local_assigns.key? :dropdown %>" onclick="$('#<%= bar[:dropdown][:id] %>').slideToggle();">
+          <div class="col-md-2 text-right"><%= bar[:label] %> <%= image_tag('down.png', size: '15z15') %></div>
+        <% else %>
+        <div class="row <%= 'col-md-12' if local_assigns.key? :dropdown %>">
+          <div class="col-md-2 text-right"><%= bar[:label] %></div>
+        <% end %>
+          <div id="<%= bar[:id] %>" class="graph-container col-md-5">
+            <%= render "debuff_parses/uptimes", :debuff => bar[:debuff], :stacks => bar[:stacks], :stack_colors => bar[:stack_colors], :hide_down => bar[:hide_down] %>
+          </div>
+          <div class="col-md-3"><%=raw bar[:sub_text] %></div>
+        </div>
+        <% if bar.key? :dropdown %>
+          <div id="<%= bar[:dropdown][:id] %>" class="row slideout">
+            <div class="col-md-2">&nbsp;</div>
+            <div class="col-md-5">
+              <table style="width: 100%">
+                <thead><tr>
+                <% bar[:dropdown][:headers].each do |header| %>
+                  <th><%= header %></th>
+                <% end %>
+                </tr></thead>
+                <tbody>
+                  <% bar[:dropdown][:content].each do |row| %>
+                  <tr>
+                    <% row.each do |content| %>
+                      <td><%= content.is_a?(Integer) ? number_to_human(content) : content %></td>
+                    <% end %>
+                  </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    <% elsif local_assigns[:sub_bar_type] == 'cooldown' %>
+      <% sub_bars.each do |type, cd_hashes| %>
+        <% cd_hashes.each do |slug, cd_hash| %>
+          <%= render "cooldown_parses/uptimes", type: type, slug: slug, cd_hash: cd_hash %>
+        <% end %>
+      <% end %>
+    <% else %>
+      <% sub_bars.each do |bar| %>
+        <% if bar.key? :dropdown %>
+        <div class="row <%= 'col-md-12' if local_assigns.key? :dropdown %>" onclick="$('#<%= bar[:dropdown][:id] %>').slideToggle();">
+          <div class="col-md-2 text-right"><%= bar[:label] %> <%= image_tag('down.png', size: '15z15') %></div>
+        <% else %>
+        <div class="row <%= 'col-md-12' if local_assigns.key? :dropdown %>">
+          <div class="col-md-2 text-right"><%= bar[:label] %></div>
+        <% end %>
+          <div class="col-md-5 <%= bar[:bar_key] %>" val="<%= bar[:val] %>">
+            <% if bar.key? :white_bar %><div class="bar white" style="width: <%= bar[:white_bar_width] || 100 %>%"><% end %>
+              <% if bar.key? :light_bar_width %><div class="bar light <%= @fp.class_type %>" style="width: <%= bar[:light_bar_width] || 10 %>%"><% end %>
+              <div class="bar dark <%= @fp.class_type %>" style="width: <%= bar[:width] || 10 %>%">
+                <%= bar[:text] %>
+              </div>
+              <% if bar.key? :light_bar_width %></div><% end %>
+              <% if bar.key? :white_bar %></div><% end %>
+          </div>
+          <div class="col-md-3"><%=raw bar[:sub_text] %></div>
+        </div>
+        <% if bar.key? :dropdown %>
+          <div id="<%= bar[:dropdown][:id] %>" class="row slideout">
+            <div class="col-md-2">&nbsp;</div>
+            <div class="col-md-5">
+              <table style="width: 100%">
+                <thead><tr>
+                <% bar[:dropdown][:headers].each do |header| %>
+                  <th><%= header %></th>
+                <% end %>
+                </tr></thead>
+                <tbody>
+                  <% bar[:dropdown][:content].each do |row| %>
+                  <tr>
+                    <% row.each do |content| %>
+                      <td><%= content.is_a?(Integer) ? number_to_human(content) : content %></td>
+                    <% end %>
+                  </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% end %>
+  </div>
+</section>

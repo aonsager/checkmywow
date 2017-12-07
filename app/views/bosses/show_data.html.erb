@@ -1,0 +1,8 @@
+<%= render 'bosses/shared/new_header', tab: @tab %>
+<div class="container">
+  <% @sections.each do |section_data| %>
+    <%= render 'bosses/shared/section', section_data %>
+  <% end %>
+</div>
+
+<%= render 'bosses/shared/footer', tab: @tab %>

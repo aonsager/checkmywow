@@ -1,0 +1,32 @@
+<div id="filterrific_results">
+  <div class="row">
+    <table class="table table-striped">
+      <tr>
+        <th>Difficulty</th>
+        <th>Fight Length</th>
+        <th>Player name</th>
+        <% @fp.class.score_categories.each do |key, label| %>
+        <th><%= filterrific_sorting_link(@filterrific, key) %></th>
+        <% end %>
+        <th>Talents</th>
+        <th></th>
+      </tr>
+      <% other_fps.each do |other_fp| %>
+        <tr class="<%= 'info' if other_fp.id == @fp.id %>">
+          <td><%= DifficultyType.label(other_fp.difficulty) %></td>
+          <td><%= "#{other_fp.fight_time / 60}:#{"%02d" % (other_fp.fight_time % 60)}" %></td>
+          <td><%= other_fp.player_name %></td>
+          <% @fp.class.score_categories.each do |key, label| %>
+          <td><%=raw FightParse.percent_label(@fp[key].to_i, other_fp[key].to_i) %></td>
+          <% end %>
+          <td>
+            <% (other_fp.combatant_info['talents'] rescue []).each do |talent|%>
+            <%= link_to(image_tag("http://wow.zamimg.com/images/wow/icons/medium/#{talent['icon']}", width: 22), "http://www.wowhead.com/spell=#{talent['id']}/", target: "_blank") %>
+            <% end %>
+          </td>
+          <td><%= link_to('View Fight', report_fight_parse_path(other_fp.report_id, other_fp.player_id, other_fp.fight_id)) unless other_fp.id == @fp.id %></td>
+        </tr>
+      <% end %>
+    </table>
+  </div>
+</div>

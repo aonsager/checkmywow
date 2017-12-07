@@ -1,0 +1,19 @@
+<div class="container">
+  <%= render 'bosses/shared/header', tab: 'resources' %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Always Be Casting (Experimental)',
+      desc: 'You should do your best to minimize downtime without casts (although 100% is unrealistic), by starting casts directly after the previous cast has finished, and by filling your GCDs with instant casts while moving. This section shows how much downtime you had over the course of the fight. The dropdown list shows cancelled casts, as well as periods of downtime that lasted more than 1 second.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: 100 * (fp.fight_time - fp.resources_hash[:abc_wasted].to_f) / fp.fight_time,
+          main_bar_text: "#{fp.fight_time - fp.resources_hash[:abc_wasted].to_f}/#{fp.fight_time}",
+          main_text: "#{fp.resources_hash[:abc_wasted]} seconds of downtime",
+        }
+      }
+    } 
+  %>
+</div>
+<%= render 'bosses/shared/footer', tab: 'basic' %>

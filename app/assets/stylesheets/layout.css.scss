@@ -1,0 +1,500 @@
+* {
+  font-family: 'Avenir', 'Arial', 'sans-serif';
+  margin: 0;
+ }
+
+html, body {
+  height: 100%;
+}
+
+div.dialog {
+  background-color: #EFEFEF;
+  color: #2E2F30;
+  text-align: center;
+  width: 95%;
+  max-width: 33em;
+  margin: 4em auto 0;
+
+  div {
+    border: 1px solid #CCC;
+    border-right-color: #999;
+    border-left-color: #999;
+    border-bottom-color: #BBB;
+    border-top: #B00100 solid 4px;
+    border-top-left-radius: 9px;
+    border-top-right-radius: 9px;
+    background-color: white;
+    padding: 7px 12% 0;
+    box-shadow: 0 3px 8px rgba(50, 50, 50, 0.17);
+  }
+
+  h1 {
+    font-size: 100%;
+    color: #730E15;
+    line-height: 1.5em;
+  }
+
+  p {
+    margin: 0 0 1em;
+    padding: 1em;
+    background-color: #F7F7F7;
+    border: 1px solid #CCC;
+    border-right-color: #999;
+    border-left-color: #999;
+    border-bottom-color: #999;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    border-top-color: #DADADA;
+    color: #666;
+    box-shadow: 0 3px 8px rgba(50, 50, 50, 0.17);
+  }
+}
+
+.left {
+  float: left;
+}
+
+.right {
+  float: right;
+}
+
+table.border th, table.border td {
+  min-width: 50px;
+  padding: 2px 5px;
+  border: 1px solid #dddddd;
+}
+
+.table tbody tr td {
+  vertical-align: middle;
+}
+
+table tbody tr.padded-row td, table thead tr.padded-row th {
+  padding: 5px 10px 5px 5px;
+  margin: 0px 5px;
+  min-width: 100px;
+}
+
+table.casts-table tbody tr td:first-child {
+  padding: 5px 10px;
+}
+
+table.casts-table tbody tr.indent td:first-child {
+  padding-left: 20px;
+}
+
+table tbody tr.spacer td {
+  border: none;
+  padding: 3px;
+  background-color: white;
+}
+
+.navbar {
+  min-height: 40px;
+  border-radius: 0px;
+  overflow: visible;
+  background-image: image-url("nav-bg.png");
+  background-repeat: repeat-x;
+}
+
+.navbar-nav {
+  margin: 0px; 
+}
+
+.navbar-brand {
+  padding: 10px 10px 5px 20px;
+}
+
+.navbar-brand.full {
+  display: block;
+}
+
+.navbar-brand.mini {
+  display: none;
+}
+
+.navbar-header:after {
+  clear: none;
+}
+
+.navbar-collapse.in {
+  overflow-y: visible;
+}
+
+.navbar-collapse.collapse {
+  display: block!important;
+}
+
+.navbar-nav>li, .navbar-nav {
+  float: left !important;
+}
+
+.navbar-nav.navbar-right:last-child {
+  margin-right: -10px !important;
+}
+
+.navbar-right {
+  float: right!important;
+  margin-left: -20px;
+}
+
+.nav>li>a {
+  padding: 13px 15px;
+}
+
+#top {
+  margin-top: 0px;
+}
+
+// .container {
+//   min-width: 990px;
+// }
+
+img.icon {
+  border-radius: 3px;
+}
+
+.breadcrumb {
+  margin: 0px;
+  padding: 0px;
+}
+
+.breadcrumb li {
+  margin: 0px;
+  padding: 15px 20px 15px 20px;
+}
+
+.breadcrumb > li + li::before {
+  padding: 0px;
+  content: "";
+}
+
+.custom-dropdown {
+  position: relative;
+  min-width: 80px;
+}
+
+.custom-dropdown .list {
+  z-index: 10;
+  position: absolute;
+  padding-top: 6px;
+  top: 25px;
+  left: -10px;
+  min-width: 140px;
+  max-height: 520px;
+  overflow-y: scroll; 
+  white-space: nowrap;
+}
+
+.custom-dropdown .list .item {
+  margin: 0px;
+  padding: 10px 15px;
+}
+
+.custom-dropdown .list .item.disabled {
+  padding: 5px 15px;
+}
+
+#wrapper {
+  padding-bottom: 70px;
+  margin: 0 auto -50px; /* the bottom margin is the negative value of the footer's height */
+}
+
+#header {
+  min-height: 30px;
+  width: 100%;
+  margin: 0px 0px 0px 0px;
+}
+
+#header > div {
+  float: left;
+  padding: 15px 30px;
+}
+
+#footer, #push{
+  width: 80%;
+  margin: 0px auto;
+  height: 50px;
+  box-sizing: border-box;
+  padding: 15px;
+  line-height: 25px;
+  text-align: right;
+  font-size: 12px;
+}
+
+#footer .right {
+  float: right;
+}
+
+#footer .left {
+  float: left;
+  text-align: left;
+}
+
+#footer .center {
+  margin: auto;
+  text-align: center;
+}
+
+#report-progress {
+  border-radius: 5px;
+  margin: 0px auto 20px;
+  padding: 10px;
+  width: 600px;
+  height: 50px;
+  line-height: 30px;
+  text-align: center;
+  position: relative;
+}
+
+#report-progress #progress-popover {
+  position: absolute;
+  display: none;
+  z-index: 100;
+  top: 60px;
+  left: 0px;
+  width: 600px;
+  max-height: 400px;
+  overflow-y: scroll;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+#report-progress #progress-popover table {
+  min-width: 80%;
+  margin: 0px auto;
+  text-align: left;
+}
+
+#report-progress #progress-popover td {
+  padding: 0px 10px;
+}
+
+#report-progress #progress-popover table .progress{
+  width: 100px;
+  height: 10px;
+  line-height: 10px;
+  margin: 0px;
+  padding: 0px;
+}
+
+h1, h2, h3, h4 {
+  margin-bottom: 20px;
+}
+
+label {
+  font-weight: 400 !important;
+}
+
+p.caption {
+  font-style: italic;
+  text-align: center;
+}
+
+.title {
+  font-size: 24px;
+  line-height: 26px;
+  font-weight: 500;
+  float: left;
+  margin-right: 20px;
+  margin-bottom: 20px;
+}
+
+.titlebar {
+  font-size: 16px;
+  line-height: 16px;
+  font-weight: 500;
+  width: 100%;
+  padding: 13px;
+  margin-top: -20px;
+  margin-bottom: 20px;
+}
+
+.titlebar .container {
+  height: 21px;
+}
+
+.titlebar .playername {
+  font-size: 24px;
+}
+
+.titlebar a {
+  margin-top: -13px;
+  padding: 13px;
+}
+
+.fight-tabs {
+  padding: 0px;
+  font-weight: 400;
+  font-size: 14px;
+  width: 100%;
+  margin-top: -23px;
+  margin-bottom: 20px;
+  clear: both;
+  border-top: 1px solid #aaaaaa;
+}
+
+.fight-tabs .link {
+  float: left;
+}
+
+.fight-tabs a {
+  display: inline-block;
+  padding: 13px;
+}
+
+.row-block {
+  display: block;
+  padding: 0px 10px;
+  height: 45px;
+  width: 160px;
+  line-height: 45px;
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.row-block.large {
+  width: 300px;
+}
+
+.row-block.auto {
+  width: auto;
+}
+
+a.row-block.click::after {
+  content: "›";
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  text-align: center;
+  height: 50px;
+  width: 50px;
+  line-height: 50px;
+}
+
+.player-tag {
+  float: left;
+  line-height: 22px;
+  padding: 5px 15px 5px 15px;
+  margin: 0px;
+  border-radius: 3px;
+  color: white;
+}
+
+.row {
+  margin-top: 10px;
+  clear: both;
+}
+
+p.info-row {
+  margin: 5px 0px;
+}
+
+a.button-primary[disabled] { 
+  pointer-events: none;
+}
+
+.bar-table {
+  table-layout: fixed;
+}
+
+.bar-table td {
+  padding: 5px 10px;
+}
+
+.bar {
+  border-radius: 3px;
+  box-sizing: border-box;
+  padding: 0px 10px;
+  overflow: show;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.bar.white {
+  padding: 0px;
+}
+
+.bar.white .bar {
+  margin: 0px;
+}
+
+.bar.light {
+  padding: 0px;
+}
+
+section {
+  margin-bottom: 50px;
+}
+
+.slideout {
+  display: none;
+}
+
+.tiny {
+  font-size: 12px;
+}
+
+.small {
+  font-size: 14px;
+}
+
+a.tiny {
+  cursor: help;
+}
+
+.graph-container {
+  position: relative;
+  margin: 0px 10px 0px -10px;
+  padding: 0px;
+  border-radius: 3px;
+  box-sizing: border-box;
+  height: 20px;
+}
+
+.timeline {
+  position: absolute;
+  margin: 0px;
+  padding: 0px;
+  top: 1px;
+  height: 16px;
+}
+
+.timeline .label {
+  top: 24px;
+  color: black;
+  display: none;
+}
+
+.timeline:hover .label {
+  display: block;
+}
+
+.progress {
+  margin-top: 5px;
+  margin-bottom: 0px;
+}
+
+.section-desc {
+  font-size: 12px;
+  margin-top: -10px;
+  margin-bottom: 10px;
+  color: #888888;
+}
+
+.form-inline select {
+  margin-right: 15px;
+}
+
+#filterrific_results table {
+  width: auto;
+  
+  th, td {
+    padding: 8px 16px;
+  }
+}
+
+@media only screen and (max-width : 650px) {
+
+
+}

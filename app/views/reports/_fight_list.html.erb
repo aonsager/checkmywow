@@ -1,0 +1,46 @@
+<% unless @fight_list.nil? %>
+  <div class="left">
+    <%= link_to "Process all Kills", report_batch_path(@report_id, @player_id, {kills: true}), {class: "boss row-block large"} %>
+    <%= link_to "Process all Fights", report_batch_path(@report_id, @player_id), {class: "boss row-block large spacer"} %>
+    <% @fight_list.each do |boss_id, boss| %>
+    <a val="<%=boss_id%>" class="boss row-block click large <%=boss_id == @boss_id ? 'active highlight' : ''%>">
+      <%="#{boss[:name]} (#{pluralize(boss[:kills].size, 'kill')}#{boss[:wipes].size > 0 ? ', ' + pluralize(boss[:wipes].size, 'wipe') : ''})".html_safe %>
+    </a>
+    <% end %>
+  </div>
+  <% @fight_list.each do |boss_id, boss| %>
+    <div id="fps-<%=boss_id%>" class="left" style="display: <%=boss_id == @boss_id ? 'block' : 'none'%>">
+      <% (boss[:kills] + boss[:wipes]).each do |fp, kill| %>
+        <% next if fp.class_type.nil? %>
+        <div class="row-block large" style="margin-left: 20px;">
+          <div class="left">
+            <%= image_tag("class/#{fp.class_type.downcase}#{fp.spec.blank? ? "" : "/#{fp.spec.downcase}"}.jpg", size: '21x21', class: 'icon') %>&nbsp;&nbsp;
+            <%= fp.fight.kill? ? "Kill" : "Wipe - #{fp.fight.boss_percent.to_i / 100}%" %> <%= fp.fight.fight_time_s %>
+          </div>
+          <div id="fp-<%=fp.id%>" class="right">
+            <%= render 'fight_parses/shared/button', locals: {fp: fp} %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>
+<script>
+  $(function() {
+    $(".boss.row-block").hover(function() {
+      if (!$(this).hasClass('active')) {
+        $(this).toggleClass('highlight');
+      }
+    })
+    $(".boss.row-block").click(function() {
+      if (!$(this).hasClass('active')) {
+        $('.boss.active').removeClass('highlight');
+        $('#fps-'+$($('.boss.active')[0]).attr('val')).hide();
+        $('.boss.active').removeClass('active');
+        $(this).addClass('active');
+        $('#fps-'+$(this).attr('val')).show();
+      }
+    })
+  });
+  
+</script>

@@ -1,0 +1,51 @@
+<div class="container">
+  <%= render 'bosses/shared/header', tab: 'cooldowns' %>
+  <% max_apocalypse = @fps.map{|fp| fp.cooldowns_hash[:apocalypse_damage].to_i / fp.fight_time}.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Apocalypse Effectiveness',
+      desc: 'The total amount of damage done by Apocalypse. Always try to use Apocalypse when your target has 8 stacks of Festering Wound.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          main_bar_width: bar_width(fp.cooldowns_hash[:apocalypse_damage].to_i / fp.fight_time, max_apocalypse),
+          main_bar_text: "#{fp.cooldowns_hash[:apocalypse_damage].to_i / fp.fight_time}/sec",
+          main_text: "#{fp.cooldowns_hash[:apocalypse_damage].to_i / fp.fight_time} damage/sec",
+        }
+      }
+    } 
+  %>
+  <% max_transformation = @fps.map{|fp| fp.cooldowns_hash[:transformation_damage].to_i / fp.fight_time}.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Dark Transformation Damage',
+      desc: 'The total amount of damage done by your Ghoul while Dark Transformation was active. Try to maximize your uptime.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          main_bar_width: bar_width(fp.cooldowns_hash[:transformation_damage].to_i / fp.fight_time, max_transformation),
+          main_bar_text: "#{fp.cooldowns_hash[:transformation_damage].to_i / fp.fight_time}/sec",
+          main_text: "#{fp.cooldowns_hash[:transformation_damage].to_i / fp.fight_time} damage/sec",
+        }
+      }
+    } 
+  %>
+  <% if @fps.reject{|fp| fp.talent(6) != 'Dark Arbiter'}.count > 0 %>
+    <% max_arbiter = @fps.map{|fp| fp.cooldowns_hash[:arbiter_damage].to_i / fp.fight_time}.max.to_i %>
+    <%= render 'bosses/shared/section', 
+      {
+        title: 'Dark Arbiter Damage',
+        desc: 'The total amount of damage done by your Battlemaiden while Dark Arbiter was active. Try to pool and spend as much Runic Power as possible during this period, to increase the damage buff.',
+        sub_bars: @fps.reject{|fp| fp.talent(6) != 'Dark Arbiter'}.map{|fp| 
+          {
+            fp: fp,
+            main_bar_width: bar_width(fp.cooldowns_hash[:arbiter_damage].to_i / fp.fight_time, max_arbiter),
+            main_bar_text: "#{fp.cooldowns_hash[:arbiter_damage].to_i / fp.fight_time}/sec",
+            main_text: "#{fp.cooldowns_hash[:arbiter_damage].to_i / fp.fight_time} damage/sec",
+          }
+        }
+      } 
+    %>
+  <% end %>
+</div>
+<%= render 'bosses/shared/footer', tab: 'basic' %>

@@ -1,0 +1,6 @@
+<% if @report.done? %>
+  location.reload();
+<% else %>
+  $('#report-div').html("<%= escape_javascript(render(:partial => 'reports/waiting')).html_safe %>");
+<% end %>
+

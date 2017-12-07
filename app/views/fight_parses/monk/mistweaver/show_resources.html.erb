@@ -1,0 +1,159 @@
+<%= render 'fight_parses/shared/new_header', {active_tab: @tab} %>
+<div class="container">
+  <% min_healing = @fp.resources_hash[:heal_per_mana].nil? ? 0 : @fp.resources_hash[:heal_per_mana].values.map{|hash| 1000 * (hash[:healing].to_i + hash[:overhealing].to_i) / hash[:mana_spent].to_i}.min.to_i %>
+  <% max_healing = [@fp.resources_hash[:heal_per_mana].nil? ? 0 : @fp.resources_hash[:heal_per_mana].values.map{|hash| 1000 * (hash[:healing].to_i + hash[:overhealing].to_i) / hash[:mana_spent].to_i}.max.to_i, min_healing * 7].min.to_i %>
+  <% if @fp.resources_hash[:mana_spent].to_i > 0 %>
+    <%= render 'fight_parses/shared/section', 
+      {
+        title: 'Healing Efficiency per Mana spent',
+        desc: 'The amount of healing you did with each ability (not including overhealing), weighed by total mana spent. Spells are ordered by total mana spent. Try to avoid wasting mana on costly spells with lots of overhealing.',
+        white_bar: true,
+        main_bar_width: bar_width(@fp.kpi_hash[:healing_done].to_i, @fp.kpi_hash[:healing_done].to_i + @fp.kpi_hash[:overhealing_done].to_i),
+        main_bar_text: "#{1000 * @fp.kpi_hash[:healing_done].to_i / @fp.resources_hash[:mana_spent]}",
+        main_text: "#{1000 * @fp.kpi_hash[:healing_done].to_i / @fp.resources_hash[:mana_spent]} healing per 1k mana",
+        sub_bars: @fp.resources_hash[:heal_per_mana].nil? ? nil :@fp.resources_hash[:heal_per_mana].values.sort{|a, b| b[:mana_spent].to_i <=> a[:mana_spent].to_i }.map{|item| 
+          {
+            label: item[:name],
+            white_bar: true,
+            white_bar_width: bar_width(1000 * (item[:healing].to_i + item[:overhealing].to_i) / item[:mana_spent].to_i, max_healing),
+            width: bar_width(item[:healing].to_i, item[:healing].to_i + item[:overhealing].to_i),
+            text: "#{1000 * item[:healing].to_i / item[:mana_spent].to_i}",
+            sub_text: "#{1000 * item[:healing].to_i / item[:mana_spent].to_i} hpm, #{item[:mana_spent].to_i / 1000}k mana spent",
+          }
+        },
+      } 
+    %>
+  <% end %>
+  <% max_trance = @fp.resources_hash[:trance_details].map{|item| item[:heal].to_i + item[:overheal].to_i}.max.to_i rescue 0 %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Uplifting Trance Proc Usage',
+      desc: 'Take advantage of your Uplifting Trance procs, by casting Vivify with 40% increased healing.',
+      white_bar: true,
+      main_bar_width: bar_width(@fp.resources_hash[:trance_used].to_i, @fp.resources_hash[:trance_procs].to_i),
+      main_bar_text: "#{@fp.resources_hash[:trance_used].to_i}/#{@fp.resources_hash[:trance_procs].to_i}",
+      main_text: "#{@fp.resources_hash[:trance_procs].to_i - @fp.resources_hash[:trance_used].to_i} wasted",
+      dropdown: {id: 'trance'},
+      sub_bars: @fp.resources_hash[:trance_details].nil? ? nil : @fp.resources_hash[:trance_details].map{|item| 
+        {
+          label: @fp.event_time(item[:timestamp], true),
+          white_bar: true,
+          white_bar_width: bar_width(item[:heal].to_i + item[:overheal].to_i, max_trance),
+          width: bar_width(item[:heal].to_i, item[:heal].to_i + item[:overheal].to_i),
+          text: "#{item[:heal].to_i}",
+          sub_text: "#{item[:heal].to_i} healing, #{item[:overheal].to_i} overhealing",
+        }
+      },
+    } 
+  %>
+  <% max_thunder = @fp.resources_hash[:thunder_abilities].values.max.to_i rescue 0 %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Thunder Focus Tea Usage',
+      desc: 'Get the most use out of your Thunder Focus Tea by paying attention to which ability you use its effect on. Renewing Mist is a good choice for most situations',
+      white_bar: true,
+      main_bar_width: bar_width(@fp.resources_hash[:thunder_used].to_i, @fp.casts_possible(@fp.track_casts['Thunder Focus Tea'])),
+      main_bar_text: "#{@fp.resources_hash[:thunder_used].to_i}/#{@fp.casts_possible(@fp.track_casts['Thunder Focus Tea'])}",
+      main_text: "#{@fp.casts_possible(@fp.track_casts['Thunder Focus Tea']) - @fp.resources_hash[:thunder_used].to_i} wasted",
+      dropdown: {id: 'thunder'},
+      sub_bars: @fp.resources_hash[:thunder_abilities].nil? ? nil : @fp.resources_hash[:thunder_abilities].map{|key, count| 
+        {
+          label: key,
+          width: bar_width(count, max_thunder),
+          text: "#{count}",
+          sub_text: "#{count} casts",
+        }
+      },
+    } 
+  %>
+  <% if @fp.talent(6) == 'Mana Tea' %>
+    <%= render 'fight_parses/shared/section', 
+      {
+        title: 'Mana Tea Usage',
+        desc: 'Get the most use out of your Mana Tea by using it when you are casting expensive abilities.',
+        main_bar_width: 100,
+        main_bar_text: "#{@fp.resources_hash[:mana_tea_saved].to_i}",
+        main_text: "#{@fp.resources_hash[:mana_tea_saved].to_i} mana saved",
+        sub_bars: @cooldowns['cd']['Mana Tea'].nil? ? nil : @cooldowns['cd']['Mana Tea'].map{|item| 
+          {
+            bar_key: 'manatea-w',
+            val: item.kpi_hash[:mana_reduced].to_i,
+            label: item.time_s,
+            text: item.kpi_hash[:mana_reduced].to_i,
+            sub_text: "#{item.kpi_hash[:mana_reduced].to_i} mana reduced",
+            dropdown: {
+              id: "manatea-#{item.id}",
+              headers: ['Spell', 'Mana Reduced', 'Casts'],
+              content: item.details_hash.values.sort{|a, b| b[:mana_reduced] <=> a[:mana_reduced]}.map{|hash| [hash[:name], hash[:mana_reduced], hash[:casts]]}
+            }
+          }
+        },
+      } 
+    %>
+  <% end %>
+  <% if @fp.talent(2) == 'Lifecycles' %>
+    <%= render 'fight_parses/shared/section', 
+      {
+        title: 'Lifecycles Usage: Enveloping Mist',
+        desc: 'Get the most use out of Lifecycles by alternating Enveloping Mist and Vivify, to benefit from a decreased mana cost. 100% might lead to too much overhealing, so take this with a grain of salt.',
+        white_bar: true,
+        main_bar_width: bar_width(@fp.resources_hash[:lifecycles_enveloping_uses], @fp.resources_hash[:lifecycles_enveloping_procs]),
+        main_bar_text: "#{@fp.resources_hash[:lifecycles_enveloping_uses].to_i}/#{@fp.resources_hash[:lifecycles_enveloping_procs].to_i}",
+        main_text: "#{@fp.resources_hash[:lifecycles_enveloping_uses].to_i}/#{@fp.resources_hash[:lifecycles_enveloping_procs].to_i} reduced",
+      } 
+    %>
+    <%= render 'fight_parses/shared/section', 
+      {
+        title: 'Lifecycles Usage: Vivify',
+        desc: 'Get the most use out of Lifecycles by alternating Enveloping Mist and Vivify, to benefit from a decreased mana cost. 100% might lead to too much overhealing, so take this with a grain of salt.',
+        white_bar: true,
+        main_bar_width: bar_width(@fp.resources_hash[:lifecycles_vivify_uses], @fp.resources_hash[:lifecycles_vivify_procs]),
+        main_bar_text: "#{@fp.resources_hash[:lifecycles_vivify_uses].to_i}/#{@fp.resources_hash[:lifecycles_vivify_procs].to_i}",
+        main_text: "#{@fp.resources_hash[:lifecycles_vivify_uses].to_i}/#{@fp.resources_hash[:lifecycles_vivify_procs].to_i} reduced",
+      } 
+    %>
+  <% end %>
+  <% if @fp.talent(2) == 'Spirit of the Crane' || @fp.talent(6) == 'Rising Thunder' %>
+    <% max_monastery = @fp.resources_hash[:monastery_bok].values.max.to_i rescue 0 %>
+    <% bok_count = @fp.resources_hash[:monastery_bok].values.sum.to_i rescue 0 %>
+    <% score = @fp.talent(2) == 'Spirit of the Crane' ? @fp.resources_hash[:monastery_bok][3].to_i : @fp.resources_hash[:monastery_bok][1].to_i + @fp.resources_hash[:monastery_bok][2].to_i + @fp.resources_hash[:monastery_bok][3].to_i %>
+    <%= render 'fight_parses/shared/section', 
+      {
+        title: 'Teachings of the Monastery: Blackout Kick',
+        desc: @fp.talent(2) == 'Spirit of the Crane' ? 'When taking Spirit of the Crane, you should cast Blackout Kick at 3 stacks as often as possible for the mana gain.' : 'When taking Rising Thunder, you should always have at least 1 stack for every cast of Blackout Kick.',
+        white_bar: true,
+        main_bar_width: bar_width(score, bok_count),
+        main_bar_text: "#{score}/#{bok_count}",
+        main_text: "#{score}/#{bok_count} casts",
+        sub_bars: @fp.resources_hash[:monastery_bok].nil? ? nil : @fp.resources_hash[:monastery_bok].map{|key, count| 
+          {
+            label: pluralize(key, 'stack'),
+            width: bar_width(count, max_monastery),
+            text: "#{count}",
+            sub_text: "#{count} casts",
+          }
+        },
+      } 
+    %>
+  <% end %>
+  <% percent = 100 * (@fp.fight_time - @fp.resources_hash[:abc_wasted].to_f) / @fp.fight_time %>
+  <%= render 'fight_parses/shared/table', 
+    {
+      title: 'Always Be Casting (Experimental)',
+      desc: 'You should do your best to minimize downtime without casts (although 100% is unrealistic), by starting casts directly after the previous cast has finished, and by filling your GCDs with instant casts while moving. This section shows how much downtime you had over the course of the fight. The dropdown list shows cancelled casts, as well as periods of downtime that lasted more than 1 second.',
+      white_bar: true,
+      main_bar_width: percent,
+      main_bar_text: "#{@fp.fight_time - @fp.resources_hash[:abc_wasted].to_f}/#{@fp.fight_time}",
+      main_text: "#{@fp.resources_hash[:abc_wasted]} seconds of downtime",
+      dropdown: {id: 'abc'},
+      labels: ['Time', 'Spell', 'Downtime before cast'],
+      rows: @fp.resources_hash[:abc_fails].nil? ? nil : @fp.resources_hash[:abc_fails].map{|row| [{value: @fp.event_time(row[:timestamp], true)}, {value: row[:name]}, {value: (row[:cancelled] ? "Cast cancelled" : "#{row[:wasted]} seconds")}]},
+    } 
+  %>
+</div>
+<%= render 'fight_parses/shared/js', {tab: 'resources'} %> 
+<script>
+  $(['trance-w', 'manatea-w']).each(function(index, key){
+    resizeBars(key)
+  });
+</script>

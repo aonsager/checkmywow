@@ -1,0 +1,85 @@
+<div class="container">
+  <%= render 'bosses/shared/header', tab: 'cooldowns' %>
+  <% max_odyn = @fps.map{|fp| fp.cooldowns_hash[:odyn_damage].to_i / fp.fight_time}.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Odyn\'s Fury Effectiveness',
+      desc: 'The total amount of damage you dealt with Odyn\'s Fury.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          main_bar_width: bar_width(fp.cooldowns_hash[:odyn_damage].to_i / fp.fight_time, max_odyn),
+          main_bar_text: "#{fp.cooldowns_hash[:odyn_damage].to_i / fp.fight_time}/sec",
+          main_text: "#{fp.cooldowns_hash[:odyn_damage].to_i / fp.fight_time} damage/sec",
+        }
+      }
+    } 
+  %>
+  <% max_battlecry = @fps.map{|fp| fp.cooldowns_hash[:battlecry_damage].to_i / fp.fight_time}.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Battle Cry Effectiveness',
+      desc: 'The total amount of damage you dealt while Battlecry was active.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          main_bar_width: bar_width(fp.cooldowns_hash[:battlecry_damage].to_i / fp.fight_time, max_battlecry),
+          main_bar_text: "#{fp.cooldowns_hash[:battlecry_damage].to_i / fp.fight_time}/sec",
+          main_text: "#{fp.cooldowns_hash[:battlecry_damage].to_i / fp.fight_time} damage/sec",
+        }
+      }
+    } 
+  %>
+  <% if @fps.reject{|fp| fp.talent(2) != 'Avatar'}.count > 0 %>
+    <% max_avatar = @fps.map{|fp| fp.cooldowns_hash[:avatar_damage].to_i / fp.fight_time}.max.to_i %>
+    <%= render 'bosses/shared/section', 
+      {
+        title: 'Avatar Effectiveness',
+        desc: 'The total amount of increased damage you dealt (20%) while Avatar was active.',
+        sub_bars: @fps.reject{|fp| fp.talent(2) != 'Avatar'}.map{|fp| 
+          {
+            fp: fp,
+            main_bar_width: bar_width(fp.cooldowns_hash[:avatar_damage].to_i / fp.fight_time, max_avatar),
+            main_bar_text: "#{fp.cooldowns_hash[:avatar_damage].to_i / fp.fight_time}/sec",
+            main_text: "#{fp.cooldowns_hash[:avatar_damage].to_i / fp.fight_time} damage/sec",
+          }
+        }
+      } 
+    %>
+  <% end %>
+  <% if @fps.reject{|fp| fp.talent(6) != 'Bladestorm'}.count > 0 %>
+    <% max_bladestorm = @fps.map{|fp| fp.cooldowns_hash[:bladestorm_damage].to_i / fp.fight_time}.max.to_i %>
+    <%= render 'bosses/shared/section', 
+      {
+        title: 'Bladestorm Effectiveness',
+        desc: 'The total amount of damage you dealt with Bladestorm was active.',
+        sub_bars: @fps.reject{|fp| fp.talent(6) != 'Bladestorm'}.map{|fp| 
+          {
+            fp: fp,
+            main_bar_width: bar_width(fp.cooldowns_hash[:bladestorm_damage].to_i / fp.fight_time, max_bladestorm),
+            main_bar_text: "#{fp.cooldowns_hash[:bladestorm_damage].to_i / fp.fight_time}/sec",
+            main_text: "#{fp.cooldowns_hash[:bladestorm_damage].to_i / fp.fight_time} damage/sec",
+          }
+        }
+      } 
+    %>
+  <% end %>
+  <% if @fps.reject{|fp| fp.talent(6) != 'Dragon Roar'}.count > 0 %>
+    <% max_dragon = @fps.map{|fp| fp.cooldowns_hash[:dragonroar_damage].to_i / fp.fight_time}.max.to_i %>
+    <%= render 'bosses/shared/section', 
+      {
+        title: 'Dragon Roar Effectiveness',
+        desc: 'The total amount of increased damage you dealt (20%) while the Dragon roar buff was active.',
+        sub_bars: @fps.reject{|fp| fp.talent(6) != 'Dragon Roar'}.map{|fp| 
+          {
+            fp: fp,
+            main_bar_width: bar_width(fp.cooldowns_hash[:dragonroar_damage].to_i / fp.fight_time, max_dragon),
+            main_bar_text: "#{fp.cooldowns_hash[:dragonroar_damage].to_i / fp.fight_time}/sec",
+        main_text: "#{fp.cooldowns_hash[:dragonroar_damage].to_i / fp.fight_time} damage/sec",
+          }
+        }
+      } 
+    %>
+  <% end %>
+</div>
+<%= render 'bosses/shared/footer', tab: 'basic' %>

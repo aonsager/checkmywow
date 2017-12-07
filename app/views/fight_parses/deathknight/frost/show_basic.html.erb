@@ -1,0 +1,51 @@
+<%= render 'fight_parses/shared/new_header', {active_tab: @tab} %>
+<div class="container">
+  <% max_dps = @kpi_parses['dps'].details_hash.values.map{|item| item[:damage]}.max.to_i rescue 0 %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Damage per Second',
+      desc: 'Total damage / Fight time',
+      light_bar_width: 100,
+      main_bar_width: bar_width(@fp.kpi_hash[:player_damage_done].to_i, @fp.kpi_hash[:player_damage_done].to_i + @fp.kpi_hash[:pet_damage_done].to_i),
+      main_bar_text: "#{@fp.dps}/s",
+      main_text: "#{(@fp.kpi_hash[:player_damage_done].to_i + @fp.kpi_hash[:pet_damage_done].to_i) / 1000}k total damage",
+      dropdown: {id: 'dps'},
+      sub_bars: @kpi_parses['dps'].nil? ? nil : @kpi_parses['dps'].details_hash.values.sort{|a, b| b[:damage].to_i <=> a[:damage].to_i}.map{|item| 
+        {
+          label: item[:name],
+          width: bar_width(item[:damage].to_i, max_dps),
+          text: "#{item[:damage].to_i / 1000}k",
+          sub_text: "#{item[:damage].to_i / 1000}k damage",
+        }
+      },
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Frost Fever Uptime',
+      desc: "The percentage of time Frost Fever was active on targets you were attacking. A red area means that you were attacking an enemy with no Frost Fever. Aim for 100%.",
+      dropdown: {id: 'ff'},
+      white_bar: true,
+      main_bar_width: @fp.debuff_upratio(:ff),
+      main_bar_text: @fp.debuff_upratio_s(:ff),
+      main_text: @fp.debuff_upratio_s(:ff),
+      sub_bar_type: 'debuff',
+      sub_bars: @debuffs['Frost Fever'].nil? ? nil : @debuffs['Frost Fever'].map{|item| 
+        {
+          debuff: item,
+          label: item.target_name,
+          id: "debuff-#{item.id}-#{item.target_id}",
+          sub_text: item.upratio_s,
+        }
+      }
+    } 
+  %>
+  <% if @kpi_parses.has_key?('death') && @kpi_parses['death'].kpi_hash[:death_count].to_i > 0 %>
+    <%= render 'fight_parses/shared/deaths', 
+      {
+        deaths: @kpi_parses['death'].details_hash[:deaths],
+      } 
+    %>
+  <% end %>
+</div>
+<%= render 'fight_parses/shared/js', {tab: 'basic'} %> 

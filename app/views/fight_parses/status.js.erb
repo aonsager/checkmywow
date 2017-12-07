@@ -1,0 +1,10 @@
+<% if @fpr.done? %>
+  location.reload()
+<% else %>
+  $('#fp-content').html("<%= escape_javascript(render 'fight_parses/shared/queue_info').html_safe %>");
+  var checkTimeout;
+  if (checkTimeout != null) clearTimeout(checkTimeout);
+  <% if @fpr.processing? || @fpr.queued? %>
+    checkTimeout = setTimeout(checkStatus, 3000);
+  <% end %>
+<% end %>

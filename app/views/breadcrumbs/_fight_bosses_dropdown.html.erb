@@ -1,0 +1,26 @@
+<div id="fight-bosses-dropdown" class="custom-dropdown">
+  <%= fight.name %>
+  <div id="fight-bosses-dropdown-list" class="list" style="display: none">
+    <% bosses.each do |boss| %>
+        <% string = "<div class='item'>#{boss[0]} (<small>" %>
+        <% string += pluralize(boss[1]['t'], 'Kill') if boss[1]['t'] > 0 %>
+        <% string += ', ' if boss[1]['t'] > 0 && boss[1]['f'] > 0 %>
+        <% string += pluralize(boss[1]['f'], 'Wipe') if boss[1]['f'] > 0 %>
+        <% string = (string + "</small>)</div>").html_safe %>
+        <% if player_id.nil? %>
+          <%= link_to string, report_fight_path(report.report_id, boss[1]['latest']) %>
+        <% else %>
+          <%= link_to string, report_fight_parse_path(report.report_id, player_id, boss[1]['latest'], tab: tab) %>
+        <% end %>
+    <% end %>
+  </div>
+</div>
+
+<script>
+  $("#fight-bosses-dropdown").parent().mouseover(function() {
+    $("#fight-bosses-dropdown-list").show();
+  });
+  $("#fight-bosses-dropdown").parent().mouseout(function() {
+    $("#fight-bosses-dropdown-list").hide();
+  });
+</script>

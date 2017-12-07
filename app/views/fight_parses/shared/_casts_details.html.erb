@@ -1,0 +1,81 @@
+<section>
+  <h4 id="title"><%= @ability %></h4>
+  <% if @cds.nil? %>
+    <p>No casts data found</p>
+  <% else %>
+    <div class="col-md-9">
+      <div class="section-desc">
+        This section shows how well you timed your <%= @ability %> casts. 
+        <% if @cds.has_key?(@ability) && @cds[@ability].has_key?(:effective_cd) %>
+          <%= @ability %> had an average cooldown of <%= sprintf("%g", @cds[@ability][:effective_cd].round(2)) %> seconds after accounting for <%= "the #{@fp.track_casts[@ability][:extra]} extra casts available" if @fp.track_casts[@ability].has_key?(:extra) %><%= " and " if @fp.track_casts[@ability].has_key?(:extra) && @fp.track_casts[@ability].has_key?(:reduction) %><%= "#{@fp.track_casts[@ability][:reduction].to_i} seconds of cooldown reduction" if @fp.track_casts[@ability].has_key?(:reduction) %>, and you
+        <% elsif @cds.has_key?(@ability) && @cds[@ability][:cd].to_i > 0 %>
+          <%= @ability %> has a <%= sprintf("%g", @cds[@ability][:cd].round(2)) %> second cooldown, and you
+        <% else %>
+          You 
+        <% end %>
+        can delay each cast by an average of <%= sprintf("%g", @cds[@ability][:max_delay].round(2)) rescue 0 %> seconds and still fit the max possible. 
+        <% if @fp.track_casts.has_key?(@ability) && @fp.track_casts[@ability].has_key?(:buff) %> 
+        Since you can only cast <%= @ability %> while <%= @fp.track_casts[@ability][:buff] %> is active, this will only consider time wasted while both <%= @ability %> was off cooldown and <%= @fp.track_casts[@ability][:buff] %> was active (<%= @fp.casts_hash["#{@ability}_waste"][:waste].to_i / 1000 rescue 0 %> seconds total).
+        <% end %>
+        If you delayed a cast by too much, try to see if you had enough resources when it became available, or if you were using other abilities instead.
+      </div>
+    </div>
+    <div class="col-md-1">&nbsp;</div>
+    <div id="msg" class="col-md-7">
+      <% if @casts.nil? %>
+        <p>No casts data found</p>
+      <% else %>
+        <div class="table-responsive">
+          <table class="casts-table table-striped border">
+            <thead><tr class="padded-row">
+              <th>Time</th>
+              <th>Event</th>
+              <% @fp.show_resources.each do |resource| %>
+                <th><%= ResourceType.resource_name(resource) %></th>
+              <% end %>
+            </tr></thead>
+            <tbody>
+              <% last_cast = 0 %>
+              <% @casts.each do |cast| %>
+                <tr class="padded-row <%= "indent #{cast['class']}" if cast['indent'] %>">
+                  <td class="<%= cast['class'] %>"><%= @fp.event_time(cast['timestamp']) %></td>
+                  <% if cast.has_key?('msg') %>
+                    <td><%= cast['msg'] %></td>
+                  <% elsif cast['type'] == 'begin_cast' %>
+                    <td>Begin casting <%= cast['ability'] %></td>
+                  <% elsif cast['type'] == 'cast' %>
+                    <td>Cast <%= cast['ability'] %>.
+                      <% if cast.has_key?('since_last') %> 
+                        (<%= (cast['since_last'].to_i  / 1000.0).round(2) %>s since last cast)
+                      <% end %>
+                     </td>
+                  <% elsif cast['type'] == 'off_cd' %>
+                    <td><%= cast['ability'] %> came off cooldown</td>
+                  <% elsif cast['type'] == 'buff_on' %>
+                    <td>Gained <%= cast['ability'] %></td>
+                  <% elsif cast['type'] == 'buff_off' %>
+                    <td>Lost <%= cast['ability'] %></td>
+                  <% elsif cast['type'] == 'death' %>
+                    <td>Death</td>
+                  <% end %>
+                  <% @fp.show_resources.each do |resource| %>
+                    <% if cast.has_key?("r#{resource}_max") && cast["r#{resource}_max"].to_i > 10000 %>
+                      <td><%= "#{100 * cast["r#{resource}"].to_i / cast["r#{resource}_max"].to_i}%" %></td>
+                    <% elsif cast.has_key?("r#{resource}") %>
+                      <td><%= "#{cast["r#{resource}"].to_i}/#{cast["r#{resource}_max"].to_i}"%></td>
+                    <% else %>
+                      <td></td>
+                    <% end %>
+                  <% end %>
+                </tr>
+                <% if cast['spacer'] %>
+                  <tr class="spacer"><td></td></tr>
+                <% end %>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</section>

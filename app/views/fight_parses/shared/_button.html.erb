@@ -1,0 +1,17 @@
+<% fp ||= locals[:fp] %>
+<% case locals[:force] || fp.status %>
+  <% when 'unprocessed' %>
+    <%= link_to('Process Fight', report_single_parse_path(fp.report_id, fp.fight_id, fp.player_id, btn_id: fp.id), class: 'btn btn-default', remote: true) %>
+  <% when 'processing' %>
+    <%= link_to('Processing...', '#', class: 'btn btn-warning', waiting: true, disabled: 'disabled') %>
+  <% when 'queued' %>
+    <%= link_to('Queued...', '#', class: 'btn btn-default', waiting: true, disabled: 'disabled') %>
+  <% when 'done' %>
+    <%= link_to('View Report', report_fight_parse_path(fp.report_id, fp.player_id, fp.fight_id), class: 'btn btn-success') %>
+  <% when 'empty' %>
+    <%= link_to('No data found', '#', class: 'btn btn-error', disabled: 'disabled') %>
+  <% when 'unparsable' %>
+    <%= link_to('Invalid Boss', '#', class: 'btn btn-error', disabled: 'disabled') %>
+  <% else %>
+    <%= link_to('Failed :(', '#', class: 'btn btn-error', disabled: 'disabled') %>
+  <% end %>

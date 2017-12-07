@@ -1,0 +1,37 @@
+<div class="container">
+  <%= render 'bosses/shared/header', tab: 'resources' %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Time not Fury-Capped',
+      desc: 'The percent of the fight that you had less than max Fury. Aim for 100%.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: bar_width(fp.fight_time - fp.resources_hash[:capped_time].to_i, fp.fight_time),
+          main_bar_text: "#{fp.fight_time - fp.resources_hash[:capped_time].to_i}s",
+          main_text: "#{fp.fight_time - fp.resources_hash[:capped_time].to_i}s / #{fp.fight_time}s",
+        }
+      }
+    } 
+  %>
+  <% if @fps.reject{|fp| fp.resources_hash[:meatcleaver_procs].to_i == 0}.count > 0 %>
+    <%= render 'bosses/shared/section', 
+      {
+        title: 'Meat Cleaver Proc Usage',
+        desc: 'Take advantage of your Meat Cleaver procs to deal AOE damage.',
+        white_bar: true,
+        sub_bars: @fps.reject{|fp| fp.resources_hash[:meatcleaver_procs].to_i == 0}.map{|fp| 
+          {
+            fp: fp,
+            white_bar: true,
+            main_bar_width: bar_width(fp.resources_hash[:meatcleaver_uses].to_i, fp.resources_hash[:meatcleaver_procs].to_i),
+            main_bar_text: "#{fp.resources_hash[:meatcleaver_uses].to_i}/#{fp.resources_hash[:meatcleaver_procs].to_i}",
+            main_text: "#{fp.resources_hash[:meatcleaver_procs].to_i - fp.resources_hash[:meatcleaver_uses].to_i} wasted",
+          }
+        }
+      } 
+    %>
+  <% end %>
+</div>
+<%= render 'bosses/shared/footer', tab: 'basic' %>

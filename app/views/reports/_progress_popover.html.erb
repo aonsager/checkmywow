@@ -1,0 +1,22 @@
+<table>
+  <% @fp_ids.each do |id, fpr| %>
+    <tr id="fp-progress-<%=id%>">
+      <td><%= Player.player_tag(fpr.player_name, fpr.class_type, fpr.spec, false) %></td>
+      <td><%= fpr.fight.name %> <%= "(#{fpr.fight.boss_percent.to_i / 100}%)" unless fpr.fight.kill? %></td>
+      <td class="status" data-status="<%=fpr.status%>"><%= fpr.status.capitalize %></td>
+      <td>
+        <% if fpr.processing? %>
+          <div class="progress">
+            <% if !@progresses[fpr.id.to_s].nil? %>
+              <div class="progress-bar progress-bar-success" role="progressbar" style="width: <%= 100 * @progresses[fpr.id.to_s].current / @progresses[fpr.id.to_s].finish rescue 0 %>%"></div>
+            <% end %>
+          </div>
+        <% elsif fpr.done? %>
+          <%= link_to('View Report', report_fight_parse_path(fpr.report_id, fpr.player_id, fpr.fight_id)) %>
+        <% else %>
+          <div style="width: 100px"></div>
+        <% end %>
+      </td>
+    </tr>
+  <% end %>
+</table>

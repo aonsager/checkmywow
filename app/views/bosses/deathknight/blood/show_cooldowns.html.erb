@@ -1,0 +1,113 @@
+<div class="container">
+  <%= render 'bosses/shared/header', tab: 'cooldowns' %>
+  <% max_vb = @fps.map{|fp| fp.cooldowns_hash[:vb_healed].to_i / fp.fight_time || 0}.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Vampiric Blood Effectiveness',
+      desc: 'The total amount of additional healing gained through Vampiric Blood.',
+      sub_bars: @fps.map{|fp|
+        {
+          fp: fp,
+          white_bar: true,
+          white_bar_width: bar_width((fp.cooldowns_hash[:vb_healed].to_i + fp.cooldowns_hash[:vb_overhealed].to_i) / fp.fight_time, max_vb),
+          main_bar_width: bar_width(fp.cooldowns_hash[:vb_healed].to_i, fp.cooldowns_hash[:vb_healed].to_i + fp.cooldowns_hash[:vb_overhealed].to_i),
+          main_bar_text: "#{fp.cooldowns_hash[:vb_healed].to_i / fp.fight_time}/s",
+          main_text: "#{fp.cooldowns_hash[:vb_healed].to_i / 1000}k healed, #{fp.cooldowns_hash[:vb_overhealed].to_i / 1000}k overhealing",
+        }
+      }
+    }
+  %>
+  <% max_drw = @fps.map{|fp| fp.cooldowns_hash[:drw_parried].to_i / fp.fight_time}.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Dancing Rune Weapon Effectiveness',
+      desc: 'The total amount of damage mitigated through Dancing Rune Weapon\'s increased parry chance. If there aren\'t too many attacks that can be parried, it is fine to cast Dancing Rune Weapon primarily for the increased Bone Shield generation.',
+      sub_bars: @fps.map{|fp|
+        {
+          fp: fp,
+          main_bar_width: bar_width(fp[:cooldowns_hash][:drw_parried].to_i / fp.fight_time, max_drw), 
+          main_bar_text: "#{fp.cooldowns_hash[:drw_parried].to_i / fp.fight_time}/s",
+          main_text: "#{fp.cooldowns_hash[:drw_parried].to_i / 1000}k avoided",
+        }
+      }
+    }
+  %>
+  <% max_icebound = @fps.map{|fp| fp.cooldowns_hash[:icebound_reduced].to_i / fp.fight_time}.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Icebound Fortitude Effectiveness',
+      desc: 'The total amount of damage reduced by Icebound Fortitude (30%).',
+      sub_bars: @fps.map{|fp|
+        {
+          fp: fp,
+          main_bar_width: bar_width(fp[:cooldowns_hash][:icebound_reduced].to_i / fp.fight_time, max_icebound), 
+          main_bar_text: "#{fp.cooldowns_hash[:icebound_reduced].to_i / fp.fight_time}/s",
+          main_text: "#{fp.cooldowns_hash[:icebound_reduced].to_i / 1000}k avoided",
+        }
+      }
+    }
+  %>
+  <% max_ams = @fps.map{|fp| fp.cooldowns_hash[:ams_reduced].to_i / fp.fight_time}.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Anti-Magic Shell Effectiveness',
+      desc: 'The total amount of damage mitigated through Anti-Magic Shell. Each cast of Anti-Magic Shell records the magic damage absorbed while it is active.',
+      sub_bars: @fps.map{|fp|
+        {
+          fp: fp,
+          main_bar_width: bar_width(fp[:cooldowns_hash][:ams_reduced].to_i / fp.fight_time, max_ams), 
+          main_bar_text: "#{fp.cooldowns_hash[:ams_reduced].to_i / fp.fight_time}/s",
+          main_text: "#{fp.cooldowns_hash[:ams_reduced].to_i / 1000}k avoided",
+        }
+      }
+    }
+  %>
+  <% max_cons = @fps.map{|fp| (fp.cooldowns_hash[:consumption_healing].to_i + fp.cooldowns_hash[:consumption_overhealing].to_i) / fp.fight_time || 0}.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Consumption Effectiveness',
+      desc: 'The total amount of damage and healing provided by Consumption.',
+      sub_bars: @fps.map{|fp|
+        {
+          fp: fp,
+          main_bar_width: bar_width((fp.cooldowns_hash[:consumption_healing].to_i + fp.cooldowns_hash[:consumption_overhealing].to_i) / fp.fight_time, max_cons), 
+          main_bar_text: "#{(fp.cooldowns_hash[:consumption_healing].to_i + fp.cooldowns_hash[:consumption_overhealing].to_i) / fp.fight_time}/s",
+          main_text: "#{fp.cooldowns_hash[:consumption_healing].to_i / 1000}k healed, #{fp.cooldowns_hash[:consumption_overhealing].to_i / 1000}k overhealing",
+        }
+      }
+    }
+  %>
+  <% if (max_bonestorm = @fps.map{|fp| fp.cooldowns_hash[:bonestorm_damage].to_i / fp.fight_time || 0}.max.to_i) > 0 %>
+    <%= render 'bosses/shared/section', 
+      {
+        title: 'Bonestorm Effectiveness',
+        desc: 'The total amount of damage you dealt with Bonestorm.',
+        sub_bars: @fps.reject{|fp| fp.talent(6) != 'Bonestorm' }.map{|fp|
+          {
+            fp: fp,
+            main_bar_width: bar_width(fp[:cooldowns_hash][:bonestorm_damage].to_i / fp.fight_time, max_bonestorm), 
+            main_bar_text: "#{fp[:cooldowns_hash][:bonestorm_damage].to_i / fp.fight_time}/s",
+            main_text: "#{fp[:cooldowns_hash][:bonestorm_damage].to_i / 1000}k damage"
+          }
+        }
+      }
+    %>
+  <% end %>
+  <% if (max_mirror = @fps.map{|fp| fp.cooldowns_hash[:mirror_damage].to_i / fp.fight_time || 0}.max.to_i) > 0 %>
+    <%= render 'bosses/shared/section', 
+      {
+        title: 'Blood Mirror Effectiveness',
+        desc: 'The total amount of damage you redirected with Blood Mirror (20%).',
+        sub_bars: @fps.reject{|fp| fp.talent(6) != 'Blood Mirror' }.map{|fp|
+          {
+            fp: fp,
+            main_bar_width: bar_width(fp[:cooldowns_hash][:mirror_damage].to_i / fp.fight_time, max_mirror), 
+            main_bar_text: "#{fp[:cooldowns_hash][:mirror_damage].to_i / fp.fight_time}/s",
+            main_text: "#{fp[:cooldowns_hash][:mirror_damage].to_i / 1000}k damage"
+          }
+        }
+      }
+    %>
+  <% end %>
+</div>
+<%= render 'bosses/shared/footer', tab: 'basic' %>

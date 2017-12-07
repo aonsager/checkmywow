@@ -1,0 +1,109 @@
+<%= render 'fight_parses/shared/new_header', {active_tab: @tab} %>
+<div class="container">
+  <% max_dps = @kpi_parses['dps'].details_hash.values.map{|item| item[:damage]}.max.to_i rescue 0 %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Damage per Second',
+      desc: 'Total damage / Fight time. Pet damage is shown with a separate color',
+      light_bar_width: 100,
+      main_bar_width: bar_width(@fp.kpi_hash[:player_damage_done].to_i, @fp.kpi_hash[:player_damage_done].to_i + @fp.kpi_hash[:pet_damage_done].to_i),
+      main_bar_text: "#{@fp.dps}/s",
+      main_text: "#{(@fp.kpi_hash[:player_damage_done].to_i + @fp.kpi_hash[:pet_damage_done].to_i) / 1000}k total damage (#{@fp.kpi_hash[:pet_damage_done].to_i / 1000}k pet)",
+      dropdown: {id: 'dps'},
+      sub_bars: @kpi_parses['dps'].nil? ? nil : @kpi_parses['dps'].details_hash.values.sort{|a, b| b[:damage].to_i <=> a[:damage].to_i}.map{|item| 
+        {
+          label: item[:name],
+          width: bar_width(item[:damage].to_i, max_dps),
+          text: "#{item[:damage].to_i / 1000}k",
+          sub_text: "#{item[:damage].to_i / 1000}k damage",
+        }
+      },
+    } 
+  %>
+  <% score = 100 * @fp.resources_hash[:eradication_uptime].to_i / (@fp.ended_at - @fp.started_at) %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Eradication Uptime',
+      desc: 'The duration that you had Eradication active. Try to maintain this buff as much as possible by casting Chaos Bolt. A red area means Eradication was not active.',
+      # label: score >= 95 ? 'good' : score >= 85 ? 'ok' : 'bad',
+      white_bar: true,
+      dropdown: {id: 'eradication'},
+      main_bar_width: bar_width(@fp.resources_hash[:eradication_uptime].to_i, @fp.ended_at - @fp.started_at),
+      main_bar_text: "#{@fp.resources_hash[:eradication_uptime].to_i / (10 * @fp.fight_time) rescue 0}%",
+      main_text: "#{@fp.resources_hash[:eradication_uptime].to_i / 1000}s / #{@fp.fight_time}s",
+      sub_bar_type: 'debuff',
+      sub_bars: @debuffs['Eradication'].nil? ? nil : @debuffs['Eradication'].map{|item| 
+        {
+          debuff: item,
+          label: item.target_name,
+          id: "debuff-#{item.id}-#{item.target_id}",
+          sub_text: item.upratio_s,
+        }
+      }
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Immolate Uptime',
+      desc: "The percentage of time Immolate was active on targets you were attacking. A red area means that you were attacking an enemy with no Immolate. 100% isn't realistic, but try to maximize uptime.",
+      label: @fp.debuff_upratio(:immolate) >= 95 ? 'good' : @fp.debuff_upratio(:immolate) >= 85 ? 'ok' : 'bad',
+      white_bar: true,
+      dropdown: {id: 'immolate'},
+      main_bar_width: @fp.debuff_upratio(:immolate),
+      main_bar_text: @fp.debuff_upratio_s(:immolate),
+      main_text: @fp.debuff_upratio_s(:immolate),
+      sub_bar_type: 'debuff',
+      sub_bars: @debuffs['Immolate'].nil? ? nil : @debuffs['Immolate'].map{|item| 
+        {
+          debuff: item,
+          label: item.target_name,
+          id: "debuff-#{item.id}-#{item.target_id}",
+          sub_text: item.upratio_s,
+        }
+      }
+    } 
+  %>
+  <% if @fp.resources_hash[:havoc_uptime].to_i > 0 %>
+    <%= render 'fight_parses/shared/section', 
+      {
+        title: 'Havoc Uptime',
+        desc: "The percentage of time Havoc was active on enemies while multiple enemies were present. A red area means that Havoc wasn't active. This assumes that while Havoc is active you are attacking a different target. 100% isn't realistic, but try to maximize uptime.",
+        label: @fp.debuff_upratio(:havoc) >= 95 ? 'good' : @fp.debuff_upratio(:havoc) >= 85 ? 'ok' : 'bad',
+        white_bar: true,
+        dropdown: {id: 'havoc'},
+        main_bar_width: @fp.debuff_upratio(:havoc),
+        main_bar_text: @fp.debuff_upratio_s(:havoc),
+        main_text: @fp.debuff_upratio_s(:havoc),
+        sub_bar_type: 'debuff',
+        sub_bars: @debuffs['Havoc'].nil? ? nil : @debuffs['Havoc'].map{|item| 
+          {
+            debuff: item,
+            label: item.target_name,
+            id: "debuff-#{item.id}-#{item.target_id}",
+            sub_text: item.upratio_s,
+          }
+        }
+      } 
+    %>
+  <% end %>
+  <% if (@fp.kpi_hash[:havoc_missedcasts] || []).count > 0 %>
+    <%= render 'fight_parses/shared/table', 
+      {
+        title: 'Havoc Fails',
+        desc: "You should never directly cast a spell on a target with Havoc active. This section shows when you directly attacked enemies with Havoc active.",
+        label: 'bad',
+        white_bar: true,
+        labels: ['Timestamp', 'Cast'],
+        rows: @fp.kpi_hash[:havoc_missedcasts].map{|cast| [{value: @fp.event_time(cast[:timestamp], true)}, {value: cast[:msg]}]},
+      } 
+    %>
+  <% end %>
+  <% if @kpi_parses.has_key?('death') && @kpi_parses['death'].kpi_hash[:death_count].to_i > 0 %>
+    <%= render 'fight_parses/shared/deaths', 
+      {
+        deaths: @kpi_parses['death'].details_hash[:deaths],
+      } 
+    %>
+  <% end %>
+</div>
+<%= render 'fight_parses/shared/js', {tab: 'basic'} %> 

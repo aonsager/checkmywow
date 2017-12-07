@@ -1,0 +1,22 @@
+<div id="fights-dropdown" class="custom-dropdown">
+  <%= fight.kill_label %>
+  <div id="fights-dropdown-list" class="list" style="display: none">
+    <% fight_ids = report.fight_parse_records.where(player_id: player_id, boss_id: fight.boss_id).order(:fight_id).pluck(:fight_id) %>
+    <% Fight.where(report_id: report.report_id, fight_id: fight_ids).each do |f| %>
+      <% if player_id.nil? %>
+        <%= link_to "<div class='item #{f.kill? ? 'lgreen' : 'lred' }'>#{f.kill_label}</div>".html_safe, report_fight_path(report.report_id, f.fight_id) %>
+      <% else %>
+        <%= link_to "<div class='item #{f.kill? ? 'lgreen' : 'lred' }'>#{f.kill_label}</div>".html_safe, report_fight_parse_path(report.report_id, player_id, f.fight_id, tab: tab) %>
+      <% end %>
+    <% end %>
+  </div>
+</div>
+
+<script>
+  $("#fights-dropdown").parent().mouseover(function() {
+    $("#fights-dropdown-list").show();
+  });
+  $("#fights-dropdown").parent().mouseout(function() {
+    $("#fights-dropdown-list").hide();
+  });
+</script>

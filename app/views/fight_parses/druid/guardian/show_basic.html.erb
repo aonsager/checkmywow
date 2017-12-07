@@ -1,0 +1,200 @@
+<%= render 'fight_parses/shared/new_header', {active_tab: @tab} %>
+<div class="container">
+  <% max_dps = @kpi_parses['dps'].details_hash.values.map{|item| item[:damage]}.max.to_i rescue 0 %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Damage per Second',
+      desc: 'Total damage / Fight time.',
+      main_bar_width: bar_width(@fp.dps, @fp.max_basic_bar),
+      main_bar_text: "#{@fp.dps}/s",
+      main_text: "#{@fp.kpi_hash[:player_damage_done].to_i / 1000}k total damage",
+      dropdown: {id: 'dps'},
+      sub_bars: @kpi_parses['dps'].nil? ? nil : @kpi_parses['dps'].details_hash.values.sort{|a, b| b[:damage].to_i <=> a[:damage].to_i}.map{|item| 
+        {
+          label: item[:name],
+          width: bar_width(item[:damage].to_i, max_dps),
+          text: "#{item[:damage].to_i / 1000}k",
+          sub_text: "#{item[:damage].to_i / 1000}k damage",
+        }
+      },
+    } 
+  %>
+  <% max_dmg_taken = @kpi_parses['damage_taken'].details_hash.values.map{|item| item[:amount]}.max.to_i rescue 0 %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Damage Taken per Second',
+      desc: 'This is the total damage (divided by fight time) that actually reduced your HP. Absorbs are not included.',
+      main_bar_width: bar_width(@fp.dtps, @fp.max_basic_bar),
+      main_bar_text: "#{@fp.dtps}/s",
+      main_text: "#{@fp.kpi_hash[:damage_taken].to_i / 1000}k total damage taken",
+      dropdown: {id: 'dmg_taken'},
+      sub_bars: @kpi_parses['damage_taken'].nil? ? nil : @kpi_parses['damage_taken'].details_hash.to_a.sort{|a, b| b[1][:amount].to_i <=> a[1][:amount].to_i}.map{|name, item| 
+        {
+          label: name,
+          width: bar_width(item[:amount].to_i, max_dmg_taken),
+          text: "#{item[:amount].to_i / 1000}k",
+          sub_text: "#{item[:amount].to_i / 1000}k damage",
+        }
+      },
+    } 
+  %>
+  <% max_self_healing = @kpi_parses['self_healing'].details_hash.values.map{|item| item[:absorb] + item[:heal]}.max.to_i rescue 0 %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Self Healing per Second',
+      desc: 'The total amount (divided by fight time) that you healed yourself. Absorbs are shown with a separate color.',
+      light_bar_width: bar_width(@fp.shps, @fp.max_basic_bar),
+      main_bar_width: bar_width(@fp.kpi_hash[:self_heal].to_i, @fp.kpi_hash[:self_heal].to_i + @fp.kpi_hash[:self_absorb].to_i),
+      main_bar_text: "#{@fp.shps}/s",
+      main_text: "#{@fp.kpi_hash[:self_heal].to_i / 1000}k healed, #{@fp.kpi_hash[:self_absorb].to_i / 1000}k absorbed",
+      dropdown: {id: 'self_healing'},
+      sub_bars: @kpi_parses['self_healing'].nil? ? nil : @kpi_parses['self_healing'].details_hash.to_a.sort{|a, b| b[1][:absorb].to_i + b[1][:heal].to_i <=> a[1][:absorb].to_i + a[1][:heal].to_i}.map{|name, item| 
+        {
+          label: name,
+          light_bar_width: bar_width(item[:absorb].to_i + item[:heal].to_i, max_self_healing),
+          width: bar_width(item[:heal].to_i, item[:absorb].to_i + item[:heal].to_i),
+          text: "#{(item[:absorb].to_i + item[:heal].to_i) / 1000}k",
+          sub_text: "#{item[:absorb].to_i / 1000}k absorb, #{item[:heal].to_i / 1000}k heal",
+        }
+      },
+    } 
+  %>
+  <% max_external_healing = @kpi_parses['external_healing'].details_hash.values.map{|item| item[:absorb] + item[:heal]}.max.to_i rescue 0 %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'External Healing per Second',
+      desc: 'The total amount (divided by fight time) that other sources healed you. Absorbs are shown with a separate color.',
+      light_bar_width: bar_width(@fp.ehps, @fp.max_basic_bar),
+      main_bar_width: bar_width(@fp.kpi_hash[:external_heal].to_i, @fp.kpi_hash[:external_heal].to_i + @fp.kpi_hash[:external_absorb].to_i),
+      main_bar_text: "#{@fp.ehps}/s",
+      main_text: "#{@fp.kpi_hash[:external_heal].to_i / 1000}k healed, #{@fp.kpi_hash[:external_absorb].to_i / 1000}k absorbed",
+      dropdown: {id: 'external_healing'},
+      sub_bars: @kpi_parses['external_healing'].nil? ? nil : @kpi_parses['external_healing'].details_hash.to_a.sort{|a, b| b[1][:absorb].to_i + b[1][:heal].to_i <=> a[1][:absorb].to_i + a[1][:heal].to_i}.map{|name, item| 
+        {
+          label: name,
+          light_bar_width: bar_width(item[:absorb].to_i + item[:heal].to_i, max_external_healing),
+          width: bar_width(item[:heal].to_i, item[:absorb].to_i + item[:heal].to_i),
+          text: "#{(item[:absorb].to_i + item[:heal].to_i) / 1000}k",
+          sub_text: "#{item[:absorb].to_i / 1000}k absorb, #{item[:heal].to_i / 1000}k heal",
+        }
+      },
+    } 
+  %>
+  <% score = @fp.resources_hash[:ironfur_uptime].to_i / (10 * @fp.fight_time) rescue 0 %>
+  <%= render 'fight_parses/shared/stacks_graph', 
+    {
+      title: 'Ironfur Uptime',
+      desc: "The duration that you had Ironfur active. Try to maintain this buff as much as possible while tanking. A red area means Ironfur was not active.",
+      # label: (score >= 95 ? 'good' : score >= 85 ? 'ok' : 'bad'),
+      white_bar: true,
+      main_bar_width: bar_width(@fp.resources_hash[:ironfur_uptime].to_i, 1000 * @fp.fight_time),
+      main_bar_text: "#{score}%",
+      main_text: "#{@fp.resources_hash[:ironfur_uptime].to_i / 1000}s / #{@fp.fight_time}s",
+      buff: (@buffs['Ironfur'].first rescue nil),
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Thrash Uptime',
+      desc: "The duration that you had Thrash at 3 stacks on your target (enemies who were alive for less than 20 seconds are ignored). Try to maintain this debuff as much as possible while tanking. A red area means Thrash was not active, and a yellow area means it wasn't at 3 stacks.",
+      label: (@fp.debuff_upratio(:thrash) >= 90 ? 'good' : @fp.debuff_upratio(:thrash) >= 80 ? 'ok' : 'bad'),
+      white_bar: true,
+      dropdown: {id: 'thrash'},
+      main_bar_width: @fp.debuff_upratio(:thrash),
+      main_bar_text: @fp.debuff_upratio_s(:thrash),
+      main_text: @fp.debuff_upratio_s(:thrash),
+      sub_bar_type: 'debuff',
+      sub_bars: @debuffs['Thrash'].nil? ? nil : @debuffs['Thrash'].map{|item| 
+        {
+          debuff: item,
+          label: item.target_name,
+          id: "debuff-#{item.id}-#{item.target_id}",
+          sub_text: item.upratio_s,
+          stacks: 3,
+        }
+      }
+    } 
+  %>
+  <% if @fp.talent(5) == 'Guardian of Elune' %>
+    <%= render 'fight_parses/shared/section', 
+      {
+        title: 'Guardian of Elune Usage',
+        desc: 'Take advantage of your Guardian of Elune procs, by paying attention to what spell you cast after using Mangle. You can also see what percentage of your total casts were buffed by Guardian of Elune, but usually there is no need to aim for 100%',
+        label: (@fp.resources_hash[:elune_wasted].to_i == 0 ? 'good' : @fp.resources_hash[:elune_wasted].to_i <= 5 ? 'ok' : 'bad'),
+        white_bar: true,
+        main_bar_width: bar_width(@fp.resources_hash[:elune_procs].to_i - @fp.resources_hash[:elune_wasted].to_i, @fp.resources_hash[:elune_procs].to_i),
+        main_bar_text: "#{@fp.resources_hash[:elune_procs].to_i - @fp.resources_hash[:elune_wasted].to_i}/#{@fp.resources_hash[:elune_procs].to_i}",
+        main_text: "#{@fp.resources_hash[:elune_wasted].to_i} wasted",
+        sub_bars: @fp.resources_hash[:elune_abilities].nil? ? nil : @fp.resources_hash[:elune_abilities].values.sort{|a, b| b[:casts].to_i <=> a[:casts].to_i}.map{|item| 
+          {
+            label: item[:name],
+            bar_key: 'elune-w',
+            val: item[:casts].to_i,
+            text: "#{item[:casts].to_i}",
+            sub_text: "#{item[:casts].to_i}/#{@fp.casts_hash[item[:name]].size rescue 0} casts",
+          }
+        },
+      } 
+    %>
+  <% end %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Mangle! Proc Usage',
+      desc: 'You should take advantage of every free Mangle proc. This section shows how many procs were consumed before being refreshed',
+      label: (@fp.resources_hash[:mangle_wasted].to_i == 0 ? 'good' : @fp.resources_hash[:mangle_wasted].to_i <= 5 ? 'ok' : 'bad'),
+      white_bar: true,
+      main_bar_width: bar_width(@fp.resources_hash[:mangle_procs].to_i - @fp.resources_hash[:mangle_wasted].to_i, @fp.resources_hash[:mangle_procs].to_i),
+      main_bar_text: "#{@fp.resources_hash[:mangle_procs].to_i - @fp.resources_hash[:mangle_wasted].to_i}/#{@fp.resources_hash[:mangle_procs].to_i}",
+      main_text: "#{@fp.resources_hash[:mangle_wasted].to_i} procs wasted",
+    } 
+  %>
+  <% if @fp.talent(4) == 'Galactic Guardian' %>
+    <%= render 'fight_parses/shared/section', 
+      {
+        title: 'Galactic Guardian Proc Usage',
+        desc: 'If you took Galactic Guardian, you should take advantage of every free Moonfire proc. You also should not cast Moonfire without this proc. This section shows how many free Moonfires were missed.',
+        label: (@fp.resources_hash[:galactic_wasted].to_i + @fp.resources_hash[:galactic_notready].to_i == 0 ? 'good' : @fp.resources_hash[:galactic_wasted].to_i + @fp.resources_hash[:galactic_notready].to_i <= 5 ? 'ok' : 'bad'),
+        white_bar: true,
+        main_bar_width: bar_width(@fp.resources_hash[:galactic_procs].to_i - @fp.resources_hash[:galactic_wasted].to_i - @fp.resources_hash[:galactic_notready].to_i, @fp.resources_hash[:galactic_procs].to_i),
+        main_bar_text: "#{@fp.resources_hash[:galactic_procs].to_i - @fp.resources_hash[:galactic_wasted].to_i - @fp.resources_hash[:galactic_notready].to_i}/#{@fp.resources_hash[:galactic_procs].to_i}",
+        main_text: "#{@fp.resources_hash[:galactic_wasted].to_i} procs wasted, #{@fp.resources_hash[:galactic_notready].to_i} cast without proc",
+      } 
+    %>
+  <% else %>
+    <%= render 'fight_parses/shared/section', 
+      {
+        title: 'Moonfire Uptime',
+        desc: "The percentage of time Moonfire was active on targets you were attacking (enemies who were alive for less than 10 seconds are ignored). A red area means that you were attacking an enemy with no Moonfire.",
+        label: @fp.debuff_upratio(:moonfire) >= 95 ? 'good' : @fp.debuff_upratio(:moonfire) >= 85 ? 'ok' : 'bad',
+        white_bar: true,
+        dropdown: {id: 'moonfire'},
+        main_bar_width: @fp.debuff_upratio(:moonfire),
+        main_bar_text: @fp.debuff_upratio_s(:moonfire),
+        main_text: @fp.debuff_upratio_s(:moonfire),
+        sub_bar_type: 'debuff',
+        sub_bars: @debuffs['Moonfire'].nil? ? nil : @debuffs['Moonfire'].map{|item| 
+          {
+            debuff: item,
+            label: item.target_name,
+            id: "debuff-#{item.id}-#{item.target_id}",
+            sub_text: item.upratio_s,
+          }
+        }
+      } 
+    %>
+  <% end %>
+  <% if @kpi_parses.has_key?('death') && @kpi_parses['death'].kpi_hash[:death_count].to_i > 0 %>
+    <%= render 'fight_parses/shared/deaths', 
+      {
+        deaths: @kpi_parses['death'].details_hash[:deaths],
+      } 
+    %>
+  <% end %>
+</div>
+
+<%= render 'fight_parses/shared/js', {tab: 'basic'} %> 
+<script>
+    $(['elune-w']).each(function(index, key){
+    resizeBars(key)
+  });
+</script>

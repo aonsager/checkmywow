@@ -1,0 +1,76 @@
+<%= render 'fight_parses/shared/new_header', {active_tab: @tab} %>
+<div class="container">
+  <% max_dps = @kpi_parses['dps'].details_hash.values.map{|item| item[:damage].to_i}.max.to_i rescue 0 %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Damage per Second',
+      desc: 'Total damage / Fight time. Pet damage is shown with a separate color',
+      light_bar_width: 100,
+      main_bar_width: bar_width(@fp.kpi_hash[:player_damage_done].to_i, @fp.kpi_hash[:player_damage_done].to_i + @fp.kpi_hash[:pet_damage_done].to_i),
+      main_bar_text: "#{@fp.dps}/s",
+      main_text: "#{(@fp.kpi_hash[:player_damage_done].to_i + @fp.kpi_hash[:pet_damage_done].to_i) / 1000}k total damage (#{@fp.kpi_hash[:pet_damage_done].to_i / 1000}k pet)",
+      dropdown: {id: 'dps'},
+      sub_bars: @kpi_parses['dps'].nil? ? nil : @kpi_parses['dps'].details_hash.values.sort{|a, b| b[:damage].to_i <=> a[:damage].to_i}.map{|item| 
+        {
+          label: item[:name],
+          width: bar_width(item[:damage].to_i, max_dps),
+          text: "#{item[:damage].to_i / 1000}k",
+          sub_text: "#{item[:damage].to_i / 1000}k damage",
+        }
+      },
+    } 
+  %>
+  <% if @fp.talent(5) == 'Nether Tempest'%>
+    <% if !@fp.resources_hash[:nether_ac].nil? %>
+      <% total = @fp.resources_hash[:nether_ac].values.map{|a|a}.sum %>
+      <% missed = total - @fp.resources_hash[:nether_ac][4].to_i %>
+      <%= render 'fight_parses/shared/section', 
+        {
+          title: 'Nether Tempest usage',
+          desc: 'Only use Nether Tempest when you have 4 stacks of Arcane Charge.',
+          label: missed == 0 ? 'good' : 'bad',
+          white_bar: true,
+          main_bar_width: bar_width(@fp.resources_hash[:nether_ac][4].to_i, total),
+          main_bar_text: "#{@fp.resources_hash[:nether_ac][4].to_i} / #{total}",
+          main_text: "Cast #{@fp.resources_hash[:nether_ac][4].to_i} times at 4 stacks",
+          sub_bars: @fp.resources_hash[:nether_ac].map{|key, count| 
+            {
+              label: "#{key} stacks",
+              bar_key: 'nether-w',
+              val: count,
+              text: "#{count}",
+              sub_text: "#{count} at #{key} stacks",
+            }
+          },
+        } 
+      %>
+    <% end %>
+    <%= render 'fight_parses/shared/section', 
+      {
+        title: 'Nether Tempest Uptime',
+        desc: "The percentage of time Nether Tempest was active on a target. 100% isn't realistic, but try to maximize uptime.",
+        white_bar: true,
+        dropdown: {id: 'nether'},
+        main_bar_width: bar_width(@fp.resources_hash[:nether_uptime].to_i / 1000, @fp.fight_time),
+        main_bar_text: "#{100 * @fp.resources_hash[:nether_uptime].to_i / 1000 / @fp.fight_time}%",
+        main_text: "#{@fp.resources_hash[:nether_uptime].to_i / 1000} / #{@fp.fight_time}",
+        sub_bar_type: 'debuff',
+        sub_bars: @debuffs['Nether Tempest'].nil? ? nil : @debuffs['Nether Tempest'].map{|item| 
+          {
+            debuff: item,
+            label: item.target_name,
+            id: "debuff-#{item.id}-#{item.target_id}",
+            sub_text: item.upratio_s,
+          }
+        }
+      } 
+    %>
+  <% end %>
+  
+</div>
+<%= render 'fight_parses/shared/js', {tab: 'basic'} %> 
+<script>
+  $(['nether-w']).each(function(index, key){
+    resizeBars(key, 5)
+  });
+</script>

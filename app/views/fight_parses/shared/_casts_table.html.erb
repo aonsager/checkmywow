@@ -1,0 +1,59 @@
+<section>
+  <h4><%= title %>&nbsp;&nbsp;<%= raw(success_label(local_assigns[:label])) if local_assigns.has_key?(:label) %></h4>
+  <div class="row">
+    <div class="col-md-9">
+      <div class="section-desc"><%= desc %></div>
+    </div>
+  </div>
+  <% unless local_assigns[:casts_score].to_i == 0 %>
+    <div class="row">
+      <div class="col-md-7">
+        <div class="bar white" style="width: 100%">
+          <div class="bar dark <%= @fp.class_type %>" style="width: <%= local_assigns[:casts_score] || 10 %>%">
+            <%= local_assigns[:casts_score] %>%
+          </div>
+        </div>
+      </div>
+      <div class="col-md-5"><%= local_assigns[:casts_score] %>% cast efficiency</div>
+  </div>
+  <% end %>
+  <% if local_assigns[:spells].empty? %>
+    <p>There are no spells to be tracked</p>
+  <% end %>
+  <% local_assigns[:spells].each do |spell| %>
+    <% next if spell[:casts].size == 0 && spell[:optional] %>
+    <% spell[:max_casts] = spell[:casts].size if !spell[:max_casts].nil? && spell[:casts].size > spell[:max_casts] %>
+    <div class="row clickable" onclick="load_table('<%= spell[:label].gsub("'", %q(\\\')) %>')">
+      <div class="col-md-2 text-right"><span class="link"><%= spell[:label] %></span></div>
+      <div class="col-md-5 <%= local_assigns[:bar_key] %>" val="<%= local_assigns[:val] %>">
+        <div class="bar white" style="width: 100%">
+          <div class="bar dark <%= @fp.class_type %>" style="width: <%= bar_width(spell[:casts].size, spell[:max_casts]) %>%">
+            <%= spell[:casts].size %>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4"><%= "#{spell[:casts].size}/#{spell[:max_casts]} casts" %></div>
+    </div>
+  <% end %>
+</section>
+
+<section>
+  <div id="casts-details" class="row">
+    <h4 id="title">Spell Details</h4>
+    <div class="col-md-1">&nbsp;</div>
+    <div id="msg" class="col-md-7">
+      Click a spell name above to see details
+    </div>
+  </div>
+</section>
+
+<script>
+function load_table(ability) {
+  $('#title').html(ability);
+  $('#msg').html('<p>Loading data...</p>');
+  $.ajax({
+    url: '<%= report_load_casts_table_path(@report.report_id, @fight.fight_id, @fp.player_id) %>?ability=' + ability,
+    cache: false
+  });
+}
+</script>

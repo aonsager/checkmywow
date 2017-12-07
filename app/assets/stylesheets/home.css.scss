@@ -1,0 +1,69 @@
+/*
+  Place all the styles related to the matching controller here.
+  They will automatically be included in application.css.
+*/
+
+table.spec-table {
+  td {
+    padding: 5px 20px 5px 10px;
+    color: black;
+    border: 3px solid #cccccc;
+    position: relative;
+  }
+  td.no {
+    background-color: white;
+  }
+  td.yes::after {
+    content: image-url("check.png");
+    position: absolute;
+    top: 5px;
+    right: 5px;
+  }
+  td.no::after {
+    content: image-url("x.png");
+    position: absolute;
+    top: 5px;
+    right: 5px;
+  }
+}
+
+#top {
+  width: 100%;
+  height: 500px;
+  background-size: cover;
+  background-image: image-url("illidan_10.jpg");
+  background-position: top center; 
+  background-repeat: no-repeat;
+  position: relative;
+
+  #splash {
+    width: 100%;
+    text-align: center;
+
+    img {
+      max-width: 100%;
+    }
+  }
+
+  #banner {
+    position: absolute;
+    bottom: 50px;
+    right: 0px;
+    // height: 150px;
+    width: 100%;
+    background-color:rgba(0,0,0, 0.5);
+    color: white;
+    text-align: center;
+
+    input[type="text"] {
+      color: black;
+    }
+  }
+}
+
+@media only screen and (max-width : 620px) {
+  #top {
+    height: 400px;
+  }
+
+}

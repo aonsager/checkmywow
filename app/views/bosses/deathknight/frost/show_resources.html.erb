@@ -1,0 +1,49 @@
+<div class="container">
+  <%= render 'bosses/shared/header', tab: 'resources' %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Time not Rune-Capped',
+      desc: 'The percent of the fight that you had less than max Runes. Aim for 100%.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: bar_width(fp.fight_time - fp.resources_hash[:runes_capped_time].to_i, fp.fight_time),
+          main_bar_text: "#{fp.fight_time - fp.resources_hash[:runes_capped_time].to_i}s",
+          main_text: "#{fp.fight_time - fp.resources_hash[:runes_capped_time].to_i}s / #{fp.fight_time}s",
+        }
+      }
+    } 
+  %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Time not Runic Power-Capped',
+      desc: 'The percent of the fight that you had less than max Runic Power. Aim for 100%.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: bar_width(fp.fight_time - fp.resources_hash[:rp_capped_time].to_i, fp.fight_time),
+          main_bar_text: "#{fp.fight_time - fp.resources_hash[:rp_capped_time].to_i}s",
+          main_text: "#{fp.fight_time - fp.resources_hash[:rp_capped_time].to_i}s / #{fp.fight_time}s",
+        }
+      }
+    } 
+  %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Runic Power Gained',
+      desc: 'Avoid overcapping Runic Power by not using Runic Power-generating abilities that would put you over the maximum amount.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: bar_width(fp.resources_hash[:rp_gain].to_i, fp.resources_hash[:rp_gain].to_i + fp.resources_hash[:rp_waste].to_i),
+          main_bar_text: "#{fp.resources_hash[:rp_gain].to_i}/#{fp.resources_hash[:rp_gain].to_i + fp.resources_hash[:rp_waste].to_i}",
+          main_text: "#{fp.resources_hash[:rp_waste].to_i} wasted",
+        }
+      }
+    } 
+  %>
+</div>
+<%= render 'bosses/shared/footer', tab: 'basic' %>

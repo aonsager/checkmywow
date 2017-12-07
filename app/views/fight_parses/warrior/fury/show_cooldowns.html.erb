@@ -1,0 +1,143 @@
+<%= render 'fight_parses/shared/new_header', {active_tab: @tab} %>
+<div class="container">
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Cooldown Timings',
+      desc: 'Do your best to line up cooldowns to maximize DPS.',
+      sub_bar_type: 'cooldown',
+      sub_bars: @fp.cooldown_timeline_bars,
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Odyn\'s Fury Effectiveness',
+      desc: 'The total amount of damage you dealt with Odyn\'s Fury.',
+      bar_key: 'cd-w',
+      val: @fp.cooldowns_hash[:odyn_damage].to_i,
+      main_bar_text: "#{@fp.cooldowns_hash[:odyn_damage].to_i / 1000}k",
+      main_text: "#{@fp.cooldowns_hash[:odyn_damage].to_i / 1000}k damage",
+      sub_bars: @cooldowns['cd']['Odyn\'s Fury'].nil? ? nil : @cooldowns['cd']['Odyn\'s Fury'].map{|item| 
+        {
+          label: item.time_s, 
+          bar_key: 'odyn-d',
+          val: item.kpi_hash[:damage_done].to_i,
+          text: "#{item.kpi_hash[:damage_done].to_i / 1000}k",
+          sub_text: "#{item.kpi_hash[:damage_done].to_i} dmg / #{item.time} sec",
+          dropdown: {
+            id: "odyn-#{item.id}",
+            headers: ['Enemy', 'Hits', 'Damage Done'],
+            content: item.details_hash.map{|id, hash| [hash[:name], hash[:hits].to_i, hash[:damage].to_i]}
+          }
+        }
+      },
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Battle Cry Effectiveness',
+      desc: 'The total amount of damage you dealt while Battlecry was active.',
+      bar_key: 'cd-w',
+      val: @fp.cooldowns_hash[:battlecry_damage].to_i,
+      main_bar_text: "#{@fp.cooldowns_hash[:battlecry_damage].to_i / 1000}k",
+      main_text: "#{@fp.cooldowns_hash[:battlecry_damage].to_i / 1000}k damage",
+      sub_bars: @cooldowns['cd']['Battle Cry'].nil? ? nil : @cooldowns['cd']['Battle Cry'].map{|item| 
+        {
+          label: item.time_s, 
+          bar_key: 'bc-d',
+          val: item.kpi_hash[:damage_done].to_i,
+          text: "#{item.kpi_hash[:damage_done].to_i / 1000}k",
+          sub_text: "#{item.kpi_hash[:damage_done].to_i} dmg / #{item.time} sec",
+          dropdown: {
+            id: "bc-#{item.id}",
+            headers: ['Enemy', 'Hits', 'Damage Done'],
+            content: item.details_hash.map{|id, hash| [hash[:name], hash[:hits].to_i, hash[:damage].to_i]}
+          }
+        }
+      },
+    } 
+  %>
+  <% if @fp.talent(2) == 'Avatar' %>
+    <%= render 'fight_parses/shared/section', 
+      {
+        title: 'Avatar Effectiveness',
+        desc: 'The total amount of increased damage you dealt (20%) while Avatar was active.',
+        bar_key: 'cd-w',
+        val: @fp.cooldowns_hash[:avatar_damage].to_i,
+        main_bar_text: "#{@fp.cooldowns_hash[:avatar_damage].to_i / 1000}k",
+        main_text: "#{@fp.cooldowns_hash[:avatar_damage].to_i / 1000}k damage",
+        sub_bars: @cooldowns['cd']['Avatar'].nil? ? nil : @cooldowns['cd']['Avatar'].map{|item| 
+          {
+            label: item.time_s, 
+            bar_key: 'avatar-d',
+            val: item.kpi_hash[:damage_done].to_i,
+            text: "#{item.kpi_hash[:damage_done].to_i / 1000}k",
+            sub_text: "#{item.kpi_hash[:damage_done].to_i} dmg / #{item.time} sec",
+            dropdown: {
+              id: "avatar-#{item.id}",
+              headers: ['Enemy', 'Hits', 'Damage Done'],
+              content: item.details_hash.map{|id, hash| [hash[:name], hash[:hits].to_i, hash[:damage].to_i]}
+            }
+          }
+        },
+      } 
+    %>
+  <% end %>
+  <% if @fp.talent(6) == 'Bladestorm' %>
+    <%= render 'fight_parses/shared/section', 
+      {
+        title: 'Bladestorm Effectiveness',
+        desc: 'The total amount of damage you dealt with Bladestorm was active.',
+        bar_key: 'cd-w',
+        val: @fp.cooldowns_hash[:bladestorm_damage].to_i,
+        main_bar_text: "#{@fp.cooldowns_hash[:bladestorm_damage].to_i / 1000}k",
+        main_text: "#{@fp.cooldowns_hash[:bladestorm_damage].to_i / 1000}k damage",
+        sub_bars: @cooldowns['cd']['Bladestorm'].nil? ? nil : @cooldowns['cd']['Bladestorm'].map{|item| 
+          {
+            label: item.time_s, 
+            bar_key: 'avatar-d',
+            val: item.kpi_hash[:damage_done].to_i,
+            text: "#{item.kpi_hash[:damage_done].to_i / 1000}k",
+            sub_text: "#{item.kpi_hash[:damage_done].to_i} dmg / #{item.time} sec",
+            dropdown: {
+              id: "bladestorm-#{item.id}",
+              headers: ['Enemy', 'Hits', 'Damage Done'],
+              content: item.details_hash.map{|id, hash| [hash[:name], hash[:hits].to_i, hash[:damage].to_i]}
+            }
+          }
+        },
+      } 
+    %>
+  <% end %>
+  <% if @fp.talent(6) == 'Dragon Roar' %>
+    <%= render 'fight_parses/shared/section', 
+      {
+        title: 'Dragon Roar Effectiveness',
+        desc: 'The total amount of increased damage you dealt (20%) while the Dragon roar buff was active.',
+        bar_key: 'cd-w',
+        val: @fp.cooldowns_hash[:dragonroar_damage].to_i,
+        main_bar_text: "#{@fp.cooldowns_hash[:dragonroar_damage].to_i / 1000}k",
+        main_text: "#{@fp.cooldowns_hash[:dragonroar_damage].to_i / 1000}k damage",
+        sub_bars: @cooldowns['cd']['Dragon Roar'].nil? ? nil : @cooldowns['cd']['Dragon Roar'].map{|item| 
+          {
+            label: item.time_s, 
+            bar_key: 'dragon-d',
+            val: item.kpi_hash[:damage_done].to_i,
+            text: "#{item.kpi_hash[:damage_done].to_i / 1000}k",
+            sub_text: "#{item.kpi_hash[:damage_done].to_i} dmg / #{item.time} sec",
+            dropdown: {
+              id: "dragon-#{item.id}",
+              headers: ['Enemy', 'Hits', 'Damage Done'],
+              content: item.details_hash.map{|id, hash| [hash[:name], hash[:hits].to_i, hash[:damage].to_i]}
+            }
+          }
+        },
+      } 
+    %>
+  <% end %>
+</div>
+<%= render 'fight_parses/shared/js', {tab: 'cooldowns'} %> 
+<script>
+    $(['cd-w', 'odyn-d', 'bc-d', 'avatar-d', 'bladestorm-d', 'dragon-d']).each(function(index, key){
+    resizeBars(key)
+  });
+</script>

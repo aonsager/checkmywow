@@ -1,0 +1,14 @@
+<% breadcrumb :report, @report, true %>
+<% provide(:title, @report.title) %>
+<div class="container">
+  <% if @report.done? %>
+    <div id="report-div"><%= render 'reports/content_div' %></div>
+  <% elsif @report.failed? %>
+    <p>An error has occured while processing this report. The dev has been notified of this, and will look into it as soon as possible.</p>
+  <% elsif @report.blank? %>
+    <p>No fights were found in this report.</p>
+    <p>It's also possible that this is a private report, in which case the API can't retrieve fight information.</p>
+  <% else %>
+    <div id="report-div"><%= render 'reports/waiting' %></div>
+  <% end %>
+</div>

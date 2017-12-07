@@ -1,0 +1,27 @@
+<% if local_assigns[:stacks].nil? %>
+  <% debuff.uptimes_array.each do |up| %>
+    <div class="timeline up" style="left: <%= 100.0 * (up[:started_at].to_i - @fp.started_at) / (@fp.ended_at - @fp.started_at) %>%; width: <%= 100.0 * (up[:ended_at].to_i - up[:started_at].to_i) / (@fp.ended_at - @fp.started_at) %>%;">
+      &nbsp;
+      <div class="label">Active</div>
+    </div>
+  <% end %>
+<% else %>
+  <% debuff.stacks_array.each do |stack| %>
+    <% next if stack[:stacks] == 0 %>
+    <% color = stack[:stacks] >= local_assigns[:stacks] ? 'up' : 'halfup' %>
+    <% force_color = local_assigns[:stack_colors][stack[:stacks]] unless local_assigns[:stack_colors].nil? %>
+    <div class="timeline <%=color%>" style="left: <%= 100.0 * (stack[:started_at].to_i - @fp.started_at) / (@fp.ended_at - @fp.started_at) %>%; width: <%= 100.0 * (stack[:ended_at].to_i - stack[:started_at].to_i) / (@fp.ended_at - @fp.started_at) %>%; <%= "background-color: #{force_color};" unless force_color.nil? %>">
+      &nbsp;
+      <div class="label"><%= stack[:stacks] >= local_assigns[:stacks] ? 'Active' : 'Missing stacks' %></div>
+    </div>
+  <% end %>
+<% end %>
+<% unless local_assigns[:hide_down] %>
+  <% debuff.downtimes_array.each do |down| %>
+    <% next if down[:started_at].to_i == down[:ended_at].to_i %>
+    <div class="timeline down" style="left: <%= 100.0 * (down[:started_at].to_i - @fp.started_at) / (@fp.ended_at - @fp.started_at) %>%; width: <%= 100.0 * (down[:ended_at].to_i - down[:started_at].to_i) / (@fp.ended_at - @fp.started_at) %>%;">
+      &nbsp;
+      <div class="label">Inactive</div>
+    </div>
+  <% end %>
+<% end %>

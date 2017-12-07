@@ -1,0 +1,12 @@
+<% fight_parses ||= locals[:fight_parses] %>
+<% fight_parses.each do |fp| %>
+  <div class="row-block large" style="margin-left: 20px;">
+    <div class="left">
+      <%= image_tag("class/#{fp.class_type.downcase}#{fp.spec.blank? ? "" : "/#{fp.spec.downcase}"}.jpg", size: '21x21', class: 'icon') %>&nbsp;&nbsp;
+      <%= fp.kill? ? 'Kill' : 'Wipe' %> <%= fp.fight_time_s %>
+    </div>
+    <div class="right">
+      <%= render 'fight_parses/shared/button', locals: {fp: fp} %>
+    </div>
+  </div>
+<% end %>

@@ -1,0 +1,15 @@
+<% if @fpr.queued? %>
+  <p>This report is currently waiting to be processed.</p>
+  <p>Current queue size: <%= pluralize Resque.size(:parse) + Resque.size(:single_parse) + Resque.working.size, 'report' %></p>
+<% elsif @fpr.processing? %>
+  <p>This report is currently being processed</p>
+  <%= render 'shared/progress' %>
+<% elsif @fpr.unprocessed? || @fp.nil? %>
+  <p>The fight has not been processed for this player yet.<p>
+  <p>
+    <div id="fp-<%=@fpr.id%>"><%= render 'fight_parses/shared/button', locals: {fp: @fpr} %></td>
+  </p>
+<% end %>
+<% if !@fpr.unprocessed? %>
+  <p><small>Last updated: <%= local_time(Time.now, "%l:%M:%S") %></small></p>
+<% end %>

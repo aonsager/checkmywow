@@ -1,0 +1,24 @@
+<% cooldown = @cooldowns[type][slug] unless type == 'external' || type == 'external_absorb' %>
+<% cooldown = @external_cooldowns['cd'][slug] if type == 'external' %>
+<% cooldown = @external_cooldowns['absorb'][slug] if type == 'external_absorb' %>
+<% if !cooldown.nil? || !cd_hash[:optional] %>
+  <div class="row">
+    <div class="col-md-2"><%= slug %></div>
+    <div class="graph-container col-md-6">
+    <% if !cooldown.nil? %>
+      <% cooldown.each do |buff| %>
+        <% buff.ended_at ||= buff.started_at %>
+        <div class="timeline up <%= cd_hash[:color] %>" style="left: <%= 100.0 * (buff.started_at - @fp.started_at) / (@fp.ended_at - @fp.started_at) %>%; width: <%= [100.0 * (buff.ended_at - buff.started_at) / (@fp.ended_at - @fp.started_at), 1].max.to_i %>%;">&nbsp;</div>
+      <% end %>
+      <% end %>
+    </div>
+    <% if !cd_hash[:cd].nil? && (!cd_hash[:optional] || !cooldown.nil?) %>
+      <% count = cooldown.size rescue 0 %>
+      <% max = [@fp.casts_possible(cd_hash), count].max.to_i %>
+      <div class="col-md-2"><%= "#{count} / #{max} (#{100 * count / max rescue 0}%)" %></div>
+    <% elsif !cd_hash[:max].nil? && (!cd_hash[:optional] || !cooldown.nil?) %>
+      <% count = cooldown.size rescue 0 %>
+      <div class="col-md-2"><%= "#{count} / #{cd_hash[:max]} (#{100 * count / cd_hash[:max] rescue 0}%)" %></div>
+    <% end %>
+  </div>
+<% end %>

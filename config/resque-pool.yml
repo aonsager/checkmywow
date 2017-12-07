@@ -1,0 +1,2 @@
+---
+'parse,guild,single_parse,batch_parse,healing_parse': <%= WORKER_CONCURRENCY %>

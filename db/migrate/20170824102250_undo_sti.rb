@@ -1,0 +1,42 @@
+class UndoSti < ActiveRecord::Migration
+  def change
+    remove_column :fight_parses, :type
+    ActiveRecord::Base.connection.execute("
+      CREATE TABLE fp_dk_blood (LIKE fight_parses INCLUDING DEFAULTS INCLUDING INDEXES);
+      CREATE TABLE fp_dk_frost (LIKE fight_parses INCLUDING DEFAULTS INCLUDING INDEXES);
+      CREATE TABLE fp_dk_unholy (LIKE fight_parses INCLUDING DEFAULTS INCLUDING INDEXES);
+      CREATE TABLE fp_dh_havoc (LIKE fight_parses INCLUDING DEFAULTS INCLUDING INDEXES);
+      CREATE TABLE fp_dh_veng (LIKE fight_parses INCLUDING DEFAULTS INCLUDING INDEXES);
+      CREATE TABLE fp_druid_balance (LIKE fight_parses INCLUDING DEFAULTS INCLUDING INDEXES);
+      CREATE TABLE fp_druid_feral (LIKE fight_parses INCLUDING DEFAULTS INCLUDING INDEXES);
+      CREATE TABLE fp_druid_guardian (LIKE fight_parses INCLUDING DEFAULTS INCLUDING INDEXES);
+      CREATE TABLE fp_druid_resto (LIKE fight_parses INCLUDING DEFAULTS INCLUDING INDEXES);
+      CREATE TABLE fp_hunter_beast (LIKE fight_parses INCLUDING DEFAULTS INCLUDING INDEXES);
+      CREATE TABLE fp_hunter_marks (LIKE fight_parses INCLUDING DEFAULTS INCLUDING INDEXES);
+      CREATE TABLE fp_hunter_survival (LIKE fight_parses INCLUDING DEFAULTS INCLUDING INDEXES);
+      CREATE TABLE fp_mage_arcane (LIKE fight_parses INCLUDING DEFAULTS INCLUDING INDEXES);
+      CREATE TABLE fp_mage_fire (LIKE fight_parses INCLUDING DEFAULTS INCLUDING INDEXES);
+      CREATE TABLE fp_mage_frost (LIKE fight_parses INCLUDING DEFAULTS INCLUDING INDEXES);
+      CREATE TABLE fp_monk_brew (LIKE fight_parses INCLUDING DEFAULTS INCLUDING INDEXES);
+      CREATE TABLE fp_monk_mist (LIKE fight_parses INCLUDING DEFAULTS INCLUDING INDEXES);
+      CREATE TABLE fp_monk_wind (LIKE fight_parses INCLUDING DEFAULTS INCLUDING INDEXES);
+      CREATE TABLE fp_paladin_holy (LIKE fight_parses INCLUDING DEFAULTS INCLUDING INDEXES);
+      CREATE TABLE fp_paladin_prot (LIKE fight_parses INCLUDING DEFAULTS INCLUDING INDEXES);
+      CREATE TABLE fp_paladin_ret (LIKE fight_parses INCLUDING DEFAULTS INCLUDING INDEXES);
+      CREATE TABLE fp_priest_disc (LIKE fight_parses INCLUDING DEFAULTS INCLUDING INDEXES);
+      CREATE TABLE fp_priest_holy (LIKE fight_parses INCLUDING DEFAULTS INCLUDING INDEXES);
+      CREATE TABLE fp_priest_shadow (LIKE fight_parses INCLUDING DEFAULTS INCLUDING INDEXES);
+      CREATE TABLE fp_rogue_sin (LIKE fight_parses INCLUDING DEFAULTS INCLUDING INDEXES);
+      CREATE TABLE fp_rogue_outlaw (LIKE fight_parses INCLUDING DEFAULTS INCLUDING INDEXES);
+      CREATE TABLE fp_rogue_sub (LIKE fight_parses INCLUDING DEFAULTS INCLUDING INDEXES);
+      CREATE TABLE fp_shaman_ele (LIKE fight_parses INCLUDING DEFAULTS INCLUDING INDEXES);
+      CREATE TABLE fp_shaman_enh (LIKE fight_parses INCLUDING DEFAULTS INCLUDING INDEXES);
+      CREATE TABLE fp_shaman_resto (LIKE fight_parses INCLUDING DEFAULTS INCLUDING INDEXES);
+      CREATE TABLE fp_warlock_aff (LIKE fight_parses INCLUDING DEFAULTS INCLUDING INDEXES);
+      CREATE TABLE fp_warlock_demon (LIKE fight_parses INCLUDING DEFAULTS INCLUDING INDEXES);
+      CREATE TABLE fp_warlock_destr (LIKE fight_parses INCLUDING DEFAULTS INCLUDING INDEXES);
+      CREATE TABLE fp_warrior_arms (LIKE fight_parses INCLUDING DEFAULTS INCLUDING INDEXES);
+      CREATE TABLE fp_warrior_fury (LIKE fight_parses INCLUDING DEFAULTS INCLUDING INDEXES);
+      CREATE TABLE fp_warrior_prot (LIKE fight_parses INCLUDING DEFAULTS INCLUDING INDEXES);");
+  end
+end

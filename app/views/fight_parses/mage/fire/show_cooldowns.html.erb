@@ -1,0 +1,67 @@
+<%= render 'fight_parses/shared/new_header', {active_tab: @tab} %>
+<div class="container">
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Cooldown Timings',
+      desc: 'Do your best to line up cooldowns to maximize DPS.',
+      sub_bar_type: 'cooldown',
+      sub_bars: @fp.cooldown_timeline_bars,
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Phoenix\'s Flames Effectiveness',
+      desc: 'The total amount of damage you dealt with Phoenix\'s Flames.',
+      bar_key: 'cd-w',
+      val: @fp.cooldowns_hash[:phoenix_damage].to_i,
+      main_bar_text: "#{@fp.cooldowns_hash[:phoenix_damage].to_i / 1000}k",
+      main_text: "#{@fp.cooldowns_hash[:phoenix_damage].to_i / 1000}k damage",
+      sub_bars: @cooldowns['cd']['Phoenix\'s Flames'].nil? ? nil : @cooldowns['cd']['Phoenix\'s Flames'].map{|item| 
+        {
+          label: item.time_s, 
+          bar_key: 'phoenix-w',
+          val: item.kpi_hash[:damage_done].to_i,
+          width: 10,
+          text: "#{item.kpi_hash[:damage_done].to_i / 1000}k",
+          sub_text: "#{item.kpi_hash[:damage_done].to_i} dmg / #{item.time} sec",
+          dropdown: {
+            id: "phoenix-#{item.id}",
+            headers: ['Enemy', 'Hits', 'Damage Done'],
+            content: item.details_hash.values.sort{|a, b| b[:damage] <=> a[:damage]}.map{|hash| [hash[:name], hash[:hits].to_i, hash[:damage].to_i]}
+          }
+        }
+      },
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Combustion Effectiveness',
+      desc: 'The total amount of damage you dealt while Combustion was active.',
+      bar_key: 'cd-w',
+      val: @fp.cooldowns_hash[:combustion_damage].to_i,
+      main_bar_text: "#{@fp.cooldowns_hash[:combustion_damage].to_i / 1000}k",
+      main_text: "#{@fp.cooldowns_hash[:combustion_damage].to_i / 1000}k damage",
+      sub_bars: @cooldowns['cd']['Combustion'].nil? ? nil : @cooldowns['cd']['Combustion'].map{|item| 
+        {
+          label: item.time_s, 
+          bar_key: 'combustion-w',
+          val: item.kpi_hash[:damage_done].to_i,
+          width: 10,
+          text: "#{item.kpi_hash[:damage_done].to_i / 1000}k",
+          sub_text: "#{item.kpi_hash[:damage_done].to_i} dmg / #{item.time} sec",
+          dropdown: {
+            id: "combustion-#{item.id}",
+            headers: ['Spell', 'Hits', 'Damage Done'],
+            content: item.details_hash.values.sort{|a, b| b[:damage] <=> a[:damage]}.map{|hash| [hash[:name], hash[:hits].to_i, hash[:damage].to_i]}
+          }
+        }
+      },
+    } 
+  %>
+  
+<%= render 'fight_parses/shared/js', {tab: 'cooldowns'} %> 
+<script>
+    $(['cd-w', 'phoenix-w', 'combustion-w', 'nithramus-w']).each(function(index, key){
+    resizeBars(key)
+  });
+</script>

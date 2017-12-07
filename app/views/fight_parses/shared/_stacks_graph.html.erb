@@ -1,0 +1,29 @@
+<section>
+  <h4><%= title %>&nbsp;&nbsp;<%= raw(success_label(local_assigns[:label])) if local_assigns.has_key?(:label) %></h4>
+  <div class="row">
+    <div class="col-md-9">
+      <div class="section-desc"><%= desc %></div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-7">
+      <div class="bar white" style="width: 100%">
+        <div class="bar dark <%= @fp.class_type %>" style="width: <%= local_assigns[:main_bar_width] || 10 %>%">
+          <%= main_bar_text %>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-5"><%= main_text %></div>
+  </div>
+  <div>
+    <div class="row">
+      <div class="col-md-2 text-right"><%= local_assigns[:buff].name rescue '' %></div>
+      <div class="graph-container col-md-5">
+        <% unless local_assigns[:buff].nil? %>
+          <%= render "debuff_parses/uptimes", :debuff => local_assigns[:buff], :stacks => local_assigns[:stacks] %>
+        <% end %>
+      </div>
+      <div class="col-md-3"><%= local_assigns[:sub_text] %></div>
+    </div>    
+  </div>
+</section>

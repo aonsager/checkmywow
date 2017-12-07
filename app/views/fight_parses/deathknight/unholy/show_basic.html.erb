@@ -1,0 +1,107 @@
+<%= render 'fight_parses/shared/new_header', {active_tab: @tab} %>
+<div class="container">
+  <% max_dps = @kpi_parses['dps'].details_hash.values.map{|item| item[:damage]}.max.to_i rescue 0 %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Damage per Second',
+      desc: 'Total damage / Fight time. Pet damage is shown with a separate color',
+      light_bar_width: 100,
+      main_bar_width: bar_width(@fp.kpi_hash[:player_damage_done].to_i, @fp.kpi_hash[:player_damage_done].to_i + @fp.kpi_hash[:pet_damage_done].to_i),
+      main_bar_text: "#{@fp.dps}/s",
+      main_text: "#{(@fp.kpi_hash[:player_damage_done].to_i + @fp.kpi_hash[:pet_damage_done].to_i) / 1000}k total damage (#{@fp.kpi_hash[:pet_damage_done].to_i / 1000}k pet)",
+      dropdown: {id: 'dps'},
+      sub_bars: @kpi_parses['dps'].nil? ? nil : @kpi_parses['dps'].details_hash.values.sort{|a, b| b[:damage].to_i <=> a[:damage].to_i}.map{|item| 
+        {
+          label: item[:name],
+          width: bar_width(item[:damage].to_i, max_dps),
+          text: "#{item[:damage].to_i / 1000}k",
+          sub_text: "#{item[:damage].to_i / 1000}k damage",
+        }
+      },
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Festering Wound Efficiency',
+      desc: 'Use Festering Strike to apply Festering Wound, and Scourge Strike to burst them. Try to burst all Festering Wounds, and avoid casting Festering Strike when the target has more than 5 stacks already, to prevent over-capping.',
+      white_bar: true,
+      light_bar_width: bar_width(@fp.kpi_hash[:festering_gained].to_i + @fp.kpi_hash[:festering_popped].to_i, @fp.kpi_hash[:festering_gained].to_i + @fp.kpi_hash[:festering_popped].to_i + @fp.kpi_hash[:festering_capped].to_i),
+      main_bar_width: bar_width(@fp.kpi_hash[:festering_popped].to_i, @fp.kpi_hash[:festering_gained].to_i),
+      main_bar_text: "#{@fp.kpi_hash[:festering_popped].to_i}/#{@fp.kpi_hash[:festering_gained].to_i} burst",
+      main_text: "#{@fp.kpi_hash[:festering_capped].to_i} possibly lost to cap",
+      sub_bars: @fp.kpi_hash[:festering_details].nil? ? nil : @fp.kpi_hash[:festering_details].values.map{|item| 
+        {
+          label: item[:name],
+          bar_key: 'festering-w',
+          val: item[:gained].to_i + item[:popped].to_i + item[:capped].to_i,
+          white_bar: true,
+          light_bar_width: bar_width(item[:gained].to_i + item[:popped].to_i, item[:gained].to_i + item[:popped].to_i + item[:capped].to_i),
+          width: bar_width(item[:popped].to_i, item[:gained].to_i),
+          text: "#{item[:popped].to_i}/#{item[:gained].to_i}",
+          sub_text: "#{item[:popped].to_i}/#{item[:gained].to_i} burst",
+        }
+      },
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Virulent Plague Uptime',
+      desc: "The percentage of time Virulent Plague was active on targets you were attacking. A red area means that you were attacking an enemy with no Virulent Plague. 100% isn't realistic, but try to maximize uptime.",
+      dropdown: {id: 'vplague'},
+      white_bar: true,
+      main_bar_width: @fp.debuff_upratio(:vplague),
+      main_bar_text: @fp.debuff_upratio_s(:vplague),
+      main_text: @fp.debuff_upratio_s(:vplague),
+      sub_bar_type: 'debuff',
+      sub_bars: @debuffs['Virulent Plague'].nil? ? nil : @debuffs['Virulent Plague'].map{|item| 
+        {
+          debuff: item,
+          label: item.target_name,
+          id: "debuff-#{item.id}-#{item.target_id}",
+          sub_text: item.upratio_s,
+        }
+      }
+    } 
+  %>
+  <% if @fp.talent(6) == 'Soul Reaper' %>
+    <% reapers = {} %>
+    <% @debuffs['Soul Reaper'].each {|reaper| reaper.uptimes_array.each {|arr| reapers[arr[:started_at]] = {id: "#{reaper.id}-#{arr[:started_at]}", enemy: reaper.target_name, times: "#{@fp.event_time(arr[:started_at], true)} - #{@fp.event_time(arr[:ended_at], true)}", timestamps: (reaper.details_hash[arr[:started_at]] || [])}}} rescue nil %>
+    <%= render 'fight_parses/shared/section', 
+      {
+        title: 'Soul Reaper Usage',
+        desc: 'After casting Soul Reaper, try to burst as many Festering Wounds within the 5 second window as possible for the haste buff.',
+        white_bar: true,
+        main_bar_width: bar_width(@fp.kpi_hash[:soulreaper_popped].to_i, @fp.kpi_hash[:soulreaper_count].to_i * 3),
+        main_bar_text: "#{@fp.kpi_hash[:soulreaper_popped].to_i} burst",
+        main_text: "#{(1.0 * @fp.kpi_hash[:soulreaper_popped].to_i / @fp.kpi_hash[:soulreaper_count].to_i).round(2)} burst per cast",
+        sub_bars: reapers.map{|key, item| 
+          {
+            label: item[:enemy],
+            bar_key: 'reaper-w',
+            val: item[:timestamps].count,
+            text: "#{item[:timestamps].count}",
+            sub_text: item[:times],
+            dropdown: {
+              id: "reaper-#{item[:id]}",
+              headers: ['Festering Wound burst'],
+              content: item[:timestamps].map{|timestamp| ["Burst at #{@fp.event_time(timestamp, true)}"]}
+            }
+          }
+        },
+      } 
+    %>
+  <% end %>
+  <% if @kpi_parses.has_key?('death') && @kpi_parses['death'].kpi_hash[:death_count].to_i > 0 %>
+    <%= render 'fight_parses/shared/deaths', 
+      {
+        deaths: @kpi_parses['death'].details_hash[:deaths],
+      } 
+    %>
+  <% end %>
+</div>
+<%= render 'fight_parses/shared/js', {tab: 'basic'} %> 
+<script>
+    $(['dmg-w', 'festering-w', 'reaper-w']).each(function(index, key){
+    resizeBars(key)
+  });
+</script>

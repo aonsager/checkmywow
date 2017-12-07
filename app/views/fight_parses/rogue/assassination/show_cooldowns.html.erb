@@ -1,0 +1,105 @@
+<%= render 'fight_parses/shared/new_header', {active_tab: @tab} %>
+<div class="container">
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Cooldown Timings',
+      desc: 'Do your best to line up cooldowns to maximize DPS.',
+      sub_bar_type: 'cooldown',
+      sub_bars: @fp.cooldown_timeline_bars,
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Vendetta Damage',
+      desc: 'The total amount of damage you dealt with Vendetta. Damage from From the Shadows is shown in a lighter color.',
+      bar_key: 'cd-w',
+      val: @fp.cooldowns_hash[:vendetta_damage].to_i + @fp.cooldowns_hash[:vendetta_extra_damage].to_i,
+      light_bar_width: 100,
+      main_bar_width: bar_width(@fp.cooldowns_hash[:vendetta_damage].to_i, @fp.cooldowns_hash[:vendetta_damage].to_i + @fp.cooldowns_hash[:vendetta_extra_damage].to_i),
+      main_bar_text: "#{number_to_human(@fp.cooldowns_hash[:vendetta_damage].to_i + @fp.cooldowns_hash[:vendetta_extra_damage].to_i)}",
+      main_text: "#{number_to_human(@fp.cooldowns_hash[:vendetta_damage].to_i + @fp.cooldowns_hash[:vendetta_extra_damage].to_i)} damage",
+      sub_bars: @cooldowns['cd']['Vendetta'].nil? ? nil : @cooldowns['cd']['Vendetta'].map{|item| 
+        {
+          label: item.time_s, 
+          bar_key: 'vendetta-w',
+          val: item.kpi_hash[:damage_done].to_i + item.kpi_hash[:extra_damage].to_i,
+          light_bar_width: 100,
+          width: bar_width(item.kpi_hash[:damage_done].to_i, item.kpi_hash[:damage_done].to_i + item.kpi_hash[:extra_damage].to_i),
+          text: "#{number_to_human(item.kpi_hash[:damage_done].to_i + item.kpi_hash[:extra_damage].to_i)}",
+          sub_text: "#{item.kpi_hash[:damage_done].to_i + item.kpi_hash[:extra_damage].to_i} dmg",
+          dropdown: {
+            id: "vendetta-#{item.id}",
+            headers: ['Ability', 'Hits', 'Damage Done'],
+            content: item.details_hash.values.sort{|a,b| b[:damage].to_i <=> a[:damage].to_i}.map{|hash| [hash[:name], hash[:hits].to_i, hash[:damage].to_i]}
+          }
+        }
+      },
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Kingsbane Damage',
+      desc: 'The total amount of damage you dealt with Kingsbane.',
+      bar_key: 'cd-w',
+      val: @fp.cooldowns_hash[:kingsbane_damage].to_i,
+      main_bar_text: "#{number_to_human(@fp.cooldowns_hash[:kingsbane_damage].to_i)}",
+      main_text: "#{number_to_human(@fp.cooldowns_hash[:kingsbane_damage].to_i)} damage",
+      sub_bars: @cooldowns['cd']['Kingsbane'].nil? ? nil : @cooldowns['cd']['Kingsbane'].map{|item| 
+        {
+          label: item.time_s, 
+          bar_key: 'kingsbane-w',
+          val: item.kpi_hash[:damage_done].to_i,
+          text: "#{number_to_human(item.kpi_hash[:damage_done].to_i)}",
+          sub_text: "#{item.kpi_hash[:damage_done].to_i} dmg",
+          dropdown: {
+            id: "kingsbane-#{item.id}",
+            headers: ['Enemy', 'Hits', 'Damage Done'],
+            content: item.details_hash.map{|id, hash| [hash[:name], hash[:hits], hash[:damage]]}
+          }
+        }
+      },
+    } 
+  %>
+  <% percent = 100 * @fp.cooldowns_hash[:kingsbane_envenom_uptime].to_i / @fp.cooldowns_hash[:kingsbane_uptime].to_i rescue 0 %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Envenom Uptime during Kingsbane',
+      desc: 'Try to have 100% uptime of Envenom while Kingsbane is active.',
+      label: (percent >= 95 ? 'good' : percent >= 90 ? 'ok' : 'bad'),
+      white_bar: true,
+      main_bar_width: bar_width(@fp.cooldowns_hash[:kingsbane_envenom_uptime].to_i, @fp.cooldowns_hash[:kingsbane_uptime].to_i),
+      main_bar_text: "#{percent}%",
+      main_text: "#{percent}% average uptime",
+      sub_bars: @cooldowns['cd']['Kingsbane'].nil? ? nil : @cooldowns['cd']['Kingsbane'].map{|item| 
+        {
+          label: item.time_s, 
+          white_bar: true,
+          width: bar_width(item.kpi_hash[:envenom_uptime], item.kpi_hash[:uptime]),
+          text: "#{100 * item.kpi_hash[:envenom_uptime] / item.kpi_hash[:uptime] rescue 0}%",
+          sub_text: "#{100 * item.kpi_hash[:envenom_uptime] / item.kpi_hash[:uptime] rescue 0}% uptime",
+        }
+      },
+    } 
+  %>
+  <% if @fp.talent(1) == 'Nightstalker' || @fp.talent(1) == 'Subterfuge' %>
+    <%= render 'fight_parses/shared/table', 
+      {
+        title: "#{@fp.talent(1)} Usage",
+        desc: 'When buffing your bleeds by using them from stealth, you should always cast with max Combo Points, and let the bleed tick for its full duration before refreshing.',
+        white_bar: true,
+        main_bar_width: bar_width(@fp.cooldowns_hash[:good_vanish_bleeds].to_i, @fp.cooldowns_hash[:good_vanish_bleeds].to_i + @fp.cooldowns_hash[:bad_vanish_bleeds].to_i),
+        main_bar_text: "#{@fp.cooldowns_hash[:good_vanish_bleeds].to_i}/#{@fp.cooldowns_hash[:good_vanish_bleeds].to_i + @fp.cooldowns_hash[:bad_vanish_bleeds].to_i}",
+        main_text: "",
+        dropdown: {id: 'vanish_bleeds'},
+        labels: ['Time', 'Event'],
+        rows: @fp.cooldowns_hash[:stealth_bleed_details].nil? ? nil : @fp.cooldowns_hash[:stealth_bleed_details].map{|row| [{value: @fp.event_time(row[:timestamp], true), class: row[:class]}, {value: row[:msg]}]},
+      } 
+    %>
+  <% end %> 
+  
+<%= render 'fight_parses/shared/js', {tab: 'cooldowns'} %>
+<script>
+    $(['cd-w', 'vendetta-w', 'kingsbane-w']).each(function(index, key){
+    resizeBars(key)
+  });
+</script>

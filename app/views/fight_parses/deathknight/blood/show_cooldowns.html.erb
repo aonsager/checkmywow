@@ -1,0 +1,197 @@
+<%= render 'fight_parses/shared/new_header', {active_tab: @tab} %>
+<div class="container">
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Cooldown Timings',
+      desc: 'Be sure you\'re timing your cooldowns correctly, and not missing uses.',
+      sub_bar_type: 'cooldown',
+      sub_bars: @fp.cooldown_timeline_bars,
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Vampiric Blood Effectiveness',
+      desc: 'The total amount of additional healing gained through Vampiric Blood.',
+      bar_key: 'cd-w',
+      val: @fp.cooldowns_hash[:vb_healed].to_i + @fp.cooldowns_hash[:vb_overhealed].to_i,
+      white_bar: true,
+      main_bar_width: bar_width(@fp.cooldowns_hash[:vb_healed].to_i, @fp.cooldowns_hash[:vb_healed].to_i + @fp.cooldowns_hash[:vb_overhealed].to_i),
+      main_bar_text: "#{@fp.cooldowns_hash[:vb_healed].to_i / 1000}k",
+      main_text: "#{@fp.cooldowns_hash[:vb_healed].to_i / 1000}k healed, #{@fp.cooldowns_hash[:vb_overhealed].to_i / 1000}k overhealing",
+      sub_bars: @cooldowns['cd']['Vampiric Blood'].nil? ? nil : @cooldowns['cd']['Vampiric Blood'].map{|item| 
+        {
+          label: item.time_s, 
+          bar_key: 'vamp-w',
+          val: item.kpi_hash[:healed_amount].to_i + item.kpi_hash[:overhealed_amount].to_i,
+          white_bar: true,
+          width: bar_width(item.kpi_hash[:healed_amount].to_i, item.kpi_hash[:healed_amount].to_i + item.kpi_hash[:overhealed_amount].to_i),
+          text: "#{item.kpi_hash[:healed_amount].to_i / 1000}k",
+          sub_text: "#{item.kpi_hash[:healed_amount].to_i / 1000}k healing, #{item.kpi_hash[:overhealed_amount].to_i / 1000}k overhealing",
+          dropdown: {
+            id: "vb-#{item.id}",
+            headers: ['Player', 'Ability', 'Casts', 'Heal', 'Overheal'],
+            content: item.details_hash.map{|id, hash| [hash[:source], hash[:name], hash[:casts], hash[:amount], hash[:overheal_amount]]}.sort{|a, b| b[3].to_i <=> a[3].to_i}
+          }
+        }
+      },
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Dancing Rune Weapon Effectiveness',
+      desc: 'The total amount of damage mitigated through Dancing Rune Weapon\'s increased parry chance. If there aren\'t too many attacks that can be parried, it is fine to cast Dancing Rune Weapon primarily for the increased Bone Shield generation.',
+      bar_key: 'cd-w',
+      val: @fp.cooldowns_hash[:drw_parried].to_i,
+      main_bar_text: "#{@fp.cooldowns_hash[:drw_parried].to_i / 1000}k",
+      main_text: "#{@fp.cooldowns_hash[:drw_parried].to_i / 1000}k avoided",
+      sub_bars: @cooldowns['cd']['Dancing Rune Weapon'].nil? ? nil : @cooldowns['cd']['Dancing Rune Weapon'].map{|item| 
+        {
+          label: item.time_s, 
+          bar_key: 'drw-w',
+          val: item.kpi_hash[:reduced_amount].to_i,
+          text: "#{item.kpi_hash[:reduced_amount].to_i/ 1000}k",
+          sub_text: "#{item.kpi_hash[:reduced_amount].to_i / 1000}k dmg",
+          dropdown: {
+            id: "drw-#{item.id}",
+            headers: ['Enemy', 'Ability', 'Parried Count', 'Avg. dmg'],
+            content: item.details_hash.map{|id, hash| [hash[:source], hash[:name], hash[:parried], hash[:avg]]}
+          }
+        }
+      },
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Icebound Fortitude Effectiveness',
+      desc: 'The total amount of damage reduced by Icebound Fortitude (30%).',
+      bar_key: 'cd-w',
+      val: @fp.cooldowns_hash[:icebound_reduced].to_i,
+      main_bar_text: "#{@fp.cooldowns_hash[:icebound_reduced].to_i / 1000}k",
+      main_text: "#{@fp.cooldowns_hash[:icebound_reduced].to_i / 1000}k reduced",
+      sub_bars: @cooldowns['cd']['Icebound Fortitude'].nil? ? nil : @cooldowns['cd']['Icebound Fortitude'].map{|item| 
+        {
+          label: item.time_s, 
+          bar_key: 'icebound-w',
+          val: item.kpi_hash[:reduced_amount].to_i,
+          text: "#{item.kpi_hash[:reduced_amount].to_i / 1000}k",
+          sub_text: "#{item.kpi_hash[:reduced_amount]}k dmg",
+          dropdown: {
+            id: "icebound-#{item.id}",
+            headers: ['Enemy', 'Ability', 'Casts', 'Reduced damage'],
+            content: item.details_hash.map{|id, hash| [hash[:source], hash[:name], hash[:casts], hash[:amount]]}.sort{|a, b| b[3].to_i <=> a[3].to_i}
+          }
+        }
+      },
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Anti-Magic Shell Effectiveness',
+      desc: 'The total amount of damage mitigated through Anti-Magic Shell. Each cast of Anti-Magic Shell records the magic damage absorbed while it is active.',
+      bar_key: 'cd-w',
+      val: @fp.cooldowns_hash[:ams_reduced].to_i,
+      main_bar_text: "#{@fp.cooldowns_hash[:ams_reduced].to_i / 1000}k",
+      main_text: "#{@fp.cooldowns_hash[:ams_reduced].to_i / 1000}k reduced",
+      sub_bars: @cooldowns['cd']['Anti-Magic Shell'].nil? ? nil : @cooldowns['cd']['Anti-Magic Shell'].map{|item| 
+        {
+          label: item.time_s, 
+          bar_key: 'ams-w',
+          val: item.kpi_hash[:reduced_amount].to_i,
+          text: "#{item.kpi_hash[:reduced_amount].to_i / 1000}k",
+          sub_text: "#{item.kpi_hash[:reduced_amount]}k dmg",
+          dropdown: {
+            id: "ams-#{item.id}",
+            headers: ['Enemy', 'Ability', 'Casts', 'Reduced damage'],
+            content: item.details_hash.map{|id, hash| [hash[:source], hash[:name], hash[:casts], hash[:amount]]}.sort{|a, b| b[3].to_i <=> a[3].to_i}
+          }
+        }
+      },
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Consumption Effectiveness',
+      desc: 'The total amount of damage and healing provided by Consumption.',
+      bar_key: 'cd-w',
+      val: @fp.cooldowns_hash[:consumption_healing].to_i + @fp.cooldowns_hash[:consumption_overhealing].to_i,
+      white_bar: true,
+      main_bar_width: bar_width(@fp.cooldowns_hash[:consumption_healing].to_i, @fp.cooldowns_hash[:consumption_healing].to_i + @fp.cooldowns_hash[:consumption_overhealing].to_i),
+      main_bar_text: "#{@fp.cooldowns_hash[:consumption_healing].to_i / 1000}k",
+      main_text: "#{@fp.cooldowns_hash[:consumption_healing].to_i / 1000}k healing, #{@fp.cooldowns_hash[:consumption_overhealing].to_i / 1000}k overhealing",
+      sub_bars: @cooldowns['cd']['Consumption'].nil? ? nil : @cooldowns['cd']['Consumption'].map{|item| 
+        {
+          label: item.time_s, 
+          bar_key: 'consumption-w',
+          val: item.kpi_hash[:healing_done].to_i + item.kpi_hash[:overhealing_done].to_i,
+          white_bar: true,
+          width: bar_width(item.kpi_hash[:healing_done].to_i, item.kpi_hash[:healing_done].to_i + item.kpi_hash[:overhealing_done].to_i),
+          text: "#{(item.kpi_hash[:healing_done].to_i + item.kpi_hash[:overhealing_done].to_i) / 1000}k",
+          sub_text: "#{item.kpi_hash[:healing_done].to_i / 1000}k healing, #{item.kpi_hash[:overhealing_done].to_i / 1000}k overhealing",
+          dropdown: {
+              id: "consumption-#{item.id}",
+              headers: ['Enemy', 'Hits', 'Damage Done'],
+              content: item.details_hash.map{|id, hash| [hash[:name], hash[:hits].to_i, hash[:damage].to_i]}
+            }
+        }
+      },
+    } 
+  %>
+  <% if @fp.talent(6) == 'Bonestorm' %>
+    <%= render 'fight_parses/shared/section', 
+      {
+        title: 'Bonestorm Effectiveness',
+        desc: 'The total amount of damage you dealt with Bonestorm.',
+        bar_key: 'cd-w',
+        val: @fp.cooldowns_hash[:bonestorm_damage].to_i,
+        main_bar_text: "#{@fp.cooldowns_hash[:bonestorm_damage].to_i / 1000}k",
+        main_text: "#{@fp.cooldowns_hash[:bonestorm_damage].to_i / 1000}k damage",
+        sub_bars: @cooldowns['cd']['Bonestorm'].nil? ? nil : @cooldowns['cd']['Bonestorm'].map{|item| 
+          {
+            label: item.time_s, 
+            bar_key: 'bonestorm-w',
+            val: item.kpi_hash[:damage_done].to_i,
+            text: "#{item.kpi_hash[:damage_done].to_i / 1000}k",
+            sub_text: "#{item.kpi_hash[:damage_done].to_i} dmg / #{item.time} sec",
+            dropdown: {
+              id: "bonestorm-#{item.id}",
+              headers: ['Enemy', 'Hits', 'Damage Done'],
+              content: item.details_hash.map{|id, hash| [hash[:name], hash[:hits].to_i, hash[:damage].to_i]}
+            }
+          }
+        },
+      } 
+    %>
+  <% end %>
+  <% if @fp.talent(6) == 'Blood Mirror' %>
+    <%= render 'fight_parses/shared/section', 
+      {
+        title: 'Blood Mirror Effectiveness',
+        desc: 'The total amount of damage you redirected with Blood Mirror (20%).',
+        bar_key: 'cd-w',
+        val: @fp.cooldowns_hash[:mirror_damage].to_i,
+        main_bar_text: "#{@fp.cooldowns_hash[:mirror_damage].to_i / 1000}k",
+        main_text: "#{@fp.cooldowns_hash[:mirror_damage].to_i / 1000}k damage",
+        sub_bars: @cooldowns['cd']['Blood Mirror'].nil? ? nil : @cooldowns['cd']['Blood Mirror'].map{|item| 
+          {
+            label: item.time_s, 
+            bar_key: 'mirror-w',
+            val: item.kpi_hash[:damage_done].to_i,
+            text: "#{item.kpi_hash[:damage_done].to_i / 1000}k",
+            sub_text: "#{item.kpi_hash[:damage_done].to_i} dmg / #{item.time} sec",
+            dropdown: {
+              id: "mirror-#{item.id}",
+              headers: ['Enemy', 'Ability', 'Hits', 'Damage Reduced'],
+              content: item.details_hash.map{|id, hash| [hash[:source], hash[:name], hash[:hits].to_i, hash[:amount].to_i]}
+            }
+          }
+        },
+      } 
+    %>
+  <% end %>
+</div>
+<%= render 'fight_parses/shared/js', {tab: 'cooldowns'} %> 
+<script>
+    $(['cd-w', 'vamp-w', 'drw-w', 'icebound-w', 'ams-w', 'consumption-w', 'bonestorm-w', 'mirror-w']).each(function(index, key){
+    resizeBars(key)
+  });
+</script>

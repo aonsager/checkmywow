@@ -1,0 +1,115 @@
+<%= render 'fight_parses/shared/new_header', {active_tab: @tab} %>
+<div class="container">
+  <% score = 100 * (@fp.fight_time - @fp.resources_hash[:capped_time].to_i) / @fp.fight_time %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Time not Energy-Capped',
+      desc: 'The percent of the fight that you had less than max Energy. Aim for 100%.',
+      label: score >= 95 ? 'good' : score >= 90 ? 'ok' : 'bad',
+      white_bar: true,
+      main_bar_width: bar_width(@fp.fight_time - @fp.resources_hash[:capped_time].to_i, @fp.fight_time),
+      main_bar_text: "#{@fp.fight_time - @fp.resources_hash[:capped_time].to_i}s",
+      main_text: "#{@fp.fight_time - @fp.resources_hash[:capped_time].to_i}s / #{@fp.fight_time}s",
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Combo Points Gained',
+      desc: 'Avoid overcapping Combo Points by not using Combo Point-generating abilities that would put you over the maximum amount.',
+      label: @fp.resources_hash[:combo_waste].to_i == 0 ? 'good' : @fp.resources_hash[:combo_waste].to_i < 5 ? 'ok' : 'bad',
+      white_bar: true,
+      main_bar_width: bar_width(@fp.resources_hash[:combo_gain].to_i, @fp.resources_hash[:combo_gain].to_i + @fp.resources_hash[:combo_waste].to_i),
+      main_bar_text: "#{@fp.resources_hash[:combo_gain].to_i}/#{@fp.resources_hash[:combo_gain].to_i + @fp.resources_hash[:combo_waste].to_i}",
+      main_text: "#{@fp.resources_hash[:combo_waste].to_i} wasted",
+      sub_bars: @fp.resources_hash[:combo_abilities].nil? ? nil : @fp.resources_hash[:combo_abilities].values.sort{|a, b| (b[:gain].to_i + b[:waste].to_i) <=> (a[:gain].to_i + a[:waste].to_i)}.map{|item| 
+        {
+          label: item[:name],
+          white_bar: true,
+          bar_key: 'combo-w',
+          val: item[:gain].to_i + item[:waste].to_i,
+          width: bar_width(item[:gain].to_i, item[:gain].to_i + item[:waste].to_i),
+          text: "#{item[:gain].to_i}/#{item[:gain].to_i + item[:waste].to_i}",
+          sub_text: "#{item[:waste].to_i} wasted",
+        }
+      },
+    } 
+  %>
+  <% max = @fp.resources_hash[:combo_spend]['Rip'][:combo][5].to_i rescue 0 %>
+  <% total = @fp.resources_hash[:combo_spend]['Rip'][:combo].map{|k,v| v }.sum rescue 0 %>
+  <% if total > 0 %>
+    <%= render 'fight_parses/shared/section', 
+      {
+        title: 'Combo Points Usage - Rip',
+        desc: 'The amount of Combo Points spent on each cast of Rip. Try to cast with 5 Combo Points as often as possible.',
+        label: total - max == 0 ? 'good' : total - max < 3 ? 'ok' : 'bad',
+        white_bar: true,
+        main_bar_width: bar_width(max, total),
+        main_bar_text: "#{max}/#{total}",
+        main_text: "#{max}/#{total} casts with 5 Combo Points",
+        sub_bars: @fp.resources_hash[:combo_spend]['Rip'][:combo].map{|combo, num| 
+          {
+            label: "#{combo} Combo Points",
+            bar_key: 'rip-w',
+            val: num,
+            text: "#{num}",
+            sub_text: "#{num} casts",
+          }
+        },
+      } 
+    %>
+  <% end %>
+  <% max = @fp.resources_hash[:combo_spend]['Ferocious Bite'][:combo][5].to_i rescue 0 %>
+  <% total = @fp.resources_hash[:combo_spend]['Ferocious Bite'][:combo].map{|k,v| v }.sum rescue 0 %>
+  <% if total > 0 %>
+    <%= render 'fight_parses/shared/section', 
+      {
+        title: 'Combo Points Usage - Ferocious Bite',
+        desc: 'The amount of Combo Points spent on each cast of Ferocious Bite. Try to cast with 5 Combo Points as often as possible.',
+        label: total - max == 0 ? 'good' : total - max < 3 ? 'ok' : 'bad',
+        white_bar: true,
+        main_bar_width: bar_width(max, total),
+        main_bar_text: "#{max}/#{total}",
+        main_text: "#{max}/#{total} casts with 5 Combo Points",
+        sub_bars: @fp.resources_hash[:combo_spend]['Ferocious Bite'][:combo].map{|combo, num| 
+          {
+            label: "#{combo} Combo Points",
+            bar_key: 'bite-w',
+            val: num,
+            text: "#{num}",
+            sub_text: "#{num} casts",
+          }
+        },
+      } 
+    %>
+  <% end %>
+  <% max = @fp.resources_hash[:combo_spend]['Savage Roar'][:combo][5].to_i rescue 0 %>
+  <% total = @fp.resources_hash[:combo_spend]['Savage Roar'][:combo].map{|k,v| v }.sum rescue 0 %>
+  <% if total > 0 %>
+    <%= render 'fight_parses/shared/section', 
+      {
+        title: 'Combo Points Usage - Savage Roar',
+        desc: 'The amount of Combo Points spent on each cast of Savage Roar. Try to cast with 5 Combo Points as often as possible.',
+        label: total - max == 0 ? 'good' : total - max < 3 ? 'ok' : 'bad',
+        white_bar: true,
+        main_bar_width: bar_width(max, total),
+        main_bar_text: "#{max}/#{total}",
+        main_text: "#{max}/#{total} casts with 5 Combo Points",
+        sub_bars: @fp.resources_hash[:combo_spend]['Savage Roar'][:combo].map{|combo, num| 
+          {
+            label: "#{combo} Combo Points",
+            bar_key: 'bite-w',
+            val: num,
+            text: "#{num}",
+            sub_text: "#{num} casts",
+          }
+        },
+      } 
+    %>
+  <% end %>
+</div>
+<%= render 'fight_parses/shared/js', {tab: 'resources'} %> 
+<script>
+    $(['combo-w', 'rip-w', 'bite-w']).each(function(index, key){
+    resizeBars(key)
+  });
+</script>

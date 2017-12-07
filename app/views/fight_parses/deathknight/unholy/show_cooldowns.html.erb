@@ -1,0 +1,91 @@
+<%= render 'fight_parses/shared/new_header', {active_tab: @tab} %>
+<div class="container">
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Cooldown Timings',
+      desc: 'Do your best to line up cooldowns to maximize DPS.',
+      sub_bar_type: 'cooldown',
+      sub_bars: @fp.cooldown_timeline_bars,
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Apocalypse Effectiveness',
+      desc: 'The total amount of damage done by Apocalypse. Always try to use Apocalypse when your target has 8 stacks of Festering Wound.',
+      bar_key: 'cd-w',
+      val: @fp.cooldowns_hash[:apocalypse_damage].to_i,
+      main_bar_text: "#{@fp.cooldowns_hash[:apocalypse_damage].to_i / 1000}k",
+      main_text: "#{@fp.cooldowns_hash[:apocalypse_damage].to_i / 1000}k damage",
+      sub_bars: @cooldowns['cd']['Apocalypse'].nil? ? nil : @cooldowns['cd']['Apocalypse'].map{|item| 
+        {
+          label: item.time_s, 
+          bar_key: 'apocalypse-w',
+          val: item.kpi_hash[:damage_done].to_i,
+          text: "#{item.kpi_hash[:damage_done].to_i / 1000}k",
+          sub_text: "#{item.kpi_hash[:wounds_popped].to_i} stacks",
+          dropdown: {
+            id: "apocalypse-#{item.id}",
+            headers: ['Enemy', 'Damage Done', 'Hits'],
+            content: item.details_hash.values.sort{|a, b| b[:damage].to_i <=> a[:damage].to_i}.map{|hash| [hash[:name], hash[:damage], hash[:hits]]}
+          }
+        }
+      },
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Dark Transformation Damage',
+      desc: 'The total amount of damage done by your Ghoul while Dark Transformation was active. Try to maximize your uptime.',
+      bar_key: 'cd-w',
+      val: @fp.cooldowns_hash[:transformation_damage].to_i,
+      main_bar_text: "#{@fp.cooldowns_hash[:transformation_damage].to_i / 1000}k",
+      main_text: "#{@fp.cooldowns_hash[:transformation_damage].to_i / 1000}k damage",
+      sub_bars: @external_cooldowns['cd']['Dark Transformation'].nil? ? nil : @external_cooldowns['cd']['Dark Transformation'].map{|item| 
+        {
+          label: item.time_s, 
+          bar_key: 'transformation-w',
+          val: item.kpi_hash[:damage_done].to_i,
+          text: "#{item.kpi_hash[:damage_done].to_i / 1000}k",
+          sub_text: "#{item.kpi_hash[:damage_done].to_i} dmg",
+          dropdown: {
+            id: "transformation-#{item.id}",
+            headers: ['Enemy', 'Damage Done', 'Hits'],
+            content: item.details_hash.values.sort{|a, b| b[:damage].to_i <=> a[:damage].to_i}.map{|hash| [hash[:name], hash[:damage], hash[:hits]]}
+          }
+        }
+      },
+    } 
+  %>
+  <% if @fp.talent(6) == 'Dark Arbiter' %>
+    <%= render 'fight_parses/shared/section', 
+      {
+        title: 'Dark Arbiter Damage',
+        desc: 'The total amount of damage done by your Battlemaiden while Dark Arbiter was active. Try to pool and spend as much Runic Power as possible during this period, to increase the damage buff.',
+        bar_key: 'cd-w',
+        val: @fp.cooldowns_hash[:arbiter_damage].to_i,
+        main_bar_text: "#{@fp.cooldowns_hash[:arbiter_damage].to_i / 1000}k",
+        main_text: "#{@fp.cooldowns_hash[:arbiter_damage].to_i / 1000}k damage",
+        sub_bars: @cooldowns['cd']['Dark Arbiter'].nil? ? nil : @cooldowns['cd']['Dark Arbiter'].map{|item| 
+          {
+            label: item.time_s, 
+            bar_key: 'arbiter-w',
+            val: item.kpi_hash[:damage_done].to_i,
+            text: "#{item.kpi_hash[:damage_done].to_i / 1000}k",
+            sub_text: "#{item.kpi_hash[:power_spent].to_i} Runic Power spent",
+            dropdown: {
+              id: "arbiter-#{item.id}",
+              headers: ['Enemy', 'Damage Done', 'Hits'],
+              content: item.details_hash.values.sort{|a, b| b[:damage].to_i <=> a[:damage].to_i}.map{|hash| [hash[:name], hash[:damage], hash[:hits]]}
+            }
+          }
+        },
+      } 
+    %>
+  <% end %>
+</div>
+<%= render 'fight_parses/shared/js', {tab: 'cooldowns'} %> 
+<script>
+    $(['cd-w', 'apocalypse-w', 'transformation-w', 'arbiter-w']).each(function(index, key){
+    resizeBars(key)
+  });
+</script>

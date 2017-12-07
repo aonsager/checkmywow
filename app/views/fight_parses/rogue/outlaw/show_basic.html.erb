@@ -1,0 +1,96 @@
+<%= render 'fight_parses/shared/new_header', {active_tab: @tab} %>
+<div class="container">
+  <% max_dps = @kpi_parses['dps'].details_hash.values.map{|item| item[:damage]}.max.to_i rescue 0 %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Damage per Second',
+      desc: 'Total damage / Fight time.',
+      light_bar_width: 100,
+      main_bar_width: bar_width(@fp.kpi_hash[:player_damage_done].to_i, @fp.kpi_hash[:player_damage_done].to_i + @fp.kpi_hash[:pet_damage_done].to_i),
+      main_bar_text: "#{@fp.dps}/s",
+      main_text: "#{(@fp.kpi_hash[:player_damage_done].to_i + @fp.kpi_hash[:pet_damage_done].to_i) / 1000}k total damage",
+      dropdown: {id: 'dps'},
+      sub_bars: @kpi_parses['dps'].nil? ? nil : @kpi_parses['dps'].details_hash.values.sort{|a, b| b[:damage].to_i <=> a[:damage].to_i}.map{|item| 
+        {
+          label: item[:name],
+          width: bar_width(item[:damage].to_i, max_dps),
+          text: "#{item[:damage].to_i / 1000}k",
+          sub_text: "#{item[:damage].to_i / 1000}k damage",
+        }
+      },
+    } 
+  %>
+  <% if @buffs.has_key?('Slice and Dice') && @fp.talent(6) == 'Slice and Dice' %>
+    <% percent = @fp.resources_hash[:slice_uptime].to_i / (10 * @fp.fight_time) rescue 0 %>
+    <%= render 'fight_parses/shared/stacks_graph', 
+      {
+        title: 'Slice and Dice Uptime',
+        desc: 'The percentage of time Slice and Dice was active. Aim for 100% uptime.',
+        label: (percent >= 95 ? 'good' : percent >= 90 ? 'ok' : 'bad'),
+        white_bar: true,
+        main_bar_width: bar_width(@fp.resources_hash[:slice_uptime].to_i / 1000, @fp.fight_time),
+        main_bar_text: "#{percent.to_i}%",
+        main_text: "#{@fp.resources_hash[:slice_uptime].to_i / 1000}s / #{@fp.fight_time}s",
+        buff: @buffs['Slice and Dice'].first,
+      } 
+    %>
+  <% elsif @buffs.has_key?('Roll the Bones') %>
+    <% percent = @fp.resources_hash[:rollthebones_uptime].to_i / (10 * @fp.fight_time) rescue 0 %>
+    <%= render 'fight_parses/shared/stacks_graph', 
+      {
+        title: 'Roll the Bones Uptime',
+        desc: 'The percentage of time Roll the Bones was active. Aim for 100% uptime.',
+        label: (percent >= 95 ? 'good' : percent >= 90 ? 'ok' : 'bad'),
+        white_bar: true,
+        main_bar_width: bar_width(@fp.resources_hash[:rollthebones_uptime].to_i / 1000, @fp.fight_time),
+        main_bar_text: "#{percent.to_i}%",
+        main_text: "#{@fp.resources_hash[:rollthebones_uptime].to_i / 1000}s / #{@fp.fight_time}s",
+        buff: @buffs['Roll the Bones'].first,
+      } 
+    %>
+  <% end %>
+  <% if @fp.talent(0) == 'Ghostly Strike' %>
+    <% percent = @fp.resources_hash[:ghostly_uptime].to_i / (10 * @fp.fight_time) rescue 0 %>
+    <%= render 'fight_parses/shared/section', 
+      {
+        title: 'Ghostly Strike Uptime',
+        desc: 'The percentage of time Ghostly Strike was active on your target. A red area means that you were attacking an enemy with no Ghostly Strike debuff. Aim for 100% uptime on your primary target.',
+        label: (percent >= 95 ? 'good' : percent >= 90 ? 'ok' : 'bad'),
+        white_bar: true,
+        main_bar_width: bar_width(@fp.resources_hash[:ghostly_uptime].to_i / 1000, @fp.fight_time),
+        main_bar_text: "#{percent.to_i}%",
+        main_text: "#{@fp.resources_hash[:ghostly_uptime].to_i / 1000}s / #{@fp.fight_time}s",
+        dropdown: {id: 'ghostly'},
+        sub_bar_type: 'debuff',
+        sub_bars: @debuffs['Ghostly Strike'].nil? ? nil : @debuffs['Ghostly Strike'].map{|item| 
+          {
+            debuff: item,
+            label: item.target_name,
+            id: "#{item.name.gsub(/\s+/, "")}-#{item.target_id}",
+            sub_text: item.upratio_s
+          }
+        }
+      } 
+    %>
+  <% end %>
+  <% wasted = @fp.kpi_hash[:opportunity_procs].to_i - @fp.kpi_hash[:opportunity_used].to_i %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Opportunity Proc Usage',
+      desc: 'You should take advantage of every Opportunity proc by casting a free Pistol Shot or Blunderbuss. This section shows how many procs were consumed before being refreshed',
+      label: wasted == 0 ? 'good' : wasted <= 5 ? 'ok' : 'bad',
+      white_bar: true,
+      main_bar_width: bar_width(@fp.kpi_hash[:opportunity_used].to_i, @fp.kpi_hash[:opportunity_procs].to_i),
+      main_bar_text: "#{@fp.kpi_hash[:opportunity_used].to_i}/#{@fp.kpi_hash[:opportunity_procs].to_i}",
+      main_text: "#{wasted} procs wasted",
+    } 
+  %>
+  <% if @kpi_parses.has_key?('death') && @kpi_parses['death'].kpi_hash[:death_count].to_i > 0 %>
+    <%= render 'fight_parses/shared/deaths', 
+      {
+        deaths: @kpi_parses['death'].details_hash[:deaths],
+      } 
+    %>
+  <% end %>
+</div>
+<%= render 'fight_parses/shared/js', {tab: 'basic'} %> 

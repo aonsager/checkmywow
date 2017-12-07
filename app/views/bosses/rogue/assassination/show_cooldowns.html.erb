@@ -1,0 +1,64 @@
+<div class="container">
+  <%= render 'bosses/shared/header', tab: 'cooldowns' %>
+  <% max_vendetta = @fps.map{|fp| fp.cooldowns_hash[:vendetta_damage].to_i / fp.fight_time}.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Vendetta Damage',
+      desc: 'The total amount of damage you dealt with Vendetta. Damage from From the Shadows is shown in a lighter color.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          main_bar_width: bar_width(fp.cooldowns_hash[:vendetta_damage].to_i / fp.fight_time, max_vendetta),
+          main_bar_text: "#{fp.cooldowns_hash[:vendetta_damage].to_i / fp.fight_time}/s",
+          main_text: "#{fp.cooldowns_hash[:vendetta_damage].to_i / 1000}k damage",
+        }
+      }
+    } 
+  %>
+  <% max_kingsbane = @fps.map{|fp| fp.cooldowns_hash[:kingsbane_damage].to_i / fp.fight_time}.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Kingsbane Damage',
+      desc: 'The total amount of damage you dealt with Kingsbane.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          main_bar_width: bar_width(fp.cooldowns_hash[:kingsbane_damage].to_i / fp.fight_time, max_kingsbane),
+          main_bar_text: "#{fp.cooldowns_hash[:kingsbane_damage].to_i / fp.fight_time}/s",
+          main_text: "#{fp.cooldowns_hash[:kingsbane_damage].to_i / 1000}k damage",
+        }
+      }
+    } 
+  %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Envenom Uptime during Kingsbane',
+      desc: 'Try to have 100% uptime of Envenom while Kingsbane is active.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: bar_width(fp.cooldowns_hash[:kingsbane_envenom_uptime].to_i, fp.cooldowns_hash[:kingsbane_uptime].to_i),
+          main_bar_text: "#{100 * fp.cooldowns_hash[:kingsbane_envenom_uptime].to_i / fp.cooldowns_hash[:kingsbane_uptime].to_i rescue 0}%",
+          main_text: "#{100 * fp.cooldowns_hash[:kingsbane_envenom_uptime].to_i / fp.cooldowns_hash[:kingsbane_uptime].to_i rescue 0}% average uptime",
+        }
+      }
+    } 
+  %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Nightstalker/Subterfuge Usage',
+      desc: 'When buffing your bleeds by using them from stealth, you should always cast with max Combo Points, and let the bleed tick for its full duration before refreshing.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: bar_width(fp.cooldowns_hash[:good_vanish_bleeds].to_i, fp.cooldowns_hash[:good_vanish_bleeds].to_i + fp.cooldowns_hash[:bad_vanish_bleeds].to_i),
+          main_bar_text: "#{fp.cooldowns_hash[:good_vanish_bleeds].to_i}/#{fp.cooldowns_hash[:good_vanish_bleeds].to_i + fp.cooldowns_hash[:bad_vanish_bleeds].to_i}",
+          main_text: "",
+        }
+      }
+    } 
+  %>
+</div>
+<%= render 'bosses/shared/footer', tab: 'basic' %>

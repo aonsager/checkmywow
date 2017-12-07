@@ -1,0 +1,67 @@
+<%= render 'fight_parses/shared/new_header', {active_tab: @tab} %>
+<div class="container">
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Cooldown Timings',
+      desc: 'Do your best to line up cooldowns to maximize DPS.',
+      sub_bar_type: 'cooldown',
+      sub_bars: @fp.cooldown_timeline_bars,
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Trueshot Effectiveness',
+      desc: 'The total amount of damage you dealt with Trueshot.',
+      bar_key: 'cd-w',
+      val: @fp.cooldowns_hash[:trueshot_damage].to_i,
+      main_bar_text: number_to_human(@fp.cooldowns_hash[:trueshot_damage].to_i),
+      main_text: "#{number_to_human(@fp.cooldowns_hash[:trueshot_damage].to_i)} damage",
+      sub_bars: @cooldowns['cd']['Trueshot'].nil? ? nil : @cooldowns['cd']['Trueshot'].map{|item| 
+        {
+          label: item.time_s, 
+          bar_key: 'ts-w',
+          val: item.kpi_hash[:damage_done].to_i,
+          text: number_to_human(item.kpi_hash[:damage_done].to_i),
+          sub_text: "#{number_to_human(item.kpi_hash[:damage_done].to_i)} dmg / #{item.time} sec",
+          dropdown: {
+            id: "ts-#{item.id}",
+            headers: ['Enemy', 'Hits', 'Damage Done'],
+            content: item.details_hash.values.sort{|a,b| b[:damage].to_i <=> a[:damage].to_i}.map{|hash| [hash[:name], hash[:hits].to_i, hash[:damage].to_i]}
+          }
+        }
+      },
+    } 
+  %>
+  <% if @fp.cooldowns_hash[:bullseye_uptime].to_i > 0 %>
+    <%= render 'fight_parses/shared/section', 
+      {
+        title: 'Bullseye Effectiveness',
+        desc: 'The total amount of damage per second you dealt while Bullseye was at 30 stacks. This is when you have the highest potential for damage output, so you should do your best to line up your cooldowns.',
+        bar_key: 'cd-w',
+        val: @fp.cooldowns_hash[:bullseye_damage].to_i,
+        main_bar_text: number_to_human(@fp.cooldowns_hash[:bullseye_damage].to_i),
+        main_text: "#{number_to_human(1000 * @fp.cooldowns_hash[:bullseye_damage].to_i / @fp.cooldowns_hash[:bullseye_uptime])} DPS",
+        sub_bars: @cooldowns['cd']['Bullseye x30'].nil? ? nil : @cooldowns['cd']['Bullseye x30'].map{|item| 
+          {
+            label: item.time_s, 
+            bar_key: 'bullseye-w',
+            val: item.kpi_hash[:damage_done].to_i / item.time,
+            text: "#{number_to_human(item.kpi_hash[:damage_done].to_i / item.time)} DPS",
+            sub_text: "#{number_to_human(item.kpi_hash[:damage_done].to_i)} total",
+            dropdown: {
+              id: "bullseye-#{item.id}",
+              headers: ['Ability', 'Hits', 'Damage Done'],
+              content: item.details_hash.values.sort{|a,b| b[:damage].to_i <=> a[:damage].to_i}.map{|hash| [hash[:name], hash[:hits].to_i, hash[:damage].to_i]}
+            }
+          }
+        },
+      } 
+    %>
+  <% end %>
+</div>
+<%= render 'fight_parses/shared/js', {tab: 'cooldowns'} %> 
+<script>
+    $(['cd-w', 'ts-w', 'ts-w', 'bullseye-w']).each(function(index, key){
+    resizeBars(key)
+  });
+</script>

@@ -1,0 +1,14 @@
+<script>
+function resizeBars(key) {
+  var max_cd = Math.max.apply(Math, $('.' + key).map(function(index, element){
+    return parseInt($(element).attr('val'));
+  }));
+  $('.' + key).each(function(index, element){
+    $(element).children(":first").width(0)
+    var fluff = $(element).children(":first").outerWidth() + 20 // for parent padding
+    var percent = parseInt($(element).attr('val')) / max_cd
+    var width = Math.max($(element).width() * percent - fluff, 50)
+    $(element).children(":first").width(width)
+  });
+}
+</script>

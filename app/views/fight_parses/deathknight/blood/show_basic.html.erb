@@ -1,0 +1,142 @@
+<%= render 'fight_parses/shared/new_header', {active_tab: @tab} %>
+<div class="container">
+  <% max_dps = @kpi_parses['dps'].details_hash.values.map{|item| item[:damage].to_i}.max.to_i rescue 0 %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Damage per Second',
+      desc: 'Total damage / Fight time. Pet damage is shown with a separate color',
+      light_bar_width: 100,
+      main_bar_width: bar_width(@fp.kpi_hash[:player_damage_done].to_i, @fp.kpi_hash[:player_damage_done].to_i + @fp.kpi_hash[:pet_damage_done].to_i),
+      main_bar_text: "#{@fp.dps}/s",
+      main_text: "#{(@fp.kpi_hash[:player_damage_done].to_i + @fp.kpi_hash[:pet_damage_done].to_i) / 1000}k total damage (#{@fp.kpi_hash[:pet_damage_done].to_i / 1000}k pet)",
+      dropdown: {id: 'dps'},
+      sub_bars: @kpi_parses['dps'].nil? ? nil : @kpi_parses['dps'].details_hash.values.sort{|a, b| b[:damage].to_i <=> a[:damage].to_i}.map{|item| 
+        {
+          label: item[:name],
+          width: bar_width(item[:damage].to_i, max_dps),
+          text: "#{item[:damage].to_i / 1000}k",
+          sub_text: "#{item[:damage].to_i / 1000}k damage",
+        }
+      },
+    } 
+  %>
+  <% max_dmg_taken = @kpi_parses['damage_taken'].details_hash.values.map{|item| item[:amount].to_i}.max.to_i rescue 0 %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Damage Taken per Second',
+      desc: 'This is the total damage (divided by fight time) that actually reduced your HP. Absorbs are not included.',
+      main_bar_width: bar_width(@fp.dtps, @fp.max_basic_bar),
+      main_bar_text: "#{@fp.dtps}/s",
+      main_text: "#{@fp.kpi_hash[:damage_taken].to_i / 1000}k total damage taken",
+      dropdown: {id: 'dmg_taken'},
+      sub_bars: @kpi_parses['damage_taken'].nil? ? nil : @kpi_parses['damage_taken'].details_hash.to_a.sort{|a, b| b[1][:amount] <=> a[1][:amount]}.map{|name, item| 
+        {
+          label: name,
+          width: bar_width(item[:amount].to_i, max_dmg_taken),
+          text: "#{item[:amount].to_i / 1000}k",
+          sub_text: "#{item[:amount].to_i / 1000}k damage",
+        }
+      },
+    } 
+  %>
+  <% max_self_healing = @kpi_parses['self_healing'].details_hash.values.map{|item| item[:absorb].to_i + item[:heal].to_i}.max.to_i rescue 0 %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Self Healing per Second',
+      desc: 'The total amount (divided by fight time) that you healed yourself. Absorbs are shown with a separate color.',
+      light_bar_width: bar_width(@fp.shps, @fp.max_basic_bar),
+      main_bar_width: bar_width(@fp.kpi_hash[:self_heal].to_i, @fp.kpi_hash[:self_heal].to_i + @fp.kpi_hash[:self_absorb].to_i),
+      main_bar_text: "#{@fp.shps}/s",
+      main_text: "#{@fp.kpi_hash[:self_heal].to_i / 1000}k healed, #{@fp.kpi_hash[:self_absorb].to_i / 1000}k absorbed",
+      dropdown: {id: 'self_healing'},
+      sub_bars: @kpi_parses['self_healing'].nil? ? nil : @kpi_parses['self_healing'].details_hash.to_a.sort{|a, b| b[1][:absorb] + b[1][:heal] <=> a[1][:absorb] + a[1][:heal]}.map{|name, item| 
+        {
+          label: name,
+          light_bar_width: bar_width(item[:absorb].to_i + item[:heal].to_i, max_self_healing),
+          width: bar_width(item[:heal].to_i, item[:absorb].to_i + item[:heal].to_i),
+          text: "#{(item[:absorb].to_i + item[:heal].to_i) / 1000}k",
+          sub_text: "#{item[:absorb].to_i / 1000}k absorb, #{item[:heal].to_i / 1000}k heal",
+        }
+      },
+    } 
+  %>
+  <% max_external_healing = @kpi_parses['external_healing'].details_hash.values.map{|item| item[:absorb].to_i + item[:heal].to_i}.max.to_i rescue 0 %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'External Healing per Second',
+      desc: 'The total amount (divided by fight time) that other sources healed you. Absorbs are shown with a separate color.',
+      light_bar_width: bar_width(@fp.ehps, @fp.max_basic_bar),
+      main_bar_width: bar_width(@fp.kpi_hash[:external_heal].to_i, @fp.kpi_hash[:external_heal].to_i + @fp.kpi_hash[:external_absorb].to_i),
+      main_bar_text: "#{@fp.ehps}/s",
+      main_text: "#{@fp.kpi_hash[:external_heal].to_i / 1000}k healed, #{@fp.kpi_hash[:external_absorb].to_i / 1000}k absorbed",
+      dropdown: {id: 'external_healing'},
+      sub_bars: @kpi_parses['external_healing'].nil? ? nil : @kpi_parses['external_healing'].details_hash.to_a.sort{|a, b| b[1][:absorb].to_i + b[1][:heal].to_i <=> a[1][:absorb].to_i + a[1][:heal].to_i}.map{|name, item| 
+        {
+          label: name,
+          light_bar_width: bar_width(item[:absorb].to_i + item[:heal].to_i, max_external_healing),
+          width: bar_width(item[:heal], item[:absorb].to_i + item[:heal].to_i),
+          text: "#{(item[:absorb].to_i + item[:heal].to_i) / 1000}k",
+          sub_text: "#{item[:absorb].to_i / 1000}k absorb, #{item[:heal].to_i / 1000}k heal",
+        }
+      },
+    } 
+  %>
+  <% score = @fp.kpi_hash[:bs_uptime].to_i / (10 * @fp.fight_time) rescue 0 %>
+  <%= render 'fight_parses/shared/stacks_graph', 
+    {
+      title: 'Bone Shield Uptime',
+      desc: "The duration that you had Bone Shield #{@fp.talent(2) == 'Ossuary' ? 'at 5 stacks' : 'active'}. Try to maintain this buff as much as possible. A red area means Bone Shield was not active#{@fp.talent(2) == 'Ossuary' ? ', and a yellow area means that it was at less than 8 stacks' : ''}.",
+      label: (score >= 95 ? 'good' : score >= 85 ? 'ok' : 'bad'),
+      main_bar_width: bar_width(@fp.kpi_hash[:bs_uptime].to_i, @fp.ended_at - @fp.started_at),
+      main_bar_text: "#{score}%",
+      main_text: "#{@fp.kpi_hash[:bs_uptime].to_i / 1000}s / #{@fp.fight_time}s",
+      buff: (@buffs['Bone Shield'].first rescue nil),
+      stacks: (@buffs['Bone Shield'].first.kpi_hash[:target_stacks] rescue nil),
+    } 
+  %>
+  <% if @fp.talent(2) == 'Ossuary' %>
+    <%= render 'fight_parses/shared/section', 
+      {
+        title: 'Death Strike Casts with Ossuary',
+        desc: 'You should always use Death Strike when Ossuary is active (you have at least 5 stacks of Bone Shield) to benefit from the reduced Runic Power cost.',
+        label: (@fp.kpi_hash[:ds_no_ossuary].to_i == 0 ? 'good' : 'bad'),
+        white_bar: true,
+        main_bar_width: bar_width(@fp.kpi_hash[:ds_count].to_i - @fp.kpi_hash[:ds_no_ossuary].to_i, @fp.kpi_hash[:ds_count].to_i),
+        main_bar_text: "#{@fp.kpi_hash[:ds_count].to_i - @fp.kpi_hash[:ds_no_ossuary].to_i}/#{@fp.kpi_hash[:ds_count].to_i}",
+        main_text: "#{@fp.kpi_hash[:ds_no_ossuary].to_i} casts missing buff",
+      } 
+    %>
+  <% end %>
+  <% max_ds = @cooldowns['cd']['Death Strike'].map{|item| item.kpi_hash[:healed_amount].to_i + item.kpi_hash[:overhealed_amount].to_i}.max.to_i rescue 0 %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Death Strike Efficiency',
+      desc: 'Your total healing from Death Strikes, taking overhealing into account. Overhealing is often unavoidable, but you should do your best to cast Death Strike when you have low health.',
+      white_bar: true,
+      main_bar_width: bar_width(@fp.kpi_hash[:ds_heal].to_i, @fp.kpi_hash[:ds_heal].to_i + @fp.kpi_hash[:ds_overheal].to_i),
+      main_bar_text: "#{@fp.kpi_hash[:ds_heal].to_i / 1000}k",
+      main_text: "#{100 * @fp.kpi_hash[:ds_overheal].to_i / (@fp.kpi_hash[:ds_heal].to_i + @fp.kpi_hash[:ds_overheal].to_i) rescue 0}% overheal",
+      dropdown: {id: 'ds'},
+      sub_bars: @cooldowns['cd']['Death Strike'].nil? ? nil : @cooldowns['cd']['Death Strike'].map{|item| 
+        {
+          label: item.time_s,
+          white_bar: true,
+          white_bar_width: bar_width(item.kpi_hash[:healed_amount].to_i + item.kpi_hash[:overhealed_amount].to_i, max_ds),
+          width: bar_width(item.kpi_hash[:healed_amount].to_i, item.kpi_hash[:healed_amount].to_i + item.kpi_hash[:overhealed_amount].to_i),
+          text: "#{item.kpi_hash[:healed_amount].to_i / 1000}k",
+          sub_text: "#{100 * item.kpi_hash[:overhealed_amount].to_i / (item.kpi_hash[:healed_amount].to_i + item.kpi_hash[:overhealed_amount].to_i) rescue 0}% overheal",
+        }
+      },
+    } 
+  %>
+  <% if @kpi_parses.has_key?('death') && @kpi_parses['death'].kpi_hash[:death_count].to_i > 0 %>
+    <%= render 'fight_parses/shared/deaths', 
+      {
+        deaths: @kpi_parses['death'].details_hash[:deaths],
+      } 
+    %>
+  <% end %>
+</div>
+
+<%= render 'fight_parses/shared/js', {tab: 'basic'} %> 
+

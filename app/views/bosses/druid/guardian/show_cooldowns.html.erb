@@ -1,0 +1,114 @@
+<div class="container">
+  <%= render 'bosses/shared/header', tab: 'cooldowns' %>
+  <% max = @fps.map{|fp| fp.cooldowns_hash[:survival_reduced].to_i / fp.fight_time rescue 0}.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Survival Instincts Effectiveness',
+      desc: 'The total amount of damage mitigated through Survival Instincts (50% reduction).',
+      sub_bars: @fps.map{|fp|
+        {
+          fp: fp,
+          main_bar_width: bar_width(fp.cooldowns_hash[:survival_reduced].to_i / fp.fight_time, max), 
+          main_bar_text: "#{fp.cooldowns_hash[:survival_reduced].to_i / fp.fight_time}/sec",
+          main_text: "#{fp.cooldowns_hash[:survival_reduced].to_i / 1000}k reduced",
+        }
+      }
+    }
+  %>
+  <% max = @fps.map{|fp| fp.cooldowns_hash[:sleeper_reduced].to_i / fp.fight_time rescue 0}.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Rage of the Sleeper Effectiveness',
+      desc: 'The total amount of damage mitigated through Rage of the Sleeper (25% reduction).',
+      sub_bars: @fps.map{|fp|
+        {
+          fp: fp,
+          main_bar_width: bar_width(fp.cooldowns_hash[:sleeper_reduced].to_i / fp.fight_time, max), 
+          main_bar_text: "#{fp.cooldowns_hash[:sleeper_reduced].to_i / fp.fight_time}/sec",
+          main_text: "#{fp.cooldowns_hash[:sleeper_reduced].to_i / 1000}k reduced",
+        }
+      }
+    }
+  %>
+  <% max = @fps.map{|fp| fp.cooldowns_hash[:barkskin_reduced].to_i / fp.fight_time rescue 0}.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Barkskin Effectiveness',
+      desc: 'The total amount of damage mitigated through Barkskin (20% reduction).',
+      sub_bars: @fps.map{|fp|
+        {
+          fp: fp,
+          main_bar_width: bar_width(fp.cooldowns_hash[:barkskin_reduced].to_i / fp.fight_time, max), 
+          main_bar_text: "#{fp.cooldowns_hash[:barkskin_reduced].to_i / fp.fight_time}/sec",
+          main_text: "#{fp.cooldowns_hash[:barkskin_reduced].to_i / 1000}k reduced",
+        }
+      }
+    }
+  %>
+  <% max = @fps.map{|fp| fp.cooldowns_hash[:ursol_reduced].to_i / fp.fight_time rescue 0}.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Mark of Ursol Effectiveness',
+      desc: 'The total amount of damage mitigated through Mark of Ursol (30% magic reduction).',
+      sub_bars: @fps.map{|fp|
+        {
+          fp: fp,
+          main_bar_width: bar_width(fp.cooldowns_hash[:ursol_reduced].to_i / fp.fight_time, max), 
+          main_bar_text: "#{fp.cooldowns_hash[:ursol_reduced].to_i / fp.fight_time}/sec",
+          main_text: "#{fp.cooldowns_hash[:ursol_reduced].to_i / 1000}k reduced",
+        }
+      }
+    }
+  %>
+  <% max = @fps.map{|fp| (fp.cooldowns_hash[:regen_healed].to_i + fp.cooldowns_hash[:regen_overhealed].to_i) / fp.fight_time rescue 0}.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Frenzied Regeneration Effectiveness',
+      desc: 'The total amount of healing provided by Frenzied Regeneration.',
+      sub_bars: @fps.map{|fp|
+        {
+          fp: fp,
+          white_bar: true,
+          white_bar_width: bar_width((fp.cooldowns_hash[:regen_healed].to_i + fp.cooldowns_hash[:regen_overhealed].to_i) / fp.fight_time, max), 
+          main_bar_width: bar_width(fp.cooldowns_hash[:regen_healed].to_i, fp.cooldowns_hash[:regen_healed].to_i + fp.cooldowns_hash[:regen_overhealed].to_i), 
+          main_bar_text: "#{(fp.cooldowns_hash[:regen_healed].to_i + fp.cooldowns_hash[:regen_overhealed].to_i) / fp.fight_time}/sec",
+          main_text: "#{fp.cooldowns_hash[:regen_healed].to_i / 1000}k healed, #{fp.cooldowns_hash[:regen_overhealed].to_i / 1000}k overhealed",
+        }
+      }
+    }
+  %>
+  <% if (max = @fps.map{|fp| (fp.cooldowns_hash[:lunar_healing].to_i + fp.cooldowns_hash[:lunar_overhealing].to_i) / fp.fight_time rescue 0}.max.to_i) > 0 %>
+    <%= render 'bosses/shared/section', 
+      {
+        title: 'Lunar Beam Healing',
+        desc: 'The total amount of healing provided by Lunar Beam.',
+        sub_bars: @fps.reject{|fp| fp.talent(6) != 'Lunar Beam' }.map{|fp|
+          {
+            fp: fp,
+            white_bar: true,
+            white_bar_width: bar_width((fp.cooldowns_hash[:lunar_healing].to_i + fp.cooldowns_hash[:lunar_overhealing].to_i) / fp.fight_time, max), 
+            main_bar_width: bar_width(fp.cooldowns_hash[:lunar_healing].to_i, fp.cooldowns_hash[:lunar_healing].to_i + fp.cooldowns_hash[:lunar_overhealing].to_i), 
+            main_bar_text: "#{(fp.cooldowns_hash[:lunar_healing].to_i + fp.cooldowns_hash[:lunar_overhealing].to_i) / fp.fight_time}/sec",
+            main_text: "#{fp.cooldowns_hash[:lunar_healing].to_i / 1000}k healed, #{fp.cooldowns_hash[:lunar_overhealing].to_i / 1000}k overhealed",
+          }
+        }
+      }
+    %>
+    <% max_damage = @fps.map{|fp| fp.cooldowns_hash[:lunar_damage].to_i / fp.fight_time rescue 0}.max.to_i %>
+    <%= render 'bosses/shared/section', 
+      {
+        title: 'Lunar Beam Damage',
+        desc: 'The total amount of damage dealth with Lunar Beam.',
+        sub_bars: @fps.reject{|fp| fp.talent(6) != 'Lunar Beam' }.map{|fp|
+          {
+            fp: fp,
+            main_bar_width: bar_width(fp.cooldowns_hash[:lunar_damage].to_i / fp.fight_time, max_damage), 
+            main_bar_text: "#{fp.cooldowns_hash[:lunar_damage].to_i / fp.fight_time}/sec",
+            main_text: "#{fp.cooldowns_hash[:lunar_damage].to_i / 1000}k reduced",
+          }
+        }
+      }
+    %>
+  <% end %>
+</div>
+<%= render 'bosses/shared/footer', tab: 'basic' %>

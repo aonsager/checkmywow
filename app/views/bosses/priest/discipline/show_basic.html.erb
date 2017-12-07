@@ -1,0 +1,21 @@
+<div class="container">
+  <%= render 'bosses/shared/header', tab: 'basic' %>
+  <% max_hps = @fps.map{|fp| (fp.kpi_hash[:healing_done].to_i + fp.kpi_hash[:overhealing_done].to_i) / fp.fight_time }.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Healing Done',
+      desc: 'Total healing done. Overhealing is shown as the white part of the bar.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar_width: bar_width((fp.kpi_hash[:healing_done].to_i + fp.kpi_hash[:overhealing_done].to_i) / fp.fight_time, max_hps),
+          white_bar: true,
+          main_bar_width: bar_width(fp.kpi_hash[:healing_done].to_i, fp.kpi_hash[:healing_done].to_i + fp.kpi_hash[:overhealing_done].to_i),
+          main_bar_text: "#{fp.kpi_hash[:healing_done].to_i / fp.fight_time}/s",
+          main_text: "#{fp.kpi_hash[:healing_done].to_i / fp.fight_time} healing/sec (#{fp.kpi_hash[:overhealing_done].to_i / fp.fight_time} overhealing/sec)",
+        }
+      }
+    } 
+  %>
+</div>
+<%= render 'bosses/shared/footer', tab: 'basic' %>

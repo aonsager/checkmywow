@@ -1,0 +1,209 @@
+<%= render 'fight_parses/shared/new_header', {active_tab: @tab} %>
+<div class="container">
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Cooldown Timings',
+      desc: 'Be sure you\'re timing your cooldowns correctly, and not missing uses.',
+      sub_bar_type: 'cooldown',
+      sub_bars: @fp.cooldown_timeline_bars,
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Survival Instincts Effectiveness',
+      desc: 'The total amount of damage mitigated through Survival Instincts (50% reduction).',
+      bar_key: 'cd-w',
+      val: @fp.cooldowns_hash[:survival_reduced].to_i,
+      main_bar_text: "#{@fp.cooldowns_hash[:survival_reduced].to_i / 1000}k",
+      main_text: "#{@fp.cooldowns_hash[:survival_reduced].to_i / 1000}k reduced",
+      sub_bars: @cooldowns['cd']['Survival Instincts'].nil? ? nil : @cooldowns['cd']['Survival Instincts'].map{|item| 
+        {
+          label: item.time_s, 
+          bar_key: 'survival-w',
+          val: item.kpi_hash[:reduced_amount].to_i,
+          text: "#{(item.kpi_hash[:reduced_amount].to_i)/ 1000}k",
+          sub_text: "#{item.kpi_hash[:reduced_amount].to_i / 1000}k reduced",
+          dropdown: {
+            id: "survival-#{item.id}",
+            headers: ['Enemy', 'Ability', 'Hits', 'Reduced'],
+            content: item.details_hash.values.reject{|a| a[:amount].nil? }.sort{|a, b| b[:amount].to_i <=> a[:amount].to_i}.map{|hash| [hash[:source], hash[:name], hash[:casts], hash[:amount]]}
+          }
+        }
+      },
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Rage of the Sleeper Effectiveness',
+      desc: 'The total amount of damage mitigated through Rage of the Sleeper (25% reduction).',
+      bar_key: 'cd-w',
+      val: @fp.cooldowns_hash[:sleeper_reduced].to_i,
+      main_bar_text: "#{@fp.cooldowns_hash[:sleeper_reduced].to_i / 1000}k",
+      main_text: "#{@fp.cooldowns_hash[:sleeper_reduced].to_i / 1000}k reduced",
+      sub_bars: @cooldowns['cd']['Rage of the Sleeper'].nil? ? nil : @cooldowns['cd']['Rage of the Sleeper'].map{|item| 
+        {
+          label: item.time_s, 
+          bar_key: 'sleeper-w',
+          val: item.kpi_hash[:reduced_amount].to_i,
+          text: "#{(item.kpi_hash[:reduced_amount].to_i)/ 1000}k",
+          sub_text: "#{item.kpi_hash[:reduced_amount].to_i / 1000}k reduced",
+          dropdown: {
+            id: "sleeper-#{item.id}",
+            headers: ['Enemy', 'Ability', 'Hits', 'Reduced'],
+            content: item.details_hash.values.reject{|a| a[:amount].nil? }.sort{|a, b| b[:amount].to_i <=> a[:amount].to_i}.map{|hash| [hash[:source], hash[:name], hash[:casts], hash[:amount]]}
+          }
+        }
+      },
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Rage of the Sleeper Damage',
+      desc: 'The total amount of damage dealth with Rage of the Sleeper.',
+      bar_key: 'cd-w',
+      val: @fp.cooldowns_hash[:sleeper_damage].to_i,
+      main_bar_text: "#{@fp.cooldowns_hash[:sleeper_damage].to_i / 1000}k",
+      main_text: "#{@fp.cooldowns_hash[:sleeper_damage].to_i / 1000}k reduced",
+      sub_bars: @cooldowns['cd']['Rage of the Sleeper'].nil? ? nil : @cooldowns['cd']['Rage of the Sleeper'].map{|item| 
+        {
+          label: item.time_s, 
+          bar_key: 'sleeperdamage-w',
+          val: item.kpi_hash[:damage_done].to_i,
+          text: "#{(item.kpi_hash[:damage_done].to_i)/ 1000}k",
+          sub_text: "#{item.kpi_hash[:damage_done].to_i / 1000}k damage",
+          dropdown: {
+            id: "sleeperdamage-#{item.id}",
+            headers: ['Enemy', 'Hits', 'Damage'],
+            content: item.details_hash.values.reject{|a| a[:damage].nil? }.sort{|a, b| b[:damage].to_i <=> a[:damage].to_i}.map{|hash| [hash[:name], hash[:hits], hash[:damage]]}
+          }
+        }
+      },
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Barkskin Effectiveness',
+      desc: 'The total amount of damage mitigated through Barkskin (20% reduction).',
+      bar_key: 'cd-w',
+      val: @fp.cooldowns_hash[:barkskin_reduced].to_i,
+      main_bar_text: "#{@fp.cooldowns_hash[:barkskin_reduced].to_i / 1000}k",
+      main_text: "#{@fp.cooldowns_hash[:barkskin_reduced].to_i / 1000}k reduced",
+      sub_bars: @cooldowns['cd']['Barkskin'].nil? ? nil : @cooldowns['cd']['Barkskin'].map{|item| 
+        {
+          label: item.time_s, 
+          bar_key: 'barkskin-w',
+          val: item.kpi_hash[:reduced_amount].to_i,
+          text: "#{(item.kpi_hash[:reduced_amount].to_i)/ 1000}k",
+          sub_text: "#{item.kpi_hash[:reduced_amount].to_i / 1000}k reduced",
+          dropdown: {
+            id: "barkskin-#{item.id}",
+            headers: ['Enemy', 'Ability', 'Hits', 'Reduced'],
+            content: item.details_hash.values.reject{|a| a[:amount].nil? }.sort{|a, b| b[:amount].to_i <=> a[:amount].to_i}.map{|hash| [hash[:source], hash[:name], hash[:casts], hash[:amount]]}
+          }
+        }
+      },
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Mark of Ursol Effectiveness',
+      desc: 'The total amount of damage mitigated through Mark of Ursol (30% magic reduction).',
+      bar_key: 'cd-w',
+      val: @fp.cooldowns_hash[:ursol_reduced].to_i,
+      main_bar_text: "#{@fp.cooldowns_hash[:ursol_reduced].to_i / 1000}k",
+      main_text: "#{@fp.cooldowns_hash[:ursol_reduced].to_i / 1000}k reduced",
+      sub_bars: @cooldowns['cd']['Mark of Ursol'].nil? ? nil : @cooldowns['cd']['Mark of Ursol'].map{|item| 
+        {
+          label: item.time_s, 
+          bar_key: 'ursol-w',
+          val: item.kpi_hash[:reduced_amount].to_i,
+          text: "#{(item.kpi_hash[:reduced_amount].to_i)/ 1000}k",
+          sub_text: "#{item.kpi_hash[:reduced_amount].to_i / 1000}k reduced",
+          dropdown: {
+            id: "ursol-#{item.id}",
+            headers: ['Enemy', 'Ability', 'Hits', 'Reduced'],
+            content: item.details_hash.values.reject{|a| a[:amount].nil? }.sort{|a, b| b[:amount].to_i <=> a[:amount].to_i}.map{|hash| [hash[:source], hash[:name], hash[:casts], hash[:amount]]}
+          }
+        }
+      },
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Frenzied Regeneration Effectiveness',
+      desc: 'The total amount of healing provided by Frenzied Regeneration.',
+      bar_key: 'cd-w',
+      val: @fp.cooldowns_hash[:regen_healed].to_i + @fp.cooldowns_hash[:regen_overhealed].to_i,
+      white_bar: true,
+      main_bar_width: bar_width(@fp.cooldowns_hash[:regen_healed].to_i, @fp.cooldowns_hash[:regen_healed].to_i + @fp.cooldowns_hash[:regen_overhealed].to_i),
+      main_bar_text: "#{@fp.cooldowns_hash[:regen_healed].to_i / 1000}k",
+      main_text: "#{@fp.cooldowns_hash[:regen_healed].to_i / 1000}k healing, #{@fp.cooldowns_hash[:regen_overhealed].to_i / 1000}k overhealing",
+      sub_bars: @cooldowns['cd']['Frenzied Regeneration'].nil? ? nil : @cooldowns['cd']['Frenzied Regeneration'].map{|item| 
+        {
+          label: item.time_s, 
+          bar_key: 'regen-w',
+          val: item.kpi_hash[:healing_done].to_i + item.kpi_hash[:overhealing_done].to_i,
+          white_bar: true,
+          width: bar_width(item.kpi_hash[:healing_done].to_i, item.kpi_hash[:healing_done].to_i + item.kpi_hash[:overhealing_done].to_i),
+          text: "#{item.kpi_hash[:healing_done].to_i / 1000}k",
+          sub_text: "#{item.kpi_hash[:healing_done].to_i / 1000}k healing, #{item.kpi_hash[:overhealing_done] / 1000}k overhealing",
+        }
+      },
+    } 
+  %>
+  <% if @fp.talent(6) == 'Lunar Beam' %>
+    <%= render 'fight_parses/shared/section', 
+      {
+        title: 'Lunar Beam Healing',
+        desc: 'The total amount of healing provided by Lunar Beam.',
+        bar_key: 'cd-w',
+        val: @fp.cooldowns_hash[:lunar_healing].to_i + @fp.cooldowns_hash[:lunar_overhealing].to_i,
+        white_bar: true,
+        main_bar_width: bar_width(@fp.cooldowns_hash[:lunar_healing].to_i, @fp.cooldowns_hash[:lunar_healing].to_i + @fp.cooldowns_hash[:lunar_overhealing].to_i),
+        main_bar_text: "#{@fp.cooldowns_hash[:lunar_healing].to_i / 1000}k",
+        main_text: "#{@fp.cooldowns_hash[:lunar_healing].to_i / 1000}k healing, #{@fp.cooldowns_hash[:lunar_overhealing].to_i / 1000}k overhealing",
+        sub_bars: @cooldowns['cd']['Lunar Beam'].nil? ? nil : @cooldowns['cd']['Lunar Beam'].map{|item| 
+          {
+            label: item.time_s, 
+            bar_key: 'lunar-w',
+            val: item.kpi_hash[:healing_done].to_i + item.kpi_hash[:overhealing_done].to_i,
+            white_bar: true,
+            width: bar_width(item.kpi_hash[:healing_done].to_i, item.kpi_hash[:healing_done].to_i + item.kpi_hash[:overhealing_done].to_i),
+            text: "#{item.kpi_hash[:healing_done].to_i / 1000}k",
+            sub_text: "#{item.kpi_hash[:healing_done].to_i / 1000}k healing, #{item.kpi_hash[:overhealing_done] / 1000}k overhealing",
+          }
+        },
+      } 
+    %>
+    <%= render 'fight_parses/shared/section', 
+      {
+        title: 'Lunar Beam Damage',
+        desc: 'The total amount of damage dealth with Lunar Beam.',
+        bar_key: 'cd-w',
+        val: @fp.cooldowns_hash[:lunar_damage].to_i,
+        main_bar_text: "#{@fp.cooldowns_hash[:lunar_damage].to_i / 1000}k",
+        main_text: "#{@fp.cooldowns_hash[:lunar_damage].to_i / 1000}k reduced",
+        sub_bars: @cooldowns['cd']['Lunar Beam'].nil? ? nil : @cooldowns['cd']['Lunar Beam'].map{|item| 
+          {
+            label: item.time_s, 
+            bar_key: 'lunardamage-w',
+            val: item.kpi_hash[:damage_done].to_i,
+            text: "#{(item.kpi_hash[:damage_done].to_i)/ 1000}k",
+            sub_text: "#{item.kpi_hash[:damage_done].to_i / 1000}k damage",
+            dropdown: {
+              id: "lunardamage-#{item.id}",
+              headers: ['Enemy', 'Hits', 'Damage'],
+              content: item.details_hash.values.reject{|a| a[:damage].nil? }.sort{|a, b| b[:damage].to_i <=> a[:damage].to_i}.map{|hash| [hash[:name], hash[:hits], hash[:damage]]}
+            }
+          }
+        },
+      } 
+    %>
+  <% end %>
+</div>
+<%= render 'fight_parses/shared/js', {tab: 'cooldowns'} %> 
+<script>
+    $(['cd-w', 'survival-w', 'sleeper-w', 'sleeperdamage-w', 'barkskin-w', 'ursol-w', 'regen-w', 'lunar-w', 'lunardamage-w']).each(function(index, key){
+    resizeBars(key)
+  });
+</script>

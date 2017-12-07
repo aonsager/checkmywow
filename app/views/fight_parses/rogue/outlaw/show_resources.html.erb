@@ -1,0 +1,118 @@
+<%= render 'fight_parses/shared/new_header', {active_tab: @tab} %>
+<div class="container">
+  <% score = 100 * (@fp.fight_time - @fp.resources_hash[:capped_time].to_i) / @fp.fight_time %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Time not Energy-Capped',
+      desc: 'The percent of the fight that you had less than max Energy. Aim for 100%.',
+      label: score >= 95 ? 'good' : score >= 90 ? 'ok' : 'bad',
+      white_bar: true,
+      main_bar_width: bar_width(@fp.fight_time - @fp.resources_hash[:capped_time].to_i, @fp.fight_time),
+      main_bar_text: "#{score}%",
+      main_text: "#{@fp.fight_time - @fp.resources_hash[:capped_time].to_i}s / #{@fp.fight_time}s",
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Combo Points Gained',
+      desc: 'Avoid overcapping Combo Points by not using Combo Point-generating abilities that would put you over the maximum amount.',
+      label: @fp.resources_hash[:combo_waste].to_i == 0 ? 'good' : @fp.resources_hash[:combo_waste].to_i < 5 ? 'ok' : 'bad',
+      white_bar: true,
+      main_bar_width: bar_width(@fp.resources_hash[:combo_gain].to_i, @fp.resources_hash[:combo_gain].to_i + @fp.resources_hash[:combo_waste].to_i),
+      main_bar_text: "#{@fp.resources_hash[:combo_gain].to_i}/#{@fp.resources_hash[:combo_gain].to_i + @fp.resources_hash[:combo_waste].to_i}",
+      main_text: "#{@fp.resources_hash[:combo_waste].to_i} wasted",
+      sub_bars: @fp.resources_hash[:combo_abilities].nil? ? nil : @fp.resources_hash[:combo_abilities].values.sort{|a, b| (b[:gain].to_i + b[:waste].to_i) <=> (a[:gain].to_i + a[:waste].to_i)}.map{|item| 
+        {
+          label: item[:name],
+          white_bar: true,
+          bar_key: 'combo-w',
+          val: item[:gain].to_i + item[:waste].to_i,
+          width: bar_width(item[:gain].to_i, item[:gain].to_i + item[:waste].to_i),
+          text: "#{item[:gain].to_i}/#{item[:gain].to_i + item[:waste].to_i}",
+          sub_text: "#{item[:waste].to_i} wasted",
+        }
+      },
+    } 
+  %>
+  <% if @fp.talent(6) == 'Slice and Dice' %>
+    <% max = @fp.resources_hash[:combo_spend]['Slice and Dice'][:combo][@fp.max_combo].to_i rescue 0 %>
+    <% total = @fp.resources_hash[:combo_spend]['Slice and Dice'][:combo].map{|k,v| v }.sum rescue 0 %>
+    <% if total > 0 %>
+      <%= render 'fight_parses/shared/section', 
+        {
+          title: 'Combo Points Usage - Slice and Dice',
+          desc: "The amount of Combo Points spent on each cast of Slice and Dice. Try to cast with #{@fp.max_combo} Combo Points as often as possible.",
+          label: total - max == 0 ? 'good' : total - max < 3 ? 'ok' : 'bad',
+          white_bar: true,
+          main_bar_width: bar_width(max, total),
+          main_bar_text: "#{max}/#{total}",
+          main_text: "#{max}/#{total} casts with #{@fp.max_combo} Combo Points",
+          sub_bars: @fp.resources_hash[:combo_spend]['Slice and Dice'][:combo].map{|combo, num| 
+            {
+              label: "#{combo} Combo Points",
+              bar_key: 'slice-w',
+              val: num,
+              text: "#{num}",
+              sub_text: "#{num} casts",
+            }
+          },
+        } 
+      %>
+    <% end %>
+  <% else %>
+    <% max = @fp.resources_hash[:combo_spend]['Roll the Bones'][:combo][@fp.max_combo].to_i rescue 0 %>
+    <% total = @fp.resources_hash[:combo_spend]['Roll the Bones'][:combo].map{|k,v| v }.sum rescue 0 %>
+    <% if total > 0 %>
+      <%= render 'fight_parses/shared/section', 
+        {
+          title: 'Combo Points Usage - Roll the Bones',
+          desc: "The amount of Combo Points spent on each cast of Roll the Bones. Try to cast with #{@fp.max_combo} Combo Points as often as possible.",
+          label: total - max == 0 ? 'good' : total - max < 3 ? 'ok' : 'bad',
+          white_bar: true,
+          main_bar_width: bar_width(max, total),
+          main_bar_text: "#{max}/#{total}",
+          main_text: "#{max}/#{total} casts with #{@fp.max_combo} Combo Points",
+          sub_bars: @fp.resources_hash[:combo_spend]['Roll the Bones'][:combo].map{|combo, num| 
+            {
+              label: "#{combo} Combo Points",
+              bar_key: 'bones-w',
+              val: num,
+              text: "#{num}",
+              sub_text: "#{num} casts",
+            }
+          },
+        } 
+      %>
+    <% end %>
+  <% end %>
+  <% max = @fp.resources_hash[:combo_spend]['Run Through'][:combo][@fp.max_combo].to_i rescue 0 %>
+  <% total = @fp.resources_hash[:combo_spend]['Run Through'][:combo].map{|k,v| v }.sum rescue 0 %>
+  <% if total > 0 %>
+    <%= render 'fight_parses/shared/section', 
+      {
+        title: 'Combo Points Usage - Run Through',
+        desc: "The amount of Combo Points spent on each cast of Run Through. Try to cast with #{@fp.max_combo} Combo Points as often as possible.",
+        label: total - max == 0 ? 'good' : total - max < 3 ? 'ok' : 'bad',
+        white_bar: true,
+        main_bar_width: bar_width(max, total),
+        main_bar_text: "#{max}/#{total}",
+        main_text: "#{max}/#{total} casts with #{@fp.max_combo} Combo Points",
+        sub_bars: @fp.resources_hash[:combo_spend]['Run Through'][:combo].map{|combo, num| 
+          {
+            label: "#{combo} Combo Points",
+            bar_key: 'runthrough-w',
+            val: num,
+            text: "#{num}",
+            sub_text: "#{num} casts",
+          }
+        },
+      } 
+    %>
+  <% end %>
+</div>
+<%= render 'fight_parses/shared/js', {tab: 'resources'} %> 
+<script>
+    $(['combo-w', 'slice-w', 'bones-w', 'runthrough-w']).each(function(index, key){
+    resizeBars(key)
+  });
+</script>

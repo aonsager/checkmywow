@@ -1,0 +1,40 @@
+<% breadcrumb :player, @player_id, @player.player_name %>
+<% provide(:title, @player.player_name) %>
+<div class="container">
+  <div class="row">
+    <h3>Logs for <%= @player.player_name %></h3>
+  </div>
+  <% if @processing > 0 %>
+    <br />
+    <p>Reports still waiting to be processed: <%= @processing %>
+  <% end %>
+  <br /><br />
+  <% @zones.each do |zone| %>
+    <h4><%= zone.name %></h4>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>LFR</th>
+          <th>Normal</th>
+          <th>Heroic</th>
+          <th>Mythic</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% zone.bosses.order(:order_num).each do |boss| %>
+          <% @player_bosses[boss.id] ||= {} %>
+          <tr>
+            <td><%= boss.name %></td>
+            <% [1,3,4,5].each do |difficulty| # ignore flex %> 
+              <td>
+                <% @player_bosses[boss.id][difficulty] ||= 0 %>
+                <%= link_to(pluralize(@player_bosses[boss.id][difficulty], "fight"), player_boss_show_path(@player_id, boss.id, difficulty), class: 'btn btn-default') if @player_bosses[boss.id][difficulty] > 0 %>
+              </td>
+            <% end %>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+</div>

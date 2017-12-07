@@ -1,0 +1,149 @@
+<div id="top">
+  <div id="splash">
+  <%= image_tag('cmw_top.png', size: '15z15') %>
+  </div>
+  <div id="banner">
+      <h3>Import logs</h3>
+      <h4>
+        <%= form_tag('', method: "get") do %>
+          <%= label_tag(:report_id, "Warcraft Logs report ID:") %>
+          <%= text_field_tag(:report_id) %>
+          <%= submit_tag("Import", class: "btn btn-primary") %>
+        <% end %>
+        <span style="font-size: 12px">https://www.warcraftlogs.com/reports/<span style="color: rgb(30, 180, 123)">xxxxxxxxxxxxxxxx</span></span>
+      </h4>
+  </div>
+</div>
+
+<div class="container" style="margin-top: 50px;">
+  <h3>What is Check My Wow?</h3>
+  <p>This site is made for World of Warcraft players who want to improve by tracking their performance across raid encounters, based on key metrics for their spec.</p>
+  <p>To get started, please upload your combat logs to <a href="http://www.warcraftlogs.com">Warcraft Logs</a> and enter the report ID above. If it's your first time using Warcraft Logs, please <a href="https://www.warcraftlogs.com/help/start/">see this guide</a> to learn how to get started.</p>
+  <p>You can <%= link_to 'read more about the site here', action: 'about' %>.</p>
+
+  <div class="row" style="margin: 50px 0px 50px;">
+    <div class="col-md-4">
+      <%= image_tag('specific.png', size:'350x200', :style => "border: 3px solid #cccccc; max-width: 100%; height: auto;") %>
+      <br /><br />
+      <p class="caption">Get class-specific information to analyze your logs</p>
+    </div>
+    <div class="col-md-4">
+      <%= image_tag('compare.png', size:'350x200', :style => "border: 3px solid #cccccc; max-width: 100%; height: auto;") %>
+      <br /><br />
+      <p class="caption">Track your improvement across fights</p>
+    </div>
+    <div class="col-md-4">
+      <%= image_tag('tank-health.png', size:'350x200', :style => "border: 3px solid #cccccc; max-width: 100%; height: auto;") %>
+      <br /><br />
+      <p class="caption">See detailed information, like tank health graphs</p>
+     </div>
+  </div>
+
+  <div class="row" style="border-top: 1px solid #dddddd;">
+  <div class="col-md-8">
+    <h3 id="news">News</h3>
+    <h4>Ending Development <small>09/20</small></h4>
+    <p>Check My Wow will no longer be updated. Please <a href="/announcement">click here</a> for the full announcement.</p>
+    <h4>Discord channel <small>08/01</small></h4>
+    <p>I've created a <a href="https://discord.gg/gd6BbXG" target="_blank">Discord channel</a> that I want to use to communicate changes and updates to the site, since currently it can be hard to notice when your spec's logic has been updated, such as after a large patch. Please feel free to talk about the site, ask questions, or give feedback. If you have questions about how to play your class, your class Discord channels will still be the best place for that.</p>
+    <h4>Mythic+ analysis disabled <small>07/11</small></h4>
+    <p>Since Mythic+ runs are significantly longer than raid boss pulls, their anlysis was creating too much load for both this site and the Warcraft Logs servers. Unfortunately these will be disabled for the foreseeable future, since the only reasonable solution would be to use much more powerful hardware.</p>
+    <br />
+    <h4>Parsed fights will be purged after 6 months</h4>
+    <p>The site's databases have gotten to be a little too big, and most of the data is from old fights that nobody looks at anymore. I've made some big changes in the site's architecture and will slowly start removing old fight data. Ultimately, all fight data will be kept for 6 months before being deleted. If you ever want to look at old data again, you'll just have to reprocess it.</p>
+    <p>I don't have any near term plans for creating paid accounts, but unlimited data retention might be a possible perk if that happens.</p>
+    <p>Since there are a lot of changes I made in the background, there might be some issues with existing reports like some players or fights not showing up. If this is the case, clicking on the "Reload from WCL" link on the top of the report's page should solve any issues. Please let me know if something seems to be broken.</p>
+  </div>
+  <div class="col-md-4">
+      <h3 id="changelog">Spec Updates</h3>
+      <% @changelogs.each do |changelog| %>
+        <p><%= changelog.created_at.strftime("%b %d") %>: <%= link_to("#{changelog.fp_type} v#{changelog.version}", changelog_path(spec: changelog.fp_type)) %></p>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="row" style="border-top: 1px solid #dddddd; margin-top: 25px">
+    <div class="col-md-6">
+      <h3>Which classes are currently supported?</h3>
+      <div class="table-responsive">
+        <table class="spec-table">
+        <tr class="Deathknight light">
+          <td>Death Knight</td>
+          <td class="yes">Blood</td>
+          <td class="yes">Frost</td>
+          <td class="yes">Unholy</td>
+        </tr>
+        <tr class="Demonhunter light">
+          <td>Demon hunter</td>
+          <td class="yes">Havoc</td>
+          <td class="yes">Vengeance</td>
+        </tr>
+        <tr class="Druid light">
+          <td>Druid</td>
+          <td class="yes">Balance</td>
+          <td class="yes">Feral</td>
+        </tr>
+        <tr class="Druid light">
+          <td>Druid</td>
+          <td class="yes">Guardian</td>
+          <td class="yes">Restoration</td>
+        </tr>
+        <tr class="Hunter light">
+          <td>Hunter</td>
+          <td class="yes">Beastmastery</td>
+          <td class="yes">Marksmanship</td>
+          <td class="yes">Survival</td>
+        </tr>
+        <tr class="Mage light">
+          <td>Mage</td>
+          <td class="yes">Arcane</td>
+          <td class="yes">Fire</td>
+          <td class="yes">Frost</td>
+        </tr>
+        <tr class="Monk light">
+          <td>Monk</td>
+          <td class="yes">Brewmaster</td>
+          <td class="yes">Mistweaver</td>
+          <td class="yes">Windwalker</td>
+        </tr>
+        <tr class="Paladin light">
+          <td>Paladin</td>
+          <td class="yes">Holy</td>
+          <td class="yes">Protection</td>
+          <td class="yes">Retribution</td>
+        </tr>
+        <tr class="Priest light">
+          <td>Priest</td>
+          <td class="no">Discipline</td>
+          <td class="no">Holy</td>
+          <td class="yes">Shadow</td>
+        </tr>
+        <tr class="Rogue light">
+          <td>Rogue</td>
+          <td class="yes">Assassination</td>
+          <td class="yes">Outlaw</td>
+          <td class="no">Subtlety</td>
+        </tr>
+        <tr class="Shaman light">
+          <td>Shaman</td>
+          <td class="yes">Elemental</td>
+          <td class="yes">Enhancement</td>
+          <td class="no">Restoration</td>
+        </tr>
+        <tr class="Warlock light">
+          <td>Warlock</td>
+          <td class="yes">Affliction</td>
+          <td class="no">Demonology</td>
+          <td class="yes">Destruction</td>
+        </tr>
+        <tr class="Warrior light">
+          <td>Warrior</td>
+          <td class="yes">Arms</td>
+          <td class="yes">Fury</td>
+          <td class="no">Protection</td>
+        </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

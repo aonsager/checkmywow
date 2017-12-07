@@ -1,0 +1,64 @@
+<div class="container">
+  <%= render 'bosses/shared/header', tab: 'resources' %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Burn Phase - Deplete Mana',
+      desc: 'During each burn phase, you should cast Arcane Power and spend as much mana as possible',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: fp.resources_hash[:avg_burn].to_i,
+          main_bar_text: "#{fp.resources_hash[:avg_burn].to_i}%",
+          main_text: "#{fp.resources_hash[:avg_burn].to_i}% mana spent per phase (avg)",
+        }
+      }
+    } 
+  %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Burn Phase - Stay at full Arcane Charge stacks',
+      desc: 'During each burn phase, you should stay at 4 stacks of Arcane Charge',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: bar_width(fp.resources_hash[:burn_ac4_uptime].to_i, fp.resources_hash[:burn_uptime].to_i),
+          main_bar_text: "#{100 * fp.resources_hash[:burn_ac4_uptime].to_i / fp.resources_hash[:burn_uptime].to_i rescue 0}%",
+          main_text: "Had 4 stacks #{100 * fp.resources_hash[:burn_ac4_uptime].to_i / fp.resources_hash[:burn_uptime].to_i rescue 0}% of the time",
+        }
+      }
+    } 
+  %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Evocation - Mana gained',
+      desc: 'East cast of Evocation should be used with 4 stacks of Arcane Charge, and should be channeled until you have full mana.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: fp.resources_hash[:avg_evocation].to_i,
+          main_bar_text: "#{fp.resources_hash[:avg_evocation].to_i}%",
+          main_text: "#{fp.resources_hash[:avg_evocation].to_i}% mana gained per cast (avg)",
+        }
+      }
+    } 
+  %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Always Be Casting (Experimental)',
+      desc: 'You should do your best to minimize downtime without casts (although 100% is unrealistic), by starting casts directly after the previous cast has finished, and by filling your GCDs with instant casts while moving. This section shows how much downtime you had over the course of the fight. The dropdown list shows cancelled casts, as well as periods of downtime that lasted more than 1 second.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: 100 * (fp.fight_time - fp.resources_hash[:abc_wasted].to_f) / fp.fight_time,
+          main_bar_text: "#{fp.fight_time - fp.resources_hash[:abc_wasted].to_f}/#{fp.fight_time}",
+          main_text: "#{fp.resources_hash[:abc_wasted]} seconds of downtime",
+        }
+      }
+    } 
+  %>
+</div>
+<%= render 'bosses/shared/footer', tab: 'resources' %>

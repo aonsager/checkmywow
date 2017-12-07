@@ -1,0 +1,61 @@
+<div class="container">
+  <div class="row">
+    <h3>Guild Search</h3>
+    <p>Search by guild name and server to easily keep track of logs that have been uploaded to Warcraft Logs.</p>
+    <br />
+    <%= form_tag('/guilds/search', method: "get") do %>
+      <%= label_tag(:region, "Region:") %>
+      <%= select_tag(:region, options_for_select([['US', 'US'], ['EU', 'EU'], ['KR', 'KR'], ['TW', 'TW'], ['CN', 'CN']])) %>
+      <%= label_tag(:server, "Server:") %>
+      <%= text_field_tag(:server) %>
+      <%= label_tag(:name, "Guild name:") %>
+      <%= text_field_tag(:name) %>
+      <%= submit_tag("Search", class: "btn btn-primary") %>
+    <% end %>
+  </div>
+  <div class="row">
+    <h3>Character Search</h3>
+    <p>Search by character name to find logs that have already been parsed.</p>
+    <p>If you would like to import new logs, please enter a report ID from Warcraft Logs in the front page.</p>
+    <br />
+    <%= form_tag('/players/search', method: "get") do %>
+      <%= label_tag(:report_id, "Character name:") %>
+      <%= text_field_tag(:char_name) %>
+      <%= submit_tag("Search", class: "btn btn-primary") %>
+    <% end %>
+  </div>
+  <% if !@char_name.nil? %>
+    <div class="row">
+      <div class="col-md-6">
+        <h3>Searching for <%= @char_name %></h3>
+      </div>
+    </div>
+    <br />
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Character</th>
+          <th>Class</th>
+          <th>Reports</th>
+          <th></th>
+        </tr>
+      </thead>
+    <% @chars.each do |player| %>
+      <tr>
+        <td><%= player[1] %></td>
+        <td style="line-height: 18px;"><%= image_tag("class/#{player[2].downcase}.jpg", size: '21x21', class: 'icon') %> <%= player[2] %></td>
+        <td><%= @report_counts[player[0].to_s].to_i %></td>
+        <td><%= link_to('View Reports', player_path(player[0]), class: 'btn btn-default') %></td>
+      </tr>
+    <% end %>
+    </table>
+
+    <% if @chars.size >= 20 %>
+      <p>Search is limited to first 20 results.</p>
+    <% elsif @chars.size == 0 %>
+      <h4>No characters found.</h4>
+      <p>Please note that characters will only appear here if their logs have been imported from Warcraft Logs and processed for analysis.</p>
+      <p>You can import logs from Warcraft Logs by entering a report ID from the URL of the log on Warcraft Logs.</p>
+    <% end %>
+  <% end %>
+</div>

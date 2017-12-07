@@ -1,0 +1,85 @@
+<div class="container">
+  <%= render 'bosses/shared/header', tab: 'basic' %>
+  <% max_dps = @fps.map{|fp| fp.dps || 0 }.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Damage per Second',
+      desc: 'Total damage / Fight time. Pet damage is shown with a separate color',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          light_bar_width: bar_width(fp.dps, max_dps),
+          main_bar_width: bar_width(fp.kpi_hash[:player_damage_done].to_i, fp.kpi_hash[:player_damage_done].to_i + fp.kpi_hash[:pet_damage_done].to_i),
+          main_bar_text: "#{number_to_human(fp.dps)}/s",
+          main_text: "#{number_to_human(fp.kpi_hash[:player_damage_done].to_i + fp.kpi_hash[:pet_damage_done].to_i)} total damage (#{number_to_human(fp.kpi_hash[:pet_damage_done].to_i)} pet)"
+        }
+      }
+    } 
+  %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Cast Efficiency',
+      desc: 'Make sure you are casting your key spells on cooldown. Your cast score is determined by a weighted average, with more emphasis placed on abilities with longer cooldown times.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: fp.kpi_hash[:casts_score].to_i,
+          main_bar_text: "#{fp.kpi_hash[:casts_score].to_i}%",
+          main_text: "#{fp.kpi_hash[:casts_score].to_i}\% cast efficiency",
+        }
+      }
+    } 
+  %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Vulnerable Uptime',
+      desc: "The percentage of time the Vulnerable debuff was active on targets you were attacking. You should aim to have as many applications of Vulnerable as possible throughout the fight.",
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: fp.debuff_upratio(:vulnerable),
+          main_bar_text: fp.debuff_upratio_s(:vulnerable),
+          main_text: fp.debuff_upratio_s(:vulnerable),
+        }
+      }
+    } 
+  %>
+  <% if (fps = @fps.reject{|fp| fp.talent(3) != 'Patient Sniper' || fp.kpi_hash[:patient_sniper_casts].nil?}).count > 0 %>
+    <%= render 'bosses/shared/section', 
+      {
+        title: 'Patient Sniper Efficiency',
+        desc: 'Every time you apply Vulnerable, cast an Aimed Shot with <2 seconds remaining (ideally 1) to maximize the damage bonus.',
+        sub_bars: fps.map{|fp| 
+          {
+            fp: fp,
+            white_bar: true,
+            main_bar_width: bar_width(fp.kpi_hash[:patient_sniper_casts][1].to_i + fp.kpi_hash[:patient_sniper_casts][2].to_i, fp.kpi_hash[:vulnerable_count].to_i),
+            main_bar_text: "#{fp.kpi_hash[:patient_sniper_casts][1].to_i + fp.kpi_hash[:patient_sniper_casts][2].to_i} / #{fp.kpi_hash[:vulnerable_count].to_i}",
+            main_text: "#{fp.kpi_hash[:patient_sniper_casts][1].to_i + fp.kpi_hash[:patient_sniper_casts][2].to_i} / #{fp.kpi_hash[:vulnerable_count].to_i}",
+          }
+        }
+      } 
+    %>
+  <% end %>
+  <% if (fps = @fps.reject{|fp| fp.talent(3) == 'Patient Sniper'}).count > 0 %>
+    <% max_vulnerable = fps.map{|fp| fp.kpi_hash[:vulnerable_damage].to_i / fp.fight_time}.max.to_i %>
+    <%= render 'bosses/shared/section', 
+      {
+        title: 'Damage Dealt While Vulnerable',
+        desc: 'Try to maximize the damage you deal within each application of Vulnerable.',
+        sub_bars: fps.map{|fp| 
+          {
+            fp: fp,
+            main_bar_width: bar_width(fp.kpi_hash[:vulnerable_damage].to_i / fp.fight_time, max_vulnerable),
+            main_bar_text: "#{fp.kpi_hash[:vulnerable_damage].to_i / fp.fight_time}/sec",
+            main_text: "#{fp.kpi_hash[:vulnerable_damage].to_i / 1000}k dmg",
+          }
+        }
+      } 
+    %>
+  <% end %>
+</div>
+<%= render 'bosses/shared/footer', tab: 'basic' %>
+

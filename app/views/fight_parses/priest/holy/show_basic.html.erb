@@ -1,0 +1,40 @@
+<%= render 'fight_parses/shared/new_header', {active_tab: @tab} %>
+<div class="container">
+  <% max_healing = @kpi_parses['healing_done'].details_hash.values.map{|item| item[:heal].to_i + item[:overheal].to_i}.max.to_i rescue 0 %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Healing Done',
+      desc: 'Total healing done. Overhealing is shown as the white part of the bar.',
+      bar_key: 'basic-w',
+      val: @fp.kpi_hash[:healing_done].to_i + @fp.kpi_hash[:overhealing_done].to_i,
+      white_bar: true,
+      main_bar_width: bar_width(@fp.kpi_hash[:healing_done].to_i, @fp.kpi_hash[:healing_done].to_i + @fp.kpi_hash[:overhealing_done].to_i),
+      main_bar_text: "#{@fp.kpi_hash[:healing_done].to_i / @fp.fight_time}/s",
+      main_text: "#{@fp.kpi_hash[:healing_done].to_i / 1000}k effective healing (#{@fp.kpi_hash[:overhealing_done].to_i / 1000}k overhealing)",
+      dropdown: {id: 'healing'},
+      sub_bars: @kpi_parses['healing_done'].nil? ? nil : @kpi_parses['healing_done'].details_hash.values.sort{|a, b| b[:heal].to_i <=> a[:heal].to_i }.map{|item| 
+        {
+          label: item[:name],
+          white_bar: true,
+          white_bar_width: bar_width(item[:heal].to_i + item[:overheal].to_i, max_healing),
+          width: bar_width(item[:heal].to_i, item[:heal].to_i + item[:overheal].to_i),
+          text: "#{item[:heal].to_i / 1000}k",
+          sub_text: "#{item[:heal].to_i / 1000}k healing (#{item[:overheal].to_i / 1000}k overhealing)",
+        }
+      },
+    } 
+  %>
+  <% if @kpi_parses.has_key?('death') && @kpi_parses['death'].kpi_hash[:death_count].to_i > 0 %>
+    <%= render 'fight_parses/shared/deaths', 
+      {
+        deaths: @kpi_parses['death'].details_hash[:deaths],
+      } 
+    %>
+  <% end %>
+</div>
+<%= render 'fight_parses/shared/js', {tab: 'basic'} %> 
+<script>
+  $(['basic-w']).each(function(index, key){
+    resizeBars(key)
+  });
+</script>

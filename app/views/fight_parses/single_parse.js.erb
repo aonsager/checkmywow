@@ -1,0 +1,4 @@
+$('#fp-<%=@fpr.id%>').html("<%= escape_javascript(render 'fight_parses/shared/button', locals: {fp: @fpr}).html_safe %>");
+<% if @fpr.processing? || @fpr.queued? %>
+  checkStatus();
+<% end %>

@@ -1,0 +1,34 @@
+<%= render 'fight_parses/shared/new_header', {active_tab: nil} %>
+<div class="container">
+  <br />
+  <div id="fp-content" style="margin-bottom: 50px"><%= render 'fight_parses/shared/queue_info' %></div>
+
+  <h2>Changelog</h2>
+  <% @changelogs.each do |c| %>
+    <% if !c.patch.nil? %>
+      <div class="row">
+        <h3>Patch <%= c.patch%></h3>
+        <hr />
+      </div>
+    <% end %>
+    <div class="row">
+      <h4><%= c.fp_type %> v<%= c.version %> <small><%= c.created_at.strftime("%D") %></small></h4>
+      <div class="col-md-8"><%= raw c.content %></div>
+    </div>
+  <% end %>
+</div>
+
+<%= render 'fight_parses/shared/js', {tab: nil} %> 
+<script>
+  function checkStatus() {
+    $.ajax({
+      url: '<%= report_fp_status_path(@fpr.report_id, @fpr.fight_id, @fpr.player_id) %>',
+      cache: false
+    });
+  }
+  var checkTimeout;
+  if (checkTimeout != null) clearTimeout(checkTimeout);
+  <% if @fpr.processing? || @fpr.queued? %>
+    checkTimeout = setTimeout(checkStatus, 3000);
+  <% end %>
+</script>

@@ -1,0 +1,89 @@
+<%= render 'fight_parses/shared/new_header', {active_tab: @tab} %>
+<div class="container">
+  <% max_healing = @kpi_parses['healing_done'].details_hash.values.map{|item| item[:heal].to_i + item[:overheal].to_i}.max.to_i rescue 0 %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Healing Done',
+      desc: 'Total healing done. Overhealing is shown as the white part of the bar.',
+      bar_key: 'basic-w',
+      val: @fp.kpi_hash[:healing_done].to_i + @fp.kpi_hash[:overhealing_done].to_i,
+      white_bar: true,
+      main_bar_width: bar_width(@fp.kpi_hash[:healing_done].to_i, @fp.kpi_hash[:healing_done].to_i + @fp.kpi_hash[:overhealing_done].to_i),
+      main_bar_text: "#{@fp.kpi_hash[:healing_done].to_i / @fp.fight_time}/s",
+      main_text: "#{@fp.kpi_hash[:healing_done].to_i / 1000}k effective healing (#{@fp.kpi_hash[:overhealing_done].to_i / 1000}k overhealing)",
+      dropdown: {id: 'healing'},
+      sub_bars: @kpi_parses['healing_done'].nil? ? nil : @kpi_parses['healing_done'].details_hash.values.sort{|a, b| b[:heal].to_i <=> a[:heal].to_i }.map{|item| 
+        {
+          label: item[:name],
+          white_bar: true,
+          white_bar_width: bar_width(item[:heal].to_i + item[:overheal].to_i, max_healing),
+          width: bar_width(item[:heal].to_i, item[:heal].to_i + item[:overheal].to_i),
+          text: "#{item[:heal].to_i / 1000}k",
+          sub_text: "#{item[:heal].to_i / 1000}k healing (#{item[:overheal].to_i / 1000}k overhealing)",
+        }
+      },
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Renewing Mist Uptime',
+      desc: "The percentage of time Renewing Mist was active on friendly targets. Cast this on cooldown to maximize uptime.",
+      white_bar: true,
+      dropdown: {id: 'renewingmist'},
+      main_bar_width: @fp.buff_upratio(:renewingmist),
+      main_bar_text: @fp.buff_upratio_s(:renewingmist),
+      main_text: @fp.buff_upratio_s(:renewingmist),
+      sub_bar_type: 'debuff',
+      sub_bars: @external_buffs['Renewing Mist'].nil? ? nil : @external_buffs['Renewing Mist'].sort{|a, b| b.kpi_hash[:uptime].to_i <=> a.kpi_hash[:uptime].to_i}.map{|item| 
+        {
+          debuff: item,
+          label: item.target_name,
+          id: "debuff-#{item.id}-#{item.target_id}",
+          sub_text: item.upratio_s,
+          hide_down: true,
+        }
+      }
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Enveloping Mist Effectiveness',
+      desc: 'The total amount of healing provided by Enveloping Mist. This shows direct healing from Enveloping Mist, as well as the 30% healing increase while it is active. Increased healing is shown on bars as a lighter color.',
+      white_bar: true,
+      light_bar_width: bar_width(@fp.cooldowns_hash[:enveloping_healing].to_i + @fp.cooldowns_hash[:enveloping_healing_increased].to_i, @fp.cooldowns_hash[:enveloping_healing].to_i + @fp.cooldowns_hash[:enveloping_healing_increased].to_i + @fp.cooldowns_hash[:enveloping_overhealing].to_i), 
+      main_bar_width: bar_width(@fp.cooldowns_hash[:enveloping_healing].to_i, @fp.cooldowns_hash[:enveloping_healing].to_i + @fp.cooldowns_hash[:enveloping_healing_increased].to_i),
+      main_bar_text: "#{(@fp.cooldowns_hash[:enveloping_healing].to_i + @fp.cooldowns_hash[:enveloping_healing_increased].to_i) / 1000}k",
+      main_text: "#{(@fp.cooldowns_hash[:enveloping_healing].to_i + @fp.cooldowns_hash[:enveloping_healing_increased].to_i) / 1000}k healing, #{@fp.cooldowns_hash[:enveloping_overhealing].to_i / 1000}k overhealing",
+      sub_bars: @external_cooldowns['cd']['Enveloping Mist'].nil? ? nil : @external_cooldowns['cd']['Enveloping Mist'].map{|item| 
+        {
+          label: item.time_s, 
+          bar_key: 'enveloping-w',
+          val: item.kpi_hash[:healing_done].to_i + item.kpi_hash[:healing_increased].to_i + item.kpi_hash[:overhealing_done].to_i + item.kpi_hash[:overhealing_increased].to_i,
+          white_bar: true,
+          light_bar_width: bar_width(item.kpi_hash[:healing_done].to_i + item.kpi_hash[:healing_increased].to_i, item.kpi_hash[:healing_done].to_i + item.kpi_hash[:healing_increased].to_i + item.kpi_hash[:overhealing_done].to_i + item.kpi_hash[:overhealing_increased].to_i),
+          width: bar_width(item.kpi_hash[:healing_done].to_i, item.kpi_hash[:healing_done].to_i + item.kpi_hash[:healing_increased].to_i),
+          text: "#{(item.kpi_hash[:healing_done].to_i + item.kpi_hash[:healing_increased].to_i) / 1000}k",
+          sub_text: "#{(item.kpi_hash[:healing_done].to_i + item.kpi_hash[:healing_increased].to_i) / 1000}k healing, #{(item.kpi_hash[:overhealing_increased].to_i + item.kpi_hash[:overhealing_increased].to_i) / 1000}k overhealing",
+          dropdown: {
+            id: "enveloping-#{item.id}",
+            headers: ['Spell', 'Healing Done', 'Overhealing Done', 'Hits'],
+            content: (item.details_hash.values + [{name: 'Enveloping Mist', healing_increased: item.kpi_hash[:healing_done].to_i, overhealing_increased: item.kpi_hash[:overhealing_done].to_i, hits: item.kpi_hash[:hits].to_i}]).sort{|a, b| b[:healing_increased].to_i <=> a[:healing_increased].to_i}.map{|hash| [hash[:name], hash[:healing_increased].to_i, hash[:overhealing_increased].to_i, hash[:hits]]}
+          }
+        }
+      },
+    } 
+  %>
+  <% if @kpi_parses.has_key?('death') && @kpi_parses['death'].kpi_hash[:death_count].to_i > 0 %>
+    <%= render 'fight_parses/shared/deaths', 
+      {
+        deaths: @kpi_parses['death'].details_hash[:deaths],
+      } 
+    %>
+  <% end %>
+</div>
+<%= render 'fight_parses/shared/js', {tab: 'basic'} %> 
+<script>
+  $(['basic-w', 'enveloping-w']).each(function(index, key){
+    resizeBars(key)
+  });
+</script>

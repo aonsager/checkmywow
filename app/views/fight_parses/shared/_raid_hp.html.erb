@@ -1,0 +1,45 @@
+<% @healing_parses = HealingParse.where(report_id: @fp.report_id, fight_id: @fp.fight_id).order(:started_at).to_a %>
+<h4>Raid Healing Effectiveness</h4>
+<div class="row">
+  <div class="col-md-9">
+    <div class="section-desc">Healing done to raid members after they drop below 30% HP, until they reach at least 50% HP again. This shows how effectively you healed raid members who were low on health, and may reveal times when a death was avoidable with more targeted healing. The colored portion of each bar shows how much of the healing was provided by you.</div>
+  </div>
+</div>
+<section>
+  <% if @fight.queued? || @fight.processing? %>
+    <p>Raid HP data is currently being processed. Please check back in a few minutes.</p>
+  <% elsif @healing_parses.count == 0 %>
+    <p>No Raid HP data found</p>
+  <% else %>
+    <% min_hps = @healing_parses.reject{|item| item.kpi_hash[:healing_received].to_i == 0}.map{|item| item.kpi_hash[:healing_received].to_i / item.time}.min.to_i %>
+    <% @healing_parses.each do |item| %>
+      <% next if item.started_at == item.ended_at %>
+      <div class="row col-md-12" onclick="$('#hp-<%= item.id %>').collapse('toggle');">
+        <div class="col-md-3 text-right"><%= item.target_name %>&nbsp;&nbsp;<small class="<%= item.kpi_hash[:death] ? 'red' : 'green' %>">(<%= item.time_s(@fight.started_at) %>)</small> <%= image_tag('down.png', size: '15z15') %></div>
+        <div class="col-md-5 hp-w" val="<%= (item.kpi_hash[:healing_received].to_i / item.time) %>">
+          <% if item.kpi_hash.has_key?(:healing_by_player) %>
+            <div class="bar white" style="width: 10%">
+              <div class="bar dark <%= @fp.class_type %>" style="width: <%= bar_width(item.kpi_hash[:healing_by_player][@fp.player_name].to_i, item.kpi_hash[:healing_received].to_i) %>%">
+                <%= "#{item.kpi_hash[:healing_received].to_i / item.time}/sec" %>
+              </div>
+            </div>
+          <% else %>
+            <div class="bar dark <%= @fp.class_type %>" style="width: 10%">
+              <%= "#{item.kpi_hash[:healing_received].to_i / item.time}/sec" %>
+            </div>
+          <% end %>
+        </div>
+        <div class="col-md-3"><%= "#{item.kpi_hash[:healing_received].to_i} healing over #{item.time} seconds" %></div>
+      </div>
+
+      <div id="hp-<%= item.id %>" class="row collapse">
+        <div class="col-md-3">&nbsp;</div>
+        <div class="col-md-5">
+          <% item.details_hash[:events].each do |event| %>
+            <p class="info-row"><%=raw @fp.hp_event_s(event) %></p>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+</section>

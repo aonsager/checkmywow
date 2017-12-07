@@ -1,0 +1,13 @@
+<% if @queued + @processing == 0 %>
+  location.reload()
+<% else %>
+  <% @fps.each do |fp| %>
+    if ($($('#fp-<%=fp.id%> .btn')[0]).attr('waiting') == 'true') {
+      $('#fp-<%=fp.id%>').html("<%= escape_javascript(render 'fight_parses/shared/button', locals: {fp: fp}).html_safe %>");
+    }
+  <% end %>
+  $('#queue-info').html("<%= escape_javascript(render 'fights/queue_info').html_safe %>");
+  var checkTimeout;
+  if (checkTimeout != null) clearTimeout(checkTimeout);
+  checkTimeout = setTimeout(checkFightStatus, 3000);
+<% end %>

@@ -1,0 +1,23 @@
+<%= render 'fight_parses/shared/new_header', {active_tab: @tab,} %>
+<% resize = ['cd-w'] %>
+<div class="container">
+  <% if !@sections.nil? %>
+    <% if @sections.count == 0 %>
+      <p>Nothing to show here</p>
+    <% else %>
+      <% @sections.each do |section_data| %>
+        <% next if !section_data %>
+        <%= render section_data[:partial], section_data[:hash] %>
+        <% resize << section_data[:resize] if section_data.has_key?(:resize) %>
+      <% end %>
+    <% end %>
+  <% end %>
+</div>
+<%= render 'fight_parses/shared/js', {tab: @tab} %> 
+<% if resize.count > 0 %>
+  <script>
+      $(<%=raw resize %>).each(function(index, key){
+      resizeBars(key)
+    });
+  </script>
+<% end %>

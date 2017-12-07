@@ -1,0 +1,99 @@
+<% if @hp_parses.has_key?(@player_id) %>
+  chart = new Highcharts.Chart({
+    chart: {
+      renderTo: 'graph-<%= @player_id %>',
+      zoomType: 'x',
+    },
+    plotOptions: {
+      areaspline: {
+        fillOpacity: 1,
+        stacking: 'normal'
+      }
+    },
+    navigator: {
+      enabled: true,
+    },
+    series: [
+      {
+        color: '#1fb47a',
+        connectNulls: false,
+        data: <%=raw @hp_parses[@player_id]['hp'] %>,
+        lineWidth: 2,
+        name: 'Health',
+        type: 'spline',
+        zIndex: 10
+      },
+      {
+        color: '#FEA25B',
+        connectNulls: true,
+        data: <%=raw @hp_parses[@player_id]['external_absorb'] %>,
+        name: 'External Absorb',
+        stack: 0,
+        type: 'areaspline',
+      },
+      {
+        color: '#FEE589',
+        connectNulls: true,
+        data: <%=raw @hp_parses[@player_id]['self_absorb'] %>,
+        name: 'Self Absorb',
+        stack: 0,
+        type: 'areaspline',
+      },
+      {
+        color: '#CC9DFD',
+        connectNulls: true,
+        data: <%=raw @hp_parses[@player_id]['external_heal'] %>,
+        name: 'External Healing',
+        stack: 0,
+        type: 'areaspline'
+      },
+      {
+        color: '#29C2FF',
+        connectNulls: true,
+        data: <%=raw @hp_parses[@player_id]['self_heal'] %>,
+        name: 'Self Healing',
+        stack: 0,
+        type: 'areaspline'
+      },
+      {
+        color: '#666666',
+        connectNulls: true,
+        data: <%=raw @hp_parses[@player_id]['mitigated'] %>,
+        name: 'Mitigation',
+        stack: 0,
+        type: 'areaspline',
+      },
+      {
+        color: '#91ecc9',
+        connectNulls: true,
+        data: <%=raw @hp_parses[@player_id]['base_hp'] %>,
+        enableMouseTracking: false,
+        name: 'Health',
+        stack: 0,
+        type: 'areaspline'
+      },
+      
+    ],
+    title: {
+      text: 'Tank Health - <%= Player.find_by(player_id: @player_id).player_name %>'
+    },
+    tooltip: {
+      xDateFormat: '%M:%S',
+    },
+    xAxis: {
+      type: 'datetime',
+      dateTimeLabelFormats: {
+        second: '%M:%S',
+      },
+    },
+    yAxis: {
+      floor: 0,
+      title: {
+        text: 'Health',
+      }
+    },
+  });
+chart.xAxis[0].setExtremes(100, 60000);
+<% else %>
+  $('#graph-<%= @player_id %> .msg').html('<p>Health data not found. Please leave feedback in the forums if you think this is in error.</p>')
+<% end %>

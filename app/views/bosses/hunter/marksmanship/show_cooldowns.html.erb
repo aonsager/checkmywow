@@ -1,0 +1,34 @@
+<div class="container">
+  <%= render 'bosses/shared/header', tab: 'cooldowns' %>
+  <% max_trueshot = @fps.map{|fp| fp.cooldowns_hash[:trueshot_damage].to_i / fp.fight_time}.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Trueshot Effectiveness',
+      desc: 'The total amount of damage you dealt with Trueshot.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          main_bar_width: bar_width(fp.cooldowns_hash[:trueshot_damage].to_i / fp.fight_time, max_trueshot),
+          main_bar_text: "#{number_to_human(fp.cooldowns_hash[:trueshot_damage].to_i / fp.fight_time)} DPS",
+          main_text: "#{number_to_human(fp.cooldowns_hash[:trueshot_damage].to_i / fp.fight_time)} DPS",
+        }
+      }
+    } 
+  %>
+  <% max_bullseye = @fps.map{|fp| fp.cooldowns_hash[:bullseye_damage].to_i / fp.cooldowns_hash[:bullseye_uptime].to_i rescue 0}.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Bullseye Effectiveness',
+      desc: 'The total amount of damage per second you dealt while Bullseye was at 30 stacks. This is when you have the highest potential for damage output, so you should do your best to line up your cooldowns.',
+      sub_bars: @fps.reject{|fp| fp.cooldowns_hash[:bullseye_uptime].to_i == 0}.map{|fp| 
+        {
+          fp: fp,
+          main_bar_width: bar_width(fp.cooldowns_hash[:bullseye_damage].to_i / fp.cooldowns_hash[:bullseye_uptime].to_i, max_bullseye),
+          main_bar_text: "#{number_to_human(1000 * fp.cooldowns_hash[:bullseye_damage].to_i / fp.cooldowns_hash[:bullseye_uptime])} DPS",
+          main_text: "#{number_to_human(1000 * fp.cooldowns_hash[:bullseye_damage].to_i / fp.cooldowns_hash[:bullseye_uptime])} DPS",
+        }
+      }
+    } 
+  %>
+</div>
+<%= render 'bosses/shared/footer', tab: 'basic' %>

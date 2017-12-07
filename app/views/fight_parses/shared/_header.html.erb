@@ -1,0 +1,55 @@
+<% provide(:title, @fp.player_name) %>
+<% breadcrumb :fight_player, @report, @fight, @fpr.player_id, @fpr.player_name, @fpr.class_type, @fpr.spec, @tab %>
+
+<% if !@fp.nil? %>
+  <% if @fp.spec.blank? && @fp.done? %>
+    <div class="alert alert-danger">
+      Unable to detect spec. Please enable advanced combat logging within World of Warcraft, in the Network pane under System preferences.
+    </div>
+  <% end %>
+  <% if @fp.in_progress? %>
+    <div class="alert alert-warning">
+      This spec's analysis is still a work in progress. Please give feedback on <a href="http://forums.checkmywow.com">the forums</a>.
+    </div>
+  <% end %>
+  <div class="titlebar <%= @fpr.class_type %> dark">
+    <div class="container">
+      <a class='<%= @fpr.class_type %> light'>Analyze</a>
+      <a href="/players/<%= @fpr.player_id %>/bosses/<%= @fpr.boss_id%>/<%= @fpr.difficulty%>">Compare</a>
+      <%= link_to('View character', player_path(@fpr.player_id)) %>
+      <%= link_to('← Back to Report', report_fight_parse_path, class: "small") if (back_link ||= false) %>
+      <div style="float:right; font-size: 14px;">
+        <%= link_to("#{@fpr.spec} #{@fpr.class_type}#{@fp.nil? ? '' : " (#{@fp.class.latest_patch || 'Outdated'})"}", report_changelog_path) %>
+      </div>
+    </div>
+  </div>
+  <div style="clear:both"></div>
+  <% if @not_latest && !@changelog && @fp.version < @fp.class.latest_version %>
+    <p>Your spec's parse logic has been updated since you processed this fight. <%= link_to 'See the changelog', report_changelog_path %></p>
+    <p>You can reprocess the fight to see the latest data, but please note that changes from hotfixes may not apply to older logs, and may end up showing incorrect data.</p>
+    <p><%= link_to('Reprocess Fight', report_single_parse_path, class: 'btn btn-default') %></p>
+    <br />
+    <div style="clear:both"></div>
+  <% elsif @not_latest && !@changelog && @fp.hotfix < @fp.class.latest_hotfix %>  
+    <p>There has been a hotfix to your spec's parse logic. You can reprocess this fight now to see the correct data.
+      <%= link_to('Reprocess Fight', report_single_parse_path, class: 'btn btn-default') %>
+    </p>
+    <div class="right"><%= link_to 'Changelog', report_changelog_path %></div>
+  <% elsif !@changelog %>
+    <div class="right"><%= link_to 'Changelog', report_changelog_path %></div>
+  <% elsif !@hide_report %>
+    <div class="right"><%= link_to 'View Report', report_fight_parse_path %></div>
+  <% end %>
+  <% if !active_tab.nil? %>
+    <%= link_to('Key Metrics', '?tab=basic', class: "btn btn-#{active_tab == 'basic' ? 'primary' : 'default'}") %>
+    <%= link_to('Cast Efficiency', '?tab=casts', class: "btn btn-#{active_tab == 'casts' ? 'primary' : 'default'}") %>
+    <%= link_to('Resource Management', '?tab=resources', class: "btn btn-#{active_tab == 'resources' ? 'primary' : 'default'}") %>
+    <%= link_to('Cooldown Usage', '?tab=cooldowns', class: "btn btn-#{active_tab == 'cooldowns' ? 'primary' : 'default'}") %>
+    <% if @fp.is_a?(TankParse) %>
+      <%= link_to('Health Graph', '?tab=hp', class: "btn btn-#{active_tab == 'hp' ? 'primary' : 'default'}") %>
+    <% end %>
+    <% if @fp.is_a?(HealerParse) %>
+      <%= link_to('Raid Health', '?tab=raid_hp', class: "btn btn-#{active_tab == 'raid_hp' ? 'primary' : 'default'}") %>
+    <% end %>
+  <% end %>
+<% end %>

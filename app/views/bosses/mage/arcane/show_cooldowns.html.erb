@@ -1,0 +1,35 @@
+<div class="container">
+  <%= render 'bosses/shared/header', tab: 'cooldowns' %>
+  <% max_arcane = @fps.map{|fp| fp.cooldowns_hash[:ap_damage].to_i / fp.fight_time}.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Arcane Power Damage',
+      desc: 'The total amount of damage you dealt while Arcane Power was active. Do your best to line this up with other cooldowns.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          main_bar_width: bar_width(fp.cooldowns_hash[:ap_damage].to_i / fp.fight_time, max_arcane),
+          main_bar_text: "#{fp.cooldowns_hash[:ap_damage].to_i / fp.fight_time}/sec",
+          main_text: "#{fp.cooldowns_hash[:ap_damage].to_i / fp.fight_time} dmg/sec",
+        }
+      }
+    } 
+  %>
+  <% max_rune = @fps.map{|fp| fp.cooldowns_hash[:rune_damage].to_i / fp.fight_time}.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Rune of Power Damage',
+      desc: 'The total amount of damage you dealt while Rune of Power was active. Do your best to line this up with other cooldowns.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          main_bar_width: bar_width(fp.cooldowns_hash[:rune_damage].to_i / fp.fight_time, max_rune),
+          main_bar_text: "#{fp.cooldowns_hash[:rune_damage].to_i / fp.fight_time}/sec",
+          main_text: "#{fp.cooldowns_hash[:rune_damage].to_i / fp.fight_time} dmg/sec",
+        }
+      }
+    } 
+  %>
+</div>
+<%= render 'bosses/shared/footer', tab: 'cooldowns' %>
+<%= render 'bosses/shared/js' %> 

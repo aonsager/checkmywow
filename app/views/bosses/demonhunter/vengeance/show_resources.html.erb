@@ -1,0 +1,36 @@
+<div class="container">
+  <%= render 'bosses/shared/header', tab: 'resources' %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Time not Pain-Capped',
+      desc: 'The percent of the fight that you had less than max Pain. Aim for 100%.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: bar_width(fp.fight_time - fp[:resources_hash][:capped_time].to_i, fp.fight_time), 
+          main_bar_text: "#{fp.fight_time - fp[:resources_hash][:capped_time].to_i}s",
+          main_text: "#{fp.fight_time - fp[:resources_hash][:capped_time].to_i}s / #{fp.fight_time}s"
+        }
+      }
+    } 
+  %>
+  <% max_pain = @fps.map{|fp| 100 * (fp.resources_hash[:pain_gain].to_i + fp.resources_hash[:pain_waste].to_i) / fp.fight_time rescue 0}.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Pain Gained',
+      desc: 'Avoid overcapping Pain by not using Pain-generating abilities that would put you over the maximum amount.',
+      sub_bars: @fps.map{|fp|
+        {
+          fp: fp,
+          white_bar: true,
+          white_bar_width: bar_width(100 * (fp.resources_hash[:pain_gain].to_i + fp.resources_hash[:pain_waste].to_i) / fp.fight_time, max_pain),
+          main_bar_width: bar_width(fp.resources_hash[:pain_gain].to_i, fp.resources_hash[:pain_gain].to_i + fp.resources_hash[:pain_waste].to_i),
+          main_bar_text: "#{fp.resources_hash[:pain_gain].to_i}/#{fp.resources_hash[:pain_gain].to_i + fp.resources_hash[:pain_waste].to_i}",
+          main_text: "#{(1.0 * fp.resources_hash[:pain_gain].to_i / fp.fight_time).round(2)}/sec",
+        }
+      }
+    }
+  %>
+</div>
+<%= render 'bosses/shared/footer', tab: 'basic' %>

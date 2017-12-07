@@ -1,0 +1,53 @@
+<div class="container">
+  <%= render 'bosses/shared/header', tab: 'basic' %>
+  <% max_dps = @fps.map{|fp| fp.dps || 0 }.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Damage per Second',
+      desc: 'Total damage / Fight time. Pet damage is shown with a separate color',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          light_bar_width: bar_width(fp.dps, max_dps),
+          main_bar_width: bar_width(fp.kpi_hash[:player_damage_done].to_i, fp.kpi_hash[:player_damage_done].to_i + fp.kpi_hash[:pet_damage_done].to_i),
+          main_bar_text: "#{fp.dps}/s",
+          main_text: "#{(fp.kpi_hash[:player_damage_done].to_i + fp.kpi_hash[:pet_damage_done].to_i) / 1000}k total damage (#{fp.kpi_hash[:pet_damage_done].to_i / 1000}k pet)"
+        }
+      }
+    } 
+  %>
+  <% if @fps.reject{|fp| fp.talent(5) != 'Nether Tempest'}.count > 0 %>
+    <%= render 'bosses/shared/section', 
+      {
+        title: 'Nether Tempest usage',
+        desc: 'Only use Nether Tempest when you have 4 stacks of Arcane Charge.',
+        sub_bars: @fps.reject{|fp| fp.talent(5) != 'Nether Tempest' || fp.resources_hash[:nether_ac].nil?}.map{|fp| 
+          {
+            fp: fp,
+            white_bar: true,
+            main_bar_width: bar_width(fp.resources_hash[:nether_ac][4].to_i, fp.resources_hash[:nether_ac].values.map{|a|a}.sum),
+            main_bar_text: "Cast #{fp.resources_hash[:nether_ac][4].to_i} / #{fp.resources_hash[:nether_ac].values.map{|a|a}.sum}",
+            main_text: "Cast #{fp.resources_hash[:nether_ac][4].to_i} times at 4 stacks",
+          }
+        }
+      } 
+    %>
+    <%= render 'bosses/shared/section', 
+      {
+        title: 'Nether Tempest Uptime',
+        desc: "The percentage of time Nether Tempest was active on a target. 100% isn't realistic, but try to maximize uptime.",
+        sub_bars: @fps.reject{|fp| fp.talent(5) != 'Nether Tempest'}.map{|fp| 
+          {
+            fp: fp,
+            white_bar: true,
+            main_bar_width: bar_width(fp.resources_hash[:nether_uptime].to_i / 1000, fp.fight_time),
+            main_bar_text: "#{100 * fp.resources_hash[:nether_uptime].to_i / 1000 / fp.fight_time}%",
+            main_text: "#{fp.resources_hash[:nether_uptime].to_i / 1000} / #{fp.fight_time}",
+          }
+        }
+      } 
+    %>
+  <% end %>
+  
+</div>
+<%= render 'bosses/shared/footer', tab: 'basic' %>

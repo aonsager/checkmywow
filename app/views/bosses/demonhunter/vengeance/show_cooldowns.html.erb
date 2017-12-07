@@ -1,0 +1,65 @@
+<div class="container">
+  <%= render 'bosses/shared/header', tab: 'cooldowns' %>
+  <% max_demonspikes = @fps.map{|fp| (fp.cooldowns_hash[:demonspikes_reduced].to_i + fp.cooldowns_hash[:demonspikes_avoided].to_i) / fp.fight_time rescue 0}.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Demon Spikes Effectiveness',
+      desc: 'The total amount of damage mitigated through Demon Spikes. The effectiveness of each invididual Demon Spikes cast is calculated by recording the damage reduction of each incoming attack, and by recording 20% of the damage that was parried, based on average damage taken from those abilities over the course of the fight.',
+      sub_bars: @fps.map{|fp|
+        {
+          fp: fp,
+          light_bar_width: bar_width((fp.cooldowns_hash[:demonspikes_reduced].to_i + fp.cooldowns_hash[:demonspikes_avoided].to_i) / fp.fight_time, max_demonspikes), 
+          main_bar_width: bar_width(fp.cooldowns_hash[:demonspikes_reduced].to_i, fp.cooldowns_hash[:demonspikes_reduced].to_i + fp.cooldowns_hash[:demonspikes_avoided].to_i),
+          main_bar_text: "#{(fp.cooldowns_hash[:demonspikes_reduced].to_i + fp.cooldowns_hash[:demonspikes_avoided].to_i) / fp.fight_time}/sec",
+          main_text: "#{fp.cooldowns_hash[:demonspikes_reduced].to_i / 1000}k reduced, #{fp.cooldowns_hash[:demonspikes_avoided].to_i / 1000}k parried",
+        }
+      }
+    }
+  %>
+  <% max_wards = @fps.map{|fp| fp.cooldowns_hash[:wards_reduced].to_i / fp.fight_time rescue 0}.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Empower Wards Effectiveness',
+      desc: 'The total amount of damage mitigated through Empower Wards / fight time. Each cast of Empower Wards records all damage taken while it is up, and calculates the total mitigation (10%).',
+      sub_bars: @fps.map{|fp|
+        {
+          fp: fp,
+          main_bar_width: bar_width(fp.cooldowns_hash[:wards_reduced].to_i / fp.fight_time, max_wards), 
+          main_bar_text: "#{fp.cooldowns_hash[:wards_reduced].to_i / 1000}k",
+          main_text: "#{fp.cooldowns_hash[:wards_reduced].to_i / 1000}k reduced",
+        }
+      }
+    }
+  %>
+  <% max_brand = @fps.map{|fp| fp.cooldowns_hash[:brand_reduced].to_i / fp.fight_time rescue 0}.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Fiery Brand Effectiveness',
+      desc: 'The total amount of damage mitigated through Fiery Brand. Each cast of Fiery Brand records all damage reduced per enemy while it is active (40%).',
+      sub_bars: @fps.map{|fp|
+        {
+          fp: fp,
+          main_bar_width: bar_width(fp.cooldowns_hash[:brand_reduced].to_i / fp.fight_time, max_brand), 
+          main_bar_text: "#{fp.cooldowns_hash[:brand_reduced].to_i / 1000}k",
+          main_text: "#{fp.cooldowns_hash[:brand_reduced].to_i / 1000}k reduced",
+        }
+      }
+    }
+  %>
+  <% max_devastation = @fps.map{|fp| fp.cooldowns_hash[:devastation_damage].to_i / fp.fight_time rescue 0}.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Fel Devastation Damage',
+        desc: 'The total amount of damage you dealt with Fel Devastation.',
+      sub_bars: @fps.reject{|fp| fp.talent(5) != 'Fel Devastation'}.map{|fp|
+        {
+          fp: fp,
+          main_bar_width: bar_width(fp.cooldowns_hash[:devastation_damage].to_i / fp.fight_time, max_devastation), 
+          main_bar_text: "#{fp.cooldowns_hash[:devastation_damage].to_i / 1000}k",
+          main_text: "#{fp.cooldowns_hash[:devastation_damage].to_i / 1000}k reduced",
+        }
+      }
+    }
+  %>
+</div>
+<%= render 'bosses/shared/footer', tab: 'basic' %>

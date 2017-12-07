@@ -1,0 +1,23 @@
+<div id="fights-dropdown" class="custom-dropdown">
+  <%= fight.full_name %>
+  <div id="fights-dropdown-list" class="list" style="display: none">
+    <% report.fights.order(:fight_id).each do |f| %>
+      <% if f.parsed? %>
+        <div class="item">
+          <%= link_to f.full_name, report_fight_parse_path(report.report_id, player_id, f.fight_id, tab: tab) %>
+        </div>
+      <% else %>
+        <div class="item disabled"><%= f.name %></div>
+      <% end %>
+    <% end %>
+  </div>
+</div>
+
+<script>
+  $("#fights-dropdown").parent().mouseover(function() {
+    $("#fights-dropdown-list").show();
+  });
+  $("#fights-dropdown").parent().mouseout(function() {
+    $("#fights-dropdown-list").hide();
+  });
+</script>

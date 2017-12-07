@@ -1,0 +1,21 @@
+<%= render 'fight_parses/shared/new_header', {active_tab: @tab} %>
+<div class="container">
+  <%= render 'fight_parses/shared/casts_table', 
+    {
+      title: 'Cast Efficiency',
+       desc: "Renewing Mist and Thunder Focus Tea should generally be used as often as possible during a fight. The other spells are more situational, but are included for reference to see if you could have fit more into the fight.",
+      label: (@fp.kpi_hash[:casts_score].to_i >= 95 ? 'good' : @fp.kpi_hash[:casts_score].to_i >= 85 ? 'ok' : 'bad'),
+      casts_score: @fp.kpi_hash[:casts_score],
+      spells: @fp.track_casts.each.map{|key, hash| 
+        {
+          label: key,
+          casts: (@fp.casts_hash[key] || []),
+          max_casts: @fp.casts_possible(hash),
+          cd: hash[:cd],
+          optional: hash[:optional]
+        }
+      }
+    } 
+  %>
+</div>
+<%= render 'fight_parses/shared/js', {tab: 'casts'} %> 

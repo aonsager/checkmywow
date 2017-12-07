@@ -1,0 +1,81 @@
+<div class="container">
+  <%= render 'bosses/shared/header', tab: 'basic' %>
+  <% max_dps = @fps.map{|fp| fp.dps || 0 }.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Damage per Second',
+      desc: 'Total damage / Fight time. Pet damage is shown with a separate color',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          light_bar_width: bar_width(fp.dps, max_dps),
+          main_bar_width: bar_width(fp.kpi_hash[:player_damage_done].to_i, fp.kpi_hash[:player_damage_done].to_i + fp.kpi_hash[:pet_damage_done].to_i),
+          main_bar_text: "#{fp.dps}/s",
+          main_text: "#{(fp.kpi_hash[:player_damage_done].to_i + fp.kpi_hash[:pet_damage_done].to_i) / 1000}k total damage (#{fp.kpi_hash[:pet_damage_done].to_i / 1000}k pet)"
+        }
+      }
+    } 
+  %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Cast Efficiency',
+      desc: 'Make sure you are casting your key spells on cooldown. Your cast score is determined by a weighted average, with more emphasis placed on abilities with longer cooldown times.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: fp.kpi_hash[:casts_score].to_i,
+          main_bar_text: "#{fp.kpi_hash[:casts_score].to_i}%",
+          main_text: "#{fp.kpi_hash[:casts_score].to_i}\% cast efficiency",
+        }
+      }
+    } 
+  %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Enrage Uptime',
+      desc: "The percentage of time you were Enraged. Make use of Bloodthirst and Rampage to keep Enrage active as often as possible. Aim for around 70%",
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          main_bar_width: bar_width(fp.resources_hash[:enrage_uptime].to_i, fp.ended_at - fp.started_at),
+          main_bar_text: "#{fp.resources_hash[:enrage_uptime].to_i / (10 * fp.fight_time)}%",
+          main_text: "#{fp.resources_hash[:enrage_uptime].to_i / 1000}s / #{fp.fight_time}s",
+        }
+      }
+    } 
+  %>
+  <% max_ragingblow = @fps.map{|fp| fp.kpi_hash[:ragingblow_damage].to_i / fp.fight_time}.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Raging Blow Damage',
+      desc: 'Cast Raging Blow as often as possible.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          main_bar_width: bar_width(fp.kpi_hash[:ragingblow_damage].to_i / fp.fight_time, max_ragingblow),
+          main_bar_text: "#{fp.kpi_hash[:ragingblow_damage].to_i / fp.fight_time}/sec",
+          main_text: "#{fp.kpi_hash[:ragingblow_damage].to_i / fp.fight_time} damage/sec",
+        }
+      }
+    } 
+  %>
+  <% max_execute = @fps.map{|fp| fp.kpi_hash[:execute_damage].to_i / fp.fight_time}.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Execute Damage',
+      desc: 'When your target is below 20% health, prioritize Execute while still maintaining Enrage uptime.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          main_bar_width: bar_width(fp.kpi_hash[:execute_damage].to_i / fp.fight_time, max_execute),
+          main_bar_text: "#{fp.kpi_hash[:execute_damage].to_i / fp.fight_time}/sec",
+          main_text: "#{fp.kpi_hash[:execute_damage].to_i / fp.fight_time} damage/sec",
+        }
+      }
+    } 
+  %>
+</div>
+<%= render 'bosses/shared/footer', tab: 'basic' %>
+

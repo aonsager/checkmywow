@@ -1,0 +1,22 @@
+<div class="container">
+  <%= render 'fight_parses/shared/header', {active_tab: @tab} %>
+  <br /><br />
+  <%= render 'fight_parses/shared/casts_table', 
+    {
+      title: 'Cast Efficiency',
+      desc: "These are your key spells that should be cast as often as possible. Make sure you are casting them on cooldown. Your cast score is determined by a weighted average, with more emphasis placed on abilities with longer cooldown times. Your haste reduced cooldowns of Immolation Aura and Demon Spikes by #{@fp.haste_reduction_percent.round(2)}%.",
+      label: (@fp.kpi_hash[:casts_score].to_i >= 95 ? 'good' : @fp.kpi_hash[:casts_score].to_i >= 85 ? 'ok' : 'bad'),
+      casts_score: @fp.kpi_hash[:casts_score],
+      spells: @fp.track_casts.each.map{|key, hash| 
+        {
+          label: key,
+          casts: (@fp.casts_hash[key] || []),
+          max_casts: @fp.casts_possible(hash),
+          cd: hash[:cd],
+          optional: hash[:optional]
+        }
+      }
+    } 
+  %>
+</div>
+<%= render 'fight_parses/shared/js', {tab: 'casts'} %> 

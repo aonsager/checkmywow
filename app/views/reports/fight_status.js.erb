@@ -1,0 +1,9 @@
+<% if @processing + @queued > 0 %>
+  $("#report-progress").show();
+<% end %>
+
+$('#progress-content').html("<%= escape_javascript(render 'reports/progress_div').html_safe %>");
+$('#progress-popover').html("<%= escape_javascript(render 'reports/progress_popover').html_safe %>");
+<% @fp_ids.each do |id, fp| %>
+  $('#fp-<%=id%>').html("<%= escape_javascript(render 'fight_parses/shared/button', locals: {fp: fp}).html_safe %>")
+<% end %>

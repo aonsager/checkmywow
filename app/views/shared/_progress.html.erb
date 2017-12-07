@@ -1,0 +1,8 @@
+<% locals ||= {} %>
+<% progress = locals[:progress] || @progress %>
+<% if !progress.nil? %>
+  <p><%= progress.message %></p>
+  <div class="progress" style="height: <%=locals[:height] || 20%>px; width: <%=locals[:width] || 400%>px">
+    <div class="progress-bar progress-bar-success" role="progressbar" style="width: <%= 100 * progress.current / progress.finish rescue 0 %>%"></div>
+  </div>
+<% end %>

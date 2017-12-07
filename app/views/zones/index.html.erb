@@ -1,0 +1,9 @@
+<div class="container">
+  <h2>Zones</h2>
+  <% @zones.each do |zone| %>
+    <h3><%= zone.name %></h3>
+    <% zone.bosses.order(:order_num).each do |boss| %>
+      <p><%= boss.name %></p>
+    <% end %>
+  <% end %>
+</div>

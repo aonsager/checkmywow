@@ -1,0 +1,24 @@
+<% if @report.queued? %>
+  <p>This report is currently in the queue to be processed. This page will automatically reload once there has been an update.</p>
+  <br />
+  <p>Current queue size: <%= pluralize Resque.size(:parse) + Resque.size(:single_parse) + Resque.working.size, 'report' %></p>
+  <br />
+  <p><small>Last updated: <%= local_time(Time.now, "%l:%M:%S") %></small></p>
+<% elsif @report.processing? %>
+  <p>This report is currently being imported.</p>
+  <%= render 'shared/progress' %>
+  <br />
+  <p><small>Last updated: <%= local_time(Time.now, "%l:%M:%S") %></small></p>
+<% end %>
+<input type="hidden" id="report-status" value="<%=@report.status%>" />
+<script>
+  function checkReportStatus() {
+    $.ajax({
+      url: '<%= report_status_path(@report_id) %>',
+      cache: false
+    });
+  }
+  <% if !@report.done? %>
+    var checkTimeout = setTimeout(checkReportStatus, 3000);
+  <% end %>
+</script>

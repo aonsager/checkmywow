@@ -1,0 +1,64 @@
+<%= render 'fight_parses/shared/new_header', {active_tab: @tab} %>
+<div class="container">
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Cooldown Timings',
+      desc: 'Do your best to line up cooldowns to maximize DPS.',
+      sub_bar_type: 'cooldown',
+      sub_bars: @fp.cooldown_timeline_bars,
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Arcane Power Damage',
+      desc: 'The total amount of damage you dealt while Arcane Power was active. Do your best to line this up with other cooldowns.',
+      bar_key: 'cd-w',
+      val: @fp.cooldowns_hash[:ap_damage].to_i,
+      main_bar_text: "#{@fp.cooldowns_hash[:ap_damage].to_i / 1000}k",
+      main_text: "#{@fp.cooldowns_hash[:ap_damage].to_i / 1000}k damage",
+      sub_bars: @cooldowns['cd']['Arcane Power'].nil? ? nil : @cooldowns['cd']['Arcane Power'].map{|item| 
+        {
+          label: item.time_s, 
+          bar_key: 'ap-w',
+          val: item.kpi_hash[:damage_done].to_i,
+          text: "#{item.kpi_hash[:damage_done].to_i / 1000}k",
+          sub_text: "#{item.kpi_hash[:damage_done].to_i} dmg",
+          dropdown: {
+            id: "ap-#{item.id}",
+            headers: ['Ability', 'Damage Done', 'Hits'],
+            content: item.details_hash.values.sort{|a, b| b[:damage].to_i <=> a[:damage].to_i}.map{|hash| [hash[:name], hash[:damage], hash[:hits]]}
+          }
+        }
+      },
+    } 
+  %>
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Rune of Power Damage',
+      desc: 'The total amount of damage you dealt while Rune of Power was active. Do your best to line this up with other cooldowns.',
+      bar_key: 'cd-w',
+      val: @fp.cooldowns_hash[:rune_damage].to_i,
+      main_bar_text: "#{@fp.cooldowns_hash[:rune_damage].to_i / 1000}k",
+      main_text: "#{@fp.cooldowns_hash[:rune_damage].to_i / 1000}k damage",
+      sub_bars: @cooldowns['cd']['Rune of Power'].nil? ? nil : @cooldowns['cd']['Rune of Power'].map{|item| 
+        {
+          label: item.time_s, 
+          bar_key: 'rune-w',
+          val: item.kpi_hash[:damage_done].to_i,
+          text: "#{item.kpi_hash[:damage_done].to_i / 1000}k",
+          sub_text: "#{item.kpi_hash[:damage_done].to_i} dmg",
+          dropdown: {
+            id: "rune-#{item.id}",
+            headers: ['Ability', 'Damage Done', 'Hits'],
+            content: item.details_hash.values.sort{|a, b| b[:damage].to_i <=> a[:damage].to_i}.map{|hash| [hash[:name], hash[:damage], hash[:hits]]}
+          }
+        }
+      },
+    } 
+  %>
+<%= render 'fight_parses/shared/js', {tab: 'cooldowns'} %> 
+<script>
+  $(['cd-w', 'ap-w', 'rune-w']).each(function(index, key){
+    resizeBars(key)
+  });
+</script>

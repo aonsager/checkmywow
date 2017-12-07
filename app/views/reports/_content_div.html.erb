@@ -1,0 +1,58 @@
+<div id="report-progress" style="display:<%=@processing + @queued > 0 ? 'block' : 'none'%>">
+  <div id="progress-content">
+    <%= render 'reports/progress_div' %>
+  </div>
+  <div id="progress-popover">
+    <%= render 'reports/progress_popover' %>
+  </div>
+</div>
+
+<div class="left" id="player-list">
+  <% @players.each_with_index do |player, i| %>
+    <%= link_to Player.player_tag(player[1], player[2], nil, false), report_load_fights_path(@report.report_id, player[0]), class: "left player row-block click #{player[2]} #{player[0] == @player_id ? 'active dark' : 'text'}", remote: true %>
+    <% if (i + 1) % 2 == 0 %>
+      <br />
+    <% end %>
+  <% end %>
+</div>
+<% if @players.blank? %>
+  <p>No fights were found in this report. Please check to see if there is anything wrong with the uploaded log file.</p>
+  <br />
+  <h4>Can you view you report on Warcraft Logs?</h4>
+  <p>Sometimes a combat log file can become corrupted, and have missing or incorrect data.</p>
+  <br />
+  <h4>Is your log on Warcraft Logs set to private?</h4>
+  <p>Check My Wow uses public APIs to access your data, so it cannot collect information from private logs.</p>
+  <br />
+  <h4>Do you have advanced combat logging enabled?</h4>
+  <p>Without advanced combat logging, certain key information like player specs and talents are not recorded.<p>
+  <p>You can enabled this setting within World of Warcraft, in the Network pane under System preferences.</p>
+  <br />
+  <h4>Did you log this report before the latest content patch?</h4>
+  <p>Please note that old reports from before patch 7.0 will not be displayed.</p>
+<% else %>
+  <div class="left" id="fight-list" style="margin-left: 20px;">
+    <%= render 'reports/fight_list' %>
+  </div>
+<% end %>
+<script>
+  var checkTimeout = null;
+  $(function(){
+    $(".player.row-block").hover(function() {
+      if (!$(this).hasClass('active')) {
+        $(this).toggleClass('text');
+        $(this).toggleClass('dark');
+      }
+    })
+    $(".player.row-block").click(function() {
+      if (!$(this).hasClass('active')) {
+        $('.player.active').addClass('text');
+        $('.player.active').removeClass('dark');
+        $('.player.active').removeClass('active');
+        $(this).addClass('active');
+        $(this).addClass('dark');
+        $(this).removeClass('text');
+      }
+    })
+  });
+</script>

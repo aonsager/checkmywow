@@ -1,0 +1,28 @@
+<script>
+$(function () {
+  $('[data-toggle="popover"]').popover();
+  $('select#fight').change(function() {
+    val = $('select#fight').val();
+    if (val != "")
+      window.location = "/reports/<%= @report.report_id %>/" + val + "/<%= @fpr.player_id %>?tab=<%= tab %>";
+  });
+  $('select#player').change(function() {
+    val = $('select#player').val();
+    if (val != "")
+      window.location = "/reports/<%= @report.report_id %>/<%= @fight.fight_id %>/" + val + "?tab=<%= tab %>";
+  });
+})
+function resizeBars(key, min=50) {
+  var max_cd = Math.max.apply(Math, $('.' + key).map(function(index, element){
+    return parseInt($(element).attr('val'));
+  }));
+  $('.' + key).each(function(index, element){
+    $(element).children(":first").width(0)
+    var fluff = $(element).children(":first").outerWidth()
+    var percent = parseInt($(element).attr('val')) / max_cd
+    var width = Math.max($(element).width() * percent - fluff, min)
+    $(element).children(":first").width(width)
+  });
+}
+
+</script>

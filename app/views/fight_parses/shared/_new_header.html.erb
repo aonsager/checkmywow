@@ -1,0 +1,79 @@
+<% provide(:title, @fpr.player_name) %>
+<% breadcrumb :fight_player, @report, @fight, @fpr.player_id, @fpr.player_name, @fpr.class_type, @fpr.spec, @tab %>
+
+<div class="titlebar <%= @fpr.class_type %> dark">
+  <div class="container">
+    <ul class="nav navbar-nav">
+      <li>
+        <%= link_to('Analyze', report_fight_parse_path(@fpr.report_id, @fpr.player_id, @fpr.fight_id), class: "#{@fpr.class_type} #{'light' if params[:action] == 'show'}") %>
+      </li>
+      <li>
+        <%= link_to('Compare', report_fp_compare_path(@fpr.report_id, @fpr.player_id, @fpr.fight_id), class: "#{@fpr.class_type} #{'light' if params[:action] == 'compare'}") %>
+      </li>
+      <li><%= link_to('View character', player_path(@fpr.player_id), class: "#{@fpr.class_type}") %></li>
+      <% if (back_link ||= false) %>
+        <li><%= link_to('← Back to Report', report_fight_parse_path, class: "small") %></li>
+      <% end %>
+    </ul>
+    <div style="float:right; font-size: 14px;">
+      <%= link_to("#{@fpr.spec} #{@fpr.class_type}#{@fp.nil? ? '' : " (#{@fp.class.latest_patch || 'Outdated'})"}", report_changelog_path) %>
+    </div>
+  </div>
+</div>
+
+<% if !active_tab.nil? %>
+<div class="fight-tabs">
+  <div class="container">
+    <div class="link <%= active_tab == 'basic' ? 'active' : '' %>">
+      <%= link_to('Basic', '?tab=basic') %>
+    </div>
+    <%= link_to('Casts', '?tab=casts', class: "link #{active_tab == 'casts' ? 'active' : ''}") %>
+    <%= link_to('Resources', '?tab=resources', class: "link #{active_tab == 'resources' ? 'active' : ''}") %>
+    <%= link_to('Cooldowns', '?tab=cooldowns', class: "link #{active_tab == 'cooldowns' ? 'active' : ''}") %>
+    <% if @fp.is_a?(TankParse) %>
+      <%= link_to('Health Graph', '?tab=hp', class: "link #{active_tab == 'hp' ? 'active' : ''}") %>
+    <% end %>
+    <% if @fp.is_a?(HealerParse) %>
+      <%= link_to('Raid Health', '?tab=raid_hp', class: "link #{active_tab == 'raid_hp' ? 'active' : ''}") %>
+    <% end %>
+  </div>
+</div>
+<% end %>
+
+<% if !@fp.nil? %>
+  <% if @fp.spec.blank? && @fp.done? %>
+    <div class="alert alert-danger">
+      Unable to detect spec. Please enable advanced combat logging within World of Warcraft, in the Network pane under System preferences.
+    </div>
+  <% end %>
+  <% if @fp.in_progress? %>
+    <div class="alert alert-warning">
+      This spec's analysis is still a work in progress. Please give feedback on <a href="http://forums.checkmywow.com">the forums</a>.
+    </div>
+  <% end %>
+
+  <% if @not_latest && @fpr.parsable? %>
+    <div class="container">
+      <% if @fp.version < @fp.class.latest_version %>
+        <p>Your spec's parse logic has been updated since you processed this fight. <%= link_to 'See the changelog', report_changelog_path %></p>
+        <p>You can reprocess the fight to see the latest data, but please note that changes from hotfixes may not apply to older logs, and may end up showing incorrect data.</p>
+        <p><%= link_to('Reprocess Fight', report_single_parse_path, class: 'btn btn-default') %></p>
+        <br />
+        <div style="clear:both"></div>
+      <% elsif @fp.hotfix < @fp.class.latest_hotfix %>  
+        <p>There has been a hotfix to your spec's parse logic. You can reprocess this fight now to see the correct data.
+          <%= link_to('Reprocess Fight', report_single_parse_path, class: 'btn btn-default') %>
+        </p>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>
+
+<script>
+  $("#compare-dropdown").parent().mouseover(function() {
+    $("#compare-dropdown-list").show();
+  });
+  $("#compare-dropdown").parent().mouseout(function() {
+    $("#compare-dropdown-list").hide();
+  });
+</script>

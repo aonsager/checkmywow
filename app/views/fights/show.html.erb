@@ -1,0 +1,22 @@
+<% breadcrumb :fight, @report, @fight %>
+<div class="container">
+  <div class="row">
+    <div class="col-md-6">
+      <h2><%= "#{@fight.name} #{DifficultyType.label(@fight.difficulty)} - #{@fight.size} man #{@fight.kill? ? "Kill" : "Wipe"} (#{Time.at(@fight.fight_time).strftime("%M:%S")})" %> </h2>
+      </div>
+    </div>
+  <div id="fight-div"><%= render 'fights/content_div' %></div>
+  
+<script>
+  function checkFightStatus() {
+    $.ajax({
+      url: '<%= report_fight_status_path(@report.report_id, @fight.fight_id) %>',
+      cache: false
+    });
+  }
+  var checkTimeout;
+  if (checkTimeout != null) clearTimeout(checkTimeout);
+  <% if @queued + @processing > 0 %>
+    checkTimeout = setTimeout(checkFightStatus, 3000);
+  <% end %>
+</script>

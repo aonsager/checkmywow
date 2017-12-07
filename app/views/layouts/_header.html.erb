@@ -1,0 +1,37 @@
+<nav class="navbar navbar-inverse">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <%= link_to image_tag("checkmywow_white.png", height: '30'), logout_path, class: 'navbar-brand full' %>
+      <%= link_to image_tag("cmw_white.png", height: '30'), logout_path, class: 'navbar-brand mini' %>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+      <ul class="nav navbar-nav navbar-right">
+        <li style="padding: 15px; background-color: #222!important;"><div id="recents-dropdown" class="custom-dropdown">
+          <%= link_to "Find a Guild/Player", search_players_path %>
+          <div id="recents-dropdown-list" class="list" style="display: none;">
+            <% @recent_views.each do |item| %>
+              <% if item['type'] == 'player' %>
+                <%= link_to "<div class='item'>#{Player.player_tag(item['name'], item['class'])}</div>".html_safe, player_path(item['id']) %>
+              <% elsif item['type'] == 'guild' %>
+                <%= link_to "<div class='item'>#{item['name']}</div>".html_safe, guild_path(item['id']) %>
+              <% end %>
+            <% end %>
+            <%= link_to "<div class='item'>Search</div>".html_safe, search_players_path %>
+          </div>
+        </div></li>
+        <li><%= link_to "About", about_path %></li>
+        <li><a href="http://forums.checkmywow.com" target="_blank">Forums</a></li>
+      </ul>
+      <ul class="nav navbar-nav fight-nav">
+        <li><%= breadcrumbs style: :bootstrap, autoroot: false, display_single_fragment: true, link_current: true, link_current_to_request_path: false %></li>
+      </ul>
+</nav>
+<script>
+  $("#recents-dropdown").parent().mouseover(function() {
+    $("#recents-dropdown-list").show();
+  });
+  $("#recents-dropdown").parent().mouseout(function() {
+    $("#recents-dropdown-list").hide();
+  });
+</script>

@@ -1,0 +1,68 @@
+<% provide(:title, @player.player_name) %>
+<% breadcrumb :boss, @boss_id, @boss_name, @difficulty, @player_id, @player.player_name %>
+<h3>
+  <%= "#{@boss_name} (#{DifficultyType.label(@difficulty)}) - Comparison" %>
+  <% @player.specs.each do |spec| %>
+    <%= link_to(spec_tag(@player.class_type, spec), "?tab=#{tab}&spec=#{spec}#{@kill.nil? ? '' : "&kill=#{@kill}"}#{@daterange.nil? ? '' : "&daterange=#{@daterange}"}", class: "btn btn-sm #{spec == @spec ? @player.class_type + ' dark' : 'btn-default'}") %>
+  <% end %>
+</h3>
+
+<%= link_to('Key Metrics', "?tab=basic&spec=#{@spec}#{@kill.nil? ? '' : "&kill=#{@kill}"}#{@daterange.nil? ? '' : "&daterange=#{@daterange}"}&min_length=#{@min_length}&max_length=#{@max_length}&min_percent=#{@min_percent}&max_percent=#{@max_percent}", class: "btn #{tab == 'basic' ? 'btn-primary' : 'btn-default'}") %>
+<%= link_to('Resource Management', "?tab=resources&spec=#{@spec}#{@kill.nil? ? '' : "&kill=#{@kill}"}#{@daterange.nil? ? '' : "&daterange=#{@daterange}"}&min_length=#{@min_length}&max_length=#{@max_length}&min_percent=#{@min_percent}&max_percent=#{@max_percent}", class: "btn #{tab == 'resources' ? 'btn-primary' : 'btn-default'}") %>
+<%= link_to('Cooldown Usage', "?tab=cooldowns&spec=#{@spec}#{@kill.nil? ? '' : "&kill=#{@kill}"}#{@daterange.nil? ? '' : "&daterange=#{@daterange}"}&min_length=#{@min_length}&max_length=#{@max_length}&min_percent=#{@min_percent}&max_percent=#{@max_percent}", class: "btn #{tab == 'cooldowns' ? 'btn-primary' : 'btn-default'}") %>
+<br /><br />
+<%= form_tag({}, {method: :get}) do %>
+  <%= label_tag(:kill, "Show: ") %>
+  <%= select_tag(:kill, options_for_select([['All Fights', ''], ['Kills only', 1], ['Wipes only', 0]], {selected: @kill, include_blank: true})) %>
+&nbsp;&nbsp;
+  <%= label_tag(:daterange, "Dates: ") %>
+  <%= text_field_tag(:daterange, @daterange, size: 30) %>
+  <br />
+  <span style="display:inline-block; width: 150px">Fight length (seconds): </span>
+  Min <%= text_field_tag(:min_length, @min_length, size: 10) %>
+  Max <%= text_field_tag(:max_length, @max_length, size: 10) %>
+  <br />
+  <span style="display:inline-block; width: 150px">Boss health (percent): </span>
+  Min <%= text_field_tag(:min_percent, @min_percent, size: 10) %>
+  Max <%= text_field_tag(:max_percent, @max_percent, size: 10) %>
+  <%= hidden_field_tag(:tab, @tab) %>
+  <%= hidden_field_tag(:spec, @spec) %>
+  <br /><%= submit_tag("Filter", class: "btn btn-primary btn-sm") %>
+<% end %>
+<br />
+<%= paginate @fps unless @fps.nil? || @fps.count == 0 %>
+<br />
+<% if @processing_fp_ids > 0 %>
+  <p><%=pluralize(@processing_fp_ids, 'fight')%> are currently being processed. Please try refreshing this page in a few minutes.</p>
+<% end %>
+<% if @fresh_fp_ids > 0 %>
+  <p><%=pluralize(@fresh_fp_ids, 'fight')%> are unprocessed. <%= link_to 'Click here to process them', player_boss_batch_parse_path(spec: @spec) %></p>
+<% end %>
+<br />
+
+<script type="text/javascript">
+$(function() {
+  $('input[name="daterange"]').daterangepicker({
+    "autoUpdateInput": false,
+    "ranges": {
+      'Today': [moment(), moment()],
+      'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+      'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+      'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+      'This Month': [moment().startOf('month'), moment().endOf('month')],
+      'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+    },
+    "alwaysShowCalendars": true,
+    locale: {
+      cancelLabel: 'Clear'
+    }
+  });
+  $('input[name="daterange"]').on('apply.daterangepicker', function(ev, picker) {
+    $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+  });
+
+  $('input[name="daterange"]').on('cancel.daterangepicker', function(ev, picker) {
+    $(this).val('');
+  });
+});
+</script>

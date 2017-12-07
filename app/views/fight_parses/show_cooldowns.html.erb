@@ -1,0 +1,77 @@
+<%= render 'fight_parses/shared/new_header', {active_tab: @tab} %>
+<div class="container">
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Cooldown Timings',
+      desc: 'Do your best to line up cooldowns to maximize DPS.',
+      sub_bar_type: 'cooldown',
+      sub_bars: @fp.cooldown_timeline_bars,
+    } 
+  %>
+  <% if @cooldowns['proc'].has_key? 'Spirit Shift' %>
+    <% soulcap_damage = @cooldowns['proc']['Spirit Shift'].map{|item| item.kpi_hash[:extra_damage].to_i}.sum %>
+    <% max_soulcap = @cooldowns['proc']['Spirit Shift'].map{|item| item.kpi_hash[:extra_damage].to_i}.max.to_i rescue 0 %>
+    <%= render 'fight_parses/shared/section', 
+      {
+        title: 'Soul Capacitor Effectiveness',
+        desc: 'The total amount of damage you dealt with your Soul Capacitor eruption. The dropdown view shows the damage you dealt while the absorption was active.',
+        bar_key: 'cd-w',
+        val: soulcap_damage,
+        main_bar_width: bar_width(soulcap_damage, 0),
+        main_bar_text: "#{soulcap_damage / 1000}k",
+        main_text: "#{soulcap_damage / 1000}k damage",
+        sub_bars: @cooldowns['proc']['Spirit Shift'].nil? ? nil : @cooldowns['proc']['Spirit Shift'].map{|item| 
+          {
+            label: item.time_s, 
+            width: bar_width(item.kpi_hash[:extra_damage].to_i, max_soulcap),
+            text: "#{item.kpi_hash[:extra_damage].to_i / 1000}k",
+            sub_text: "#{item.kpi_hash[:extra_damage].to_i} dmg",
+            dropdown: {
+              id: "soulcap-#{item.id}",
+              headers: ['Ability', 'Hits', 'Damage Done'],
+              content: item.details_hash.values.sort{|a, b| b[:damage] <=> a[:damage]}.map{|hash| [hash[:name], hash[:hits], hash[:damage]]}
+            }
+          }
+        },
+      } 
+    %>
+  <% end %>
+  <% if @cooldowns['proc'].has_key? 'Maalus' %>
+    <% maalus_damage = @cooldowns['proc']['Maalus'].map{|item| item.kpi_hash[:extra_damage].to_i}.sum %>
+    <% max_maalus = @cooldowns['proc']['Maalus'].map{|item| item.kpi_hash[:extra_damage].to_i}.max.to_i rescue 0 %>
+    <%= render 'fight_parses/shared/section', 
+      {
+        title: 'Maalus Effectiveness',
+        desc: 'The total amount of damage you dealt with your legendary ring eruption. The dropdown view shows the damage you dealt while the buff was active.',
+        bar_key: 'cd-w',
+        val: maalus_damage,
+        main_bar_width: bar_width(maalus_damage, 0),
+        main_bar_text: "#{maalus_damage / 1000}k",
+        main_text: "#{maalus_damage / 1000}k damage",
+        sub_bars: @cooldowns['proc']['Maalus'].nil? ? nil : @cooldowns['proc']['Maalus'].map{|item| 
+          {
+            label: item.time_s, 
+            width: bar_width(item.kpi_hash[:extra_damage].to_i, max_maalus),
+            text: "#{item.kpi_hash[:extra_damage].to_i / 1000}k",
+            sub_text: "#{item.kpi_hash[:extra_damage].to_i} dmg",
+            dropdown: {
+              id: "soulcap-#{item.id}",
+              headers: ['Ability', 'Hits', 'Damage Done'],
+              content: item.details_hash.values.sort{|a, b| b[:damage] <=> a[:damage]}.map{|hash| [hash[:name], hash[:hits], hash[:damage]]}
+            }
+          }
+        },
+      } 
+    %>
+  <% end %>
+</div>
+<%= render 'fight_parses/shared/js', {tab: 'cooldowns'} %> 
+<script>
+  var max_cd = Math.max.apply(Math, $('.cd-w').map(function(index, element){
+    return parseInt($(element).attr('val'));
+  }));
+  $('.cd-w').each(function(index, element){
+    // -20 is for padding
+    $(element).children(":first").width((100 * parseInt($(element).attr('val')) / max_cd - 20).toString() + "%")
+  });
+</script>

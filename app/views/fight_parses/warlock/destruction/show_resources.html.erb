@@ -1,0 +1,45 @@
+<%= render 'fight_parses/shared/new_header', {active_tab: @tab} %>
+<div class="container">
+  <%= render 'fight_parses/shared/section', 
+    {
+      title: 'Soul Shards Gained/Wasted',
+      desc: 'Avoid overcapping Soul Shards by not using Soul Shard-generating abilities that would put you over the maximum amount.',
+      label: @fp.resources_hash[:soul_waste].to_i == 0 ? 'good' : @fp.resources_hash[:soul_waste].to_i < 5 ? 'ok' : 'bad',
+      white_bar: true,
+      main_bar_width: bar_width(@fp.resources_hash[:soul_gain].to_i, @fp.resources_hash[:soul_gain].to_i + @fp.resources_hash[:soul_waste].to_i),
+      main_bar_text: "#{@fp.resources_hash[:soul_gain].to_i}/#{@fp.resources_hash[:soul_gain].to_i + @fp.resources_hash[:soul_waste].to_i}",
+      main_text: "#{@fp.resources_hash[:soul_waste].to_i} wasted",
+      sub_bars: @fp.resources_hash[:soul_abilities].nil? ? nil : @fp.resources_hash[:soul_abilities].values.sort{|a, b| (b[:gain].to_i + b[:waste].to_i) <=> (a[:gain].to_i + a[:waste].to_i)}.map{|item| 
+        {
+          label: item[:name],
+          white_bar: true,
+          bar_key: 'soul-w',
+          val: item[:gain].to_i + item[:waste].to_i,
+          width: bar_width(item[:gain].to_i, item[:gain].to_i + item[:waste].to_i),
+          text: "#{item[:gain].to_i}/#{item[:gain].to_i + item[:waste].to_i}",
+          sub_text: "#{item[:waste].to_i} wasted",
+        }
+      },
+    } 
+  %>
+  <% percent = 100 * (@fp.fight_time - @fp.resources_hash[:abc_wasted].to_f) / @fp.fight_time %>
+  <%= render 'fight_parses/shared/table', 
+    {
+      title: 'Always Be Casting (Experimental)',
+      desc: 'You should do your best to minimize downtime without casts (although 100% is unrealistic), by starting casts directly after the previous cast has finished, and by filling your GCDs with instant casts while moving. This section shows how much downtime you had over the course of the fight. The dropdown list shows cancelled casts, as well as periods of downtime that lasted more than 1 second.',
+      white_bar: true,
+      main_bar_width: percent,
+      main_bar_text: "#{@fp.fight_time - @fp.resources_hash[:abc_wasted].to_f}/#{@fp.fight_time}",
+      main_text: "#{@fp.resources_hash[:abc_wasted]} seconds of downtime",
+      dropdown: {id: 'abc'},
+      labels: ['Time', 'Spell', 'Downtime before cast'],
+      rows: @fp.resources_hash[:abc_fails].nil? ? nil : @fp.resources_hash[:abc_fails].map{|row| [{value: @fp.event_time(row[:timestamp], true)}, {value: row[:name]}, {value: (row[:cancelled] ? "Cast cancelled" : "#{row[:wasted]} seconds")}]},
+    } 
+  %>
+</div>
+<%= render 'fight_parses/shared/js', {tab: 'resources'} %> 
+<script>
+    $(['soul-w']).each(function(index, key){
+    resizeBars(key)
+  });
+</script>

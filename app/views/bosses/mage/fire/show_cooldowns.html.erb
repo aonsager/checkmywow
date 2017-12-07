@@ -1,0 +1,34 @@
+<div class="container">
+  <%= render 'bosses/shared/header', tab: 'cooldowns' %>
+  <% max_phoenix = @fps.map{|fp| fp.cooldowns_hash[:phoenix_damage].to_i / fp.fight_time}.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Phoenix\'s Flames Effectiveness',
+      desc: 'The total amount of damage you dealt with Phoenix\'s Flames.',
+      sub_bars: @fps.reject{|fp| fp.cooldowns_hash[:phoenix_damage].to_i == 0}.map{|fp| 
+        {
+          fp: fp,
+          main_bar_width: bar_width(fp.cooldowns_hash[:phoenix_damage].to_i / fp.fight_time, max_phoenix),
+          main_bar_text: "#{fp.cooldowns_hash[:phoenix_damage].to_i / fp.fight_time}/sec",
+          main_text: "#{fp.cooldowns_hash[:phoenix_damage].to_i / fp.fight_time} damage/sec",
+        }
+      }
+    } 
+  %>
+  <% max_combustion = @fps.map{|fp| fp.cooldowns_hash[:combustion_damage].to_i / fp.fight_time}.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Combustion Effectiveness',
+      desc: 'The total amount of damage you dealt while Combustion was active.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          main_bar_width: bar_width(fp.cooldowns_hash[:combustion_damage].to_i / fp.fight_time, max_combustion),
+          main_bar_text: "#{fp.cooldowns_hash[:combustion_damage].to_i / 1000}k",
+          main_text: "#{fp.cooldowns_hash[:combustion_damage].to_i / 1000}k damage",
+        }
+      }
+    } 
+  %>
+</div>
+<%= render 'bosses/shared/footer', tab: 'basic' %>

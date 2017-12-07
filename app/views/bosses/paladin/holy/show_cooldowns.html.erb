@@ -1,0 +1,57 @@
+<div class="container">
+  <%= render 'bosses/shared/header', tab: 'cooldowns' %>
+  <% max_wrath = @fps.map{|fp| (fp.cooldowns_hash[:wrath_healing].to_i + fp.cooldowns_hash[:wrath_overhealing].to_i) / fp.fight_time}.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Avenging Wrath Effectiveness',
+      desc: 'The total amount of healing done while Avenging Wrath was active. Try to avoid overhealing.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          white_bar_width: bar_width((fp.cooldowns_hash[:wrath_healing].to_i + fp.cooldowns_hash[:wrath_overhealing].to_i) / fp.fight_time, max_wrath),
+          main_bar_width: bar_width(fp.cooldowns_hash[:wrath_healing].to_i, fp.cooldowns_hash[:wrath_healing].to_i + fp.cooldowns_hash[:wrath_overhealing].to_i),
+          main_bar_text: "#{fp.cooldowns_hash[:wrath_healing].to_i / fp.fight_time}/sec",
+          main_text: "#{fp.cooldowns_hash[:wrath_healing].to_i / fp.fight_time} healing, #{fp.cooldowns_hash[:wrath_overhealing].to_i / fp.fight_time} overhealing per second",
+        }
+      }
+    } 
+  %>
+  <% max_avenger = @fps.map{|fp| (fp.cooldowns_hash[:avenger_healing].to_i + fp.cooldowns_hash[:avenger_overhealing].to_i) / fp.fight_time}.max.to_i %>
+  <% if max_avenger > 0 %>
+    <%= render 'bosses/shared/section', 
+      {
+        title: 'Holy Avenger Effectiveness',
+        desc: 'The total amount of healing done while Holy Avenger was active. Try to avoid overhealing.',
+        sub_bars: @fps.reject{|fp| fp.talent(4) != 'Holy Avenger' }.map{|fp| 
+          {
+            fp: fp,
+            white_bar: true,
+            white_bar_width: bar_width((fp.cooldowns_hash[:avenger_healing].to_i + fp.cooldowns_hash[:avenger_overhealing].to_i) / fp.fight_time, max_avenger),
+            main_bar_width: bar_width(fp.cooldowns_hash[:avenger_healing].to_i, fp.cooldowns_hash[:avenger_healing].to_i + fp.cooldowns_hash[:avenger_overhealing].to_i),
+            main_bar_text: "#{fp.cooldowns_hash[:avenger_healing].to_i / fp.fight_time}/sec",
+            main_text: "#{fp.cooldowns_hash[:avenger_healing].to_i / fp.fight_time} healing, #{fp.cooldowns_hash[:avenger_overhealing].to_i / fp.fight_time} overhealing per second",
+          }
+        }
+      } 
+    %>
+  <% end %>
+  <% max_layonhands = @fps.map{|fp| (fp.cooldowns_hash[:layonhands_healing].to_i + fp.cooldowns_hash[:layonhands_overhealing].to_i) / fp.fight_time}.max.to_i %>
+  <%= render 'bosses/shared/section', 
+    {
+      title: 'Lay on Hands Effectiveness',
+      desc: 'The total amount of healing provided by Lay on Hands. Try to reduce overhealing.',
+      sub_bars: @fps.map{|fp| 
+        {
+          fp: fp,
+          white_bar: true,
+          white_bar_width: bar_width((fp.cooldowns_hash[:layonhands_healing].to_i + fp.cooldowns_hash[:layonhands_overhealing].to_i) / fp.fight_time, max_layonhands),
+          main_bar_width: bar_width(fp.cooldowns_hash[:layonhands_healing].to_i, fp.cooldowns_hash[:layonhands_healing].to_i + fp.cooldowns_hash[:layonhands_overhealing].to_i),
+          main_bar_text: "#{fp.cooldowns_hash[:layonhands_healing].to_i / fp.fight_time}/sec",
+          main_text: "#{fp.cooldowns_hash[:layonhands_healing].to_i / fp.fight_time} healing, #{fp.cooldowns_hash[:layonhands_overhealing].to_i / fp.fight_time} overhealing per second",
+        }
+      }
+    } 
+  %>
+</div>
+<%= render 'bosses/shared/footer', tab: 'basic' %>

@@ -1,0 +1,34 @@
+<section>
+  <h4 id="title">Deaths</h4>
+  <div class="row">
+    <div class="col-md-9">
+      <div class="section-desc">This section shows the damage and healing leading up to your deaths.</div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-1">&nbsp;</div>
+    <div id="msg" class="col-md-7">
+      <div class="table-responsive">
+        <table class="events-table table-striped border">
+          <thead><tr class="padded-row">
+            <th>Time</th>
+            <th>Event</th>
+          </tr></thead>
+          <tbody>
+            <% local_assigns[:deaths].each do |death| %>
+              <% death.each do |event| %>
+                <tr class="padded-row">
+                  <td><%= @fp.event_time(event[:timestamp], true) %></td>
+                  <td><%=raw @fp.death_event_s(event) %></td>
+                </tr>
+                <% if event[:type] == 'death' %>
+                  <tr class="spacer"><td></td></tr>
+                <% end %>
+              <% end %>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>

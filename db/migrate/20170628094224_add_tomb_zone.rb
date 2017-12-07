@@ -1,0 +1,35 @@
+class AddTombZone < ActiveRecord::Migration
+  def change
+    Zone.find_by(id: 9).update_attributes(enabled: false)
+    Zone.find_by(id: 10).update_attributes(enabled: false)
+    Zone.find_by(id: 11).update_attributes(enabled: false)
+    Zone.find_by(id: 12).update_attributes(enabled: false)
+    Zone.find_or_create_by(id: 13).update_attributes(name: "Tomb of Sargeras", enabled: true)
+    Zone.find_or_create_by(id: 14).update_attributes(name: "Mythic+ 7.2", enabled: false)
+    Zone.find_or_create_by(id: 15).update_attributes(name: "Mage Tower Challenges", enabled: false)
+    Zone.find_or_create_by(id: 16).update_attributes(name: "Mythic+ 7.2.5", enabled: false)
+
+    Boss.find_or_create_by(id: 2032).update_attributes(name: 'Goroth', zone_id: 13, order_num: 1)
+    Boss.find_or_create_by(id: 2036).update_attributes(name: 'Harjatan', zone_id: 13, order_num: 3)
+    Boss.find_or_create_by(id: 2037).update_attributes(name: 'Mistress Sassz\'ine', zone_id: 13, order_num: 4)
+    Boss.find_or_create_by(id: 2038).update_attributes(name: 'Fallen Avatar', zone_id: 13, order_num: 8)
+    Boss.find_or_create_by(id: 2048).update_attributes(name: 'Demonic Inquisition', zone_id: 13, order_num: 2)
+    Boss.find_or_create_by(id: 2050).update_attributes(name: 'Sisters of the Moon', zone_id: 13, order_num: 5)
+    Boss.find_or_create_by(id: 2051).update_attributes(name: 'Kil\'jaeden', zone_id: 13, order_num: 9)
+    Boss.find_or_create_by(id: 2052).update_attributes(name: 'Maiden of Vigilance', zone_id: 13, order_num: 7)
+    Boss.find_or_create_by(id: 2054).update_attributes(name: 'The Desolate Host', zone_id: 13, order_num: 6)
+
+    Boss.find_or_create_by(id: 211456).update_attributes(name: 'Eye of Azshara', zone_id: 16, order_num: 1)
+    Boss.find_or_create_by(id: 211458).update_attributes(name: 'Neltharion\'s Lair', zone_id: 16, order_num: 2)
+    Boss.find_or_create_by(id: 211466).update_attributes(name: 'Darkheart Thicket', zone_id: 16, order_num: 3)
+    Boss.find_or_create_by(id: 211477).update_attributes(name: 'Halls of Valor', zone_id: 16, order_num: 4)
+    Boss.find_or_create_by(id: 211492).update_attributes(name: 'Maw of Souls', zone_id: 16, order_num: 5)
+    Boss.find_or_create_by(id: 211493).update_attributes(name: 'Vault of the Wardens', zone_id: 16, order_num: 6)
+    Boss.find_or_create_by(id: 211501).update_attributes(name: 'Black Rook Hold', zone_id: 16, order_num: 7)
+    Boss.find_or_create_by(id: 211516).update_attributes(name: 'The Arcway', zone_id: 16, order_num: 8)
+    Boss.find_or_create_by(id: 211571).update_attributes(name: 'Court of Stars', zone_id: 16, order_num: 9)
+    Boss.find_or_create_by(id: 211651).update_attributes(name: 'Lower Karazhan', zone_id: 16, order_num: 10)
+    Boss.find_or_create_by(id: 211652).update_attributes(name: 'Upper Karazhan', zone_id: 16, order_num: 11)
+    Boss.find_or_create_by(id: 211677).update_attributes(name: 'Cathedral of Eternal Night', zone_id: 16, order_num: 12)
+  end
+end
