@@ -47,7 +47,7 @@ gem 'resque', '1.27.4'
 gem 'resque-pool', :git => "https://github.com/aonsager/resque-pool", :branch => "set_timeout_as_float"
 gem 'resque_solo', '0.3.0'
 gem 'hirefire-resource', '0.3.11'
-gem 'rubyzip', '1.2.0'
+gem 'rubyzip', '1.2.1'
 gem 'backport_dig'
 
 gem 'rails_12factor', group: :production
